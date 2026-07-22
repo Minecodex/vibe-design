@@ -1,0 +1,472 @@
+{
+  "schemaVersion": 1,
+  "brandId": "together-ai",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Together AI — reference components",
+    "description": "Reference fixture for design-systems/together-ai. Enterprise AI infrastructure:\n        'The Future' font, aggressive negative tracking, pure white light sections,\n        midnight blue dark sections, sharp 4/8px geometry.",
+    "styleBlockCount": 1,
+    "selectorCount": 58,
+    "classCount": 25,
+    "elementCount": 22
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--surface",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--danger",
+      "--elev-flat",
+      "--elev-ring",
+      "--meta",
+      "--motion-base",
+      "--radius-lg",
+      "--radius-pill",
+      "--space-1",
+      "--success",
+      "--surface-warm",
+      "--text-xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-lavender",
+    ".badge-muted",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".icon",
+    ".lead",
+    ".row-between",
+    ".section-dark .btn-primary",
+    ".section-dark .btn-primary:hover",
+    ".section-dark .card",
+    ".section-dark .eyebrow",
+    ".section-dark p",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    ".stat-pill .lbl",
+    ".stat-pill .num",
+    "/* Lavender gradient stat pill */ .stat-pill",
+    "/* PP Neue Montreal Mono for section labels — uppercase technical */ .eyebrow",
+    "/* Primary: midnight dark — main CTA */ .btn-primary",
+    "/* Secondary: outlined with lavender tint on hover */ .btn-secondary",
+    "/* ─── \"The Future\" typography ────────────────────────────── */ h1",
+    "/* ─── Badges ─────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — dark midnight primary",
+    "/* ─── Cards — enterprise feature cards ──────────────────── */ .card",
+    "/* ─── Dark section override — the \"midnight world\" ─────── */ .section-dark",
+    "/* ─── Inputs ────────────────────────────────────────────── */ .field",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links ─────────────────────────────────────────────── */ a",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    ":root",
+    "a:hover",
+    "body",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "lavender ghost ────── */ .btn",
+    "p",
+    "section",
+    "section + section"
+  ],
+  "classes": [
+    "badge",
+    "badge-lavender",
+    "badge-muted",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "icon",
+    "lbl",
+    "lead",
+    "num",
+    "section-dark",
+    "stack-3",
+    "stack-4",
+    "stat-pill"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        ".section-dark .btn-primary",
+        ".section-dark .btn-primary:hover",
+        "/* Primary: midnight dark — main CTA */ .btn-primary",
+        "/* Secondary: outlined with lavender tint on hover */ .btn-secondary",
+        "lavender ghost ────── */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--accent-hover",
+        "--focus-ring"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "/* ─── Inputs ────────────────────────────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--font-body",
+        "--font-mono",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--surface",
+        "--text-base",
+        "--text-xs",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".section-dark .card",
+        "/* ─── Cards — enterprise feature cards ──────────────────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-lavender",
+        ".badge-muted",
+        "/* ─── Badges ─────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-lavender",
+        "badge-muted"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--border-soft",
+        "--muted"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links ─────────────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": false,
+      "selectors": [],
+      "classes": [],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".lead",
+        ".section-dark .eyebrow",
+        "/* PP Neue Montreal Mono for section labels — uppercase technical */ .eyebrow",
+        "/* ─── \"The Future\" typography ────────────────────────────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--fg-2",
+        "--leading-body",
+        "--text-2xl",
+        "--text-3xl",
+        "--text-4xl",
+        "--text-lg"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".section-dark .btn-primary",
+        ".section-dark .btn-primary:hover",
+        ".section-dark .card",
+        ".section-dark .eyebrow",
+        ".section-dark p",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* PP Neue Montreal Mono for section labels — uppercase technical */ .eyebrow",
+        "/* Primary: midnight dark — main CTA */ .btn-primary",
+        "/* ─── Dark section override — the \"midnight world\" ─────── */ .section-dark",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 13,
+    "pixelValues": 25,
+    "hardcodedFontFamilies": 0
+  }
+}

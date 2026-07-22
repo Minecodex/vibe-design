@@ -1,0 +1,413 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 0;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: "SF Pro Text", "Segoe UI", sans-serif;
+  background: #f3f6fa;
+  color: #1f2937;
+  font-size: 13px;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.hidden,
+[hidden] {
+  display: none !important;
+}
+
+.app-shell {
+  min-width: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-header,
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.panel-header {
+  align-items: flex-start;
+}
+
+.panel-header h1,
+.section-header h2,
+.job-dialog h3 {
+  margin: 0;
+}
+
+.panel-header h1 {
+  font-size: 20px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.panel-card h2,
+.section-header h2 {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.panel-header p,
+.hint,
+.message,
+.muted {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.panel-card {
+  width: 100%;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.login-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #1f2937;
+}
+
+.primary-button,
+.ghost-button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.primary-button {
+  background: #1677ff;
+  color: #fff;
+}
+
+.ghost-button {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.project-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+  min-height: 132px;
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.asset-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-content: flex-start;
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.asset-card {
+  width: calc(50% - 5px);
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f2937;
+  text-align: left;
+}
+
+.project-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+.project-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 calc(50% - 20px);
+  width: calc(50% - 20px);
+  max-width: calc(50% - 20px);
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1f2937;
+  text-align: left;
+  min-height: 54px;
+  padding: 9px;
+  cursor: pointer;
+}
+
+.project-spacer {
+  display: block;
+  flex: 0 0 calc(50% - 20px);
+  width: calc(50% - 20px);
+  max-width: calc(50% - 20px);
+  min-width: 0;
+}
+
+.project-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+}
+
+.project-title,
+.asset-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.asset-grid {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.asset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
+.asset-thumb {
+  width: 100%;
+  height: 150px;
+  border-radius: 10px;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.asset-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.empty-state {
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 12px;
+  padding: 18px 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.compact {
+  max-height: 180px;
+}
+
+.list-item {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  color: #1f2937;
+  text-align: left;
+}
+
+.list-item strong,
+.list-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.list-item {
+  cursor: pointer;
+}
+
+.list-item button {
+  align-self: flex-start;
+}
+
+.job-dialog {
+  border: none;
+  border-radius: 0;
+  padding: 18px;
+  width: 320px;
+  background: #ffffff;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+.job-dialog-body {
+  background: #ffffff;
+  background-color: #ffffff;
+}
+
+.job-dialog h3,
+.job-dialog p {
+  color: #1f2937;
+}
+
+.status-dialog {
+  border: none;
+  border-radius: 0;
+  padding: 18px;
+  width: 320px;
+  color: #1f2937;
+  background: #ffffff;
+  background-color: #ffffff;
+}
+
+.status-dialog-body {
+  background: #ffffff;
+  background-color: #ffffff;
+}
+
+.status-dialog-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  background-color: #ffffff;
+}
+
+.status-dialog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.status-dialog p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (min-width: 520px) {
+  .panel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-shell {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .panel-header h1 {
+    font-size: 18px;
+  }
+
+  .panel-card {
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .primary-button,
+  .ghost-button {
+    width: 100%;
+  }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .asset-card {
+    width: 100%;
+  }
+
+  .project-grid {
+    min-height: 64px;
+  }
+
+  .project-card {
+    flex-basis: 100%;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .project-spacer {
+    display: none;
+  }
+
+  .asset-thumb {
+    height: 140px;
+  }
+}

@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 1,
+  "brandId": "default",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Neutral Modern — reference components",
+    "description": "Reference fixture for design-systems/default. Every visible\n        value comes from tokens.css; if the agent paste-replaces the\n        :root block and reuses the component selectors below verbatim,\n        the artifact passes lint without further audit.",
+    "styleBlockCount": 1,
+    "selectorCount": 55,
+    "classCount": 25,
+    "elementCount": 25
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-20",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--fg",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--border-soft",
+      "--danger",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg-2",
+      "--meta",
+      "--motion-base",
+      "--radius-lg",
+      "--space-1",
+      "--space-20",
+      "--surface-warm",
+      "--text-4xl",
+      "--text-xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-muted",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn-secondary",
+    ".btn-secondary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* :root paste — sourced verbatim from design-systems/default/tokens.css. Keep this block in sync when tokens.css changes. The agent prompt instructs the Designer panelist to paste this block as the FIRST thing in their <style>",
+    "/* No left-border accent on cards — that pattern is in the lint's P0 list (`left-accent-card`). Use a hairline border all-around or rely on the surface contrast against --bg. */ /* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* `.eyebrow` is the only component that uses uppercase + tracking. craft/typography.md requires letter-spacing ≥ 0.06em on any uppercase rule; the token below is well above that floor. */ .eyebrow",
+    "/* ─── Buttons ───────────────────────────────────────────── */ .btn",
+    "/* ─── Cards ─────────────────────────────────────────────── */ .card",
+    "/* ─── Inputs ────────────────────────────────────────────── */ .field",
+    "/* ─── Kbd ───────────────────────────────────────────────── */ kbd",
+    "/* ─── Layout primitives ─────────────────────────────────── */ .container",
+    "/* ─── Links ─────────────────────────────────────────────── */ a",
+    "/* ─── Reset (minimal) ───────────────────────────────────── */ *",
+    "/* ─── Section-specific layout ───────────────────────────── */ .hero-grid",
+    "/* ─── Typography ────────────────────────────────────────── */ h1",
+    "a:hover",
+    "body",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "p",
+    "section",
+    "section + section",
+    "then reference everything below via var(...). */ :root"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "row-between",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary",
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn-secondary",
+        ".btn-secondary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        "/* ─── Buttons ───────────────────────────────────────────── */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--accent-active",
+        "--accent-hover",
+        "--accent-on",
+        "--border",
+        "--fg",
+        "--focus-ring",
+        "--surface"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "/* ─── Inputs ────────────────────────────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--surface",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        "/* ─── Cards ─────────────────────────────────────────────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-muted",
+        ".badge-success",
+        "/* No left-border accent on cards — that pattern is in the lint's P0 list (`left-accent-card`). Use a hairline border all-around or rely on the surface contrast against --bg. */ /* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--muted",
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* No left-border accent on cards — that pattern is in the lint's P0 list (`left-accent-card`). Use a hairline border all-around or rely on the surface contrast against --bg. */ /* ─── Badges ────────────────────────────────────────────── */ .badge",
+        "/* ─── Links ─────────────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "/* ─── Kbd ───────────────────────────────────────────────── */ kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".lead",
+        "/* `.eyebrow` is the only component that uses uppercase + tracking. craft/typography.md requires letter-spacing ≥ 0.06em on any uppercase rule; the token below is well above that floor. */ .eyebrow",
+        "/* ─── Typography ────────────────────────────────────────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--muted",
+        "--text-2xl",
+        "--text-3xl",
+        "--text-lg",
+        "--text-sm",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout primitives ─────────────────────────────────── */ .container",
+        "/* ─── Section-specific layout ───────────────────────────── */ .hero-grid",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 3,
+    "pixelValues": 27,
+    "hardcodedFontFamilies": 2
+  }
+}

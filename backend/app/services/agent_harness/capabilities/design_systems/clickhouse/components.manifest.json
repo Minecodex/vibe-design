@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 1,
+  "brandId": "clickhouse",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "ClickHouse — reference components",
+    "description": "Reference fixture for design-systems/clickhouse. Pure black canvas,\n        neon volt accent (#faff69), Inter Black (900) display at 96px,\n        charcoal-bordered cards, terminal-grade database aesthetic.",
+    "styleBlockCount": 1,
+    "selectorCount": 78,
+    "classCount": 38,
+    "elementCount": 25
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--danger",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--motion-base",
+      "--radius-lg",
+      "--space-1",
+      "--surface-warm",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-muted",
+    ".badge-success",
+    ".body-mono",
+    ".body-muted",
+    ".body-sm",
+    ".btn-dark:active",
+    ".btn-dark:hover",
+    ".btn-ghost:active",
+    ".btn-ghost:hover",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn-success:active",
+    ".btn-success:hover",
+    ".btn:focus-visible",
+    ".card-neon",
+    ".card-stat",
+    ".code-block .tok-com",
+    ".code-block .tok-kw",
+    ".code-block .tok-str",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".link-accent",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-5 > * + *",
+    ".stack-6 > * + *",
+    ".stat-label",
+    ".stat-number",
+    ".stat-number-accent",
+    ".stats-bar",
+    "/* Dark solid — standard action button */ .btn-dark",
+    "/* Forest Green — the \"Get Started\" conversion button */ .btn-success",
+    "/* Ghost / Outlined — olive-tinted border",
+    "/* Neon Primary — the eye-catching CTA: neon-on-black",
+    "/* Uppercase overline — DESIGN.md: 14px / weight 600 / 1.4px tracking */ .eyebrow",
+    "/* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — sharp 4px radius",
+    "/* ─── Cards — charcoal-bordered containment ─────────────── */ .card",
+    "/* ─── Code block — Inconsolata",
+    "/* ─── Inputs — dark fill",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links — always hover to neon ──────────────────────── */ a",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Typography — weight IS hierarchy ──────────────────── */ h1",
+    ":root",
+    "a:hover",
+    "body",
+    "charcoal border ───────────────── */ .field",
+    "h1",
+    "h2",
+    "h3",
+    "hover inverts to dark */ .btn-primary",
+    "html",
+    "kbd",
+    "p",
+    "section",
+    "section + section",
+    "terminal aesthetic ──────── */ .code-block",
+    "terminal-grade ────────── */ .btn",
+    "transparent bg */ .btn-ghost"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-ghost",
+    "btn-primary",
+    "btn-success",
+    "card",
+    "card-neon",
+    "card-stat",
+    "code-block",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "link-accent",
+    "row-between",
+    "stack-3",
+    "stack-4",
+    "stack-5",
+    "stat-label",
+    "stat-number",
+    "stat-number-accent",
+    "stats-bar",
+    "tok-com",
+    "tok-kw",
+    "tok-str"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "pre",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-dark:active",
+        ".btn-dark:hover",
+        ".btn-ghost:active",
+        ".btn-ghost:hover",
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn-success:active",
+        ".btn-success:hover",
+        ".btn:focus-visible",
+        "/* Dark solid — standard action button */ .btn-dark",
+        "/* Forest Green — the \"Get Started\" conversion button */ .btn-success",
+        "hover inverts to dark */ .btn-primary",
+        "terminal-grade ────────── */ .btn",
+        "transparent bg */ .btn-ghost"
+      ],
+      "classes": [
+        "btn",
+        "btn-ghost",
+        "btn-primary",
+        "btn-success"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--accent-active",
+        "--accent-hover",
+        "--focus-ring",
+        "--surface"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        ".stat-label",
+        "charcoal border ───────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--font-body",
+        "--meta",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--space-3",
+        "--surface",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card-neon",
+        ".card-stat",
+        "/* ─── Cards — charcoal-bordered containment ─────────────── */ .card"
+      ],
+      "classes": [
+        "card",
+        "card-neon",
+        "card-stat"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--border-soft",
+        "--radius-md",
+        "--space-6"
+      ]
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-muted",
+        ".badge-success",
+        "/* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--border-soft",
+        "--muted",
+        "--surface"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        ".link-accent",
+        "/* ─── Links — always hover to neon ──────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [
+        "link-accent"
+      ],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--fg-2",
+        "--font-mono",
+        "--radius-sm",
+        "--surface",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".lead",
+        "/* Uppercase overline — DESIGN.md: 14px / weight 600 / 1.4px tracking */ .eyebrow",
+        "/* ─── Typography — weight IS hierarchy ──────────────────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--muted",
+        "--text-2xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-5 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4",
+        "stack-5"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-5",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 7,
+    "pixelValues": 32,
+    "hardcodedFontFamilies": 0
+  }
+}

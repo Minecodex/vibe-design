@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 1,
+  "brandId": "arc",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Arc — reference components",
+    "description": "Reference fixture for design-systems/arc. Frosted glass over a peach-coral\n        Sunset gradient, squircle-soft radii, editorial Argent CF serif for the hero,\n        Inter for product chrome.",
+    "styleBlockCount": 1,
+    "selectorCount": 59,
+    "classCount": 27,
+    "elementCount": 24
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-hover",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--accent-on",
+      "--danger",
+      "--elev-flat",
+      "--meta",
+      "--space-1",
+      "--text-2xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".body-fg2",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn-subtle:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".card:hover",
+    ".container",
+    ".eyebrow",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta-row",
+    ".icon",
+    ".lead",
+    ".pill-dot",
+    ".pill-success",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* Primary: the Sunset gradient — peach (#ff7e5f) to soft coral (#feb47b) */ .btn-primary",
+    "/* Secondary: frosted glass — translucent white over the gradient backdrop */ .btn-secondary",
+    "/* Subtle: theme-tinted ghost (DESIGN.md §4) */ .btn-subtle",
+    "/* ─── Buttons — Sunset gradient on primary",
+    "/* ─── Cards — frosted panes",
+    "/* ─── Hero meta panel — warm-inset frosted aside ─────────── */ .hero-meta",
+    "/* ─── Inputs — command-bar feel ──────────────────────────── */ .field",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links & kbd ─────────────────────────────────────────── */ a",
+    "/* ─── Pills — theme color at 16% alpha ──────────────────── */ .pill",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Typography — editorial serif hero",
+    ":root",
+    "a:hover",
+    "body",
+    "glass on secondary ─ */ .btn",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "kbd",
+    "long-throw soft shadow ─────── */ .card",
+    "p",
+    "sans-only product ─ */ h1",
+    "section",
+    "section + section"
+  ],
+  "classes": [
+    "body-fg2",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "btn-subtle",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "hero-meta-row",
+    "icon",
+    "lead",
+    "pill",
+    "pill-dot",
+    "pill-success",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn-subtle:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        "/* Primary: the Sunset gradient — peach (#ff7e5f) to soft coral (#feb47b) */ .btn-primary",
+        "/* Secondary: frosted glass — translucent white over the gradient backdrop */ .btn-secondary",
+        "/* Subtle: theme-tinted ghost (DESIGN.md §4) */ .btn-subtle",
+        "glass on secondary ─ */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary",
+        "btn-subtle"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--focus-ring"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "/* ─── Inputs — command-bar feel ──────────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--fg-2",
+        "--focus-ring",
+        "--font-body",
+        "--motion-fast",
+        "--muted",
+        "--radius-md",
+        "--text-base",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card:hover",
+        "long-throw soft shadow ─────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".pill-dot",
+        ".pill-success",
+        "/* ─── Pills — theme color at 16% alpha ──────────────────── */ .pill"
+      ],
+      "classes": [
+        "pill",
+        "pill-dot",
+        "pill-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links & kbd ─────────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent-hover"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "/* ─── Links & kbd ─────────────────────────────────────────── */ a",
+        "kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--fg-2",
+        "--font-mono",
+        "--radius-sm",
+        "--surface-warm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".eyebrow",
+        ".lead",
+        "h1",
+        "h2",
+        "h3",
+        "sans-only product ─ */ h1"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--fg-2",
+        "--font-body",
+        "--font-display",
+        "--leading-body",
+        "--muted",
+        "--text-3xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl",
+        "--text-xs",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border-soft",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 17,
+    "pixelValues": 39,
+    "hardcodedFontFamilies": 0
+  }
+}

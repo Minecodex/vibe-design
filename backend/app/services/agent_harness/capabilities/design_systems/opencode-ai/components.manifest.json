@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 1,
+  "brandId": "opencode-ai",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "OpenCode AI — reference components",
+    "description": "Reference fixture for design-systems/opencode-ai. Terminal-native dark:\n        warm near-black canvas, Berkeley Mono sole typeface, flat depth (no shadows),\n        Apple HIG semantic colors, 880px narrow reading column.",
+    "styleBlockCount": 1,
+    "selectorCount": 64,
+    "classCount": 26,
+    "elementCount": 24
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--meta",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--warn"
+    ],
+    "unusedDeclared": [
+      "--border-soft",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--leading-tight",
+      "--motion-base",
+      "--radius-lg",
+      "--radius-pill",
+      "--space-12",
+      "--surface-warm",
+      "--text-4xl",
+      "--tracking-display"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-accent",
+    ".badge-danger",
+    ".badge-dot",
+    ".badge-success",
+    ".badge-warn",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".container",
+    ".features-stack > * + *",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".icon",
+    ".lead",
+    ".prompt::before",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* 22px */ p",
+    "/* 28px */ h3",
+    "/* 38px — Heading 1 */ h2",
+    "/* Inline code — same mono font",
+    "/* Primary: Apple system blue */ .btn-primary",
+    "/* Secondary: flat outlined on dark surface */ .btn-secondary",
+    "/* Section labels — same font",
+    "/* ─── Badges — Apple HIG semantic palette ───────────────── */ .badge",
+    "/* ─── Buttons — flat",
+    "/* ─── Cards — flat via border",
+    "/* ─── Inputs — flat",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-actions",
+    "/* ─── Layout — narrow reading column ─────────────────────── */ .container",
+    "/* ─── Links",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Terminal prompt prefix ────────────────────────────── */ .prompt",
+    "/* ─── Typography — Berkeley Mono only ───────────────────── */ h1",
+    ":root",
+    "Apple-blue primary ────────────────── */ .btn",
+    "a:hover",
+    "body",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "just tinted */ code",
+    "kbd",
+    "kbd ────────────────────────────────────────── */ a",
+    "muted */ .eyebrow",
+    "no shadows ────────────────────────── */ .field",
+    "not shadow ───────────────── */ .card",
+    "section",
+    "section + section",
+    "smaller"
+  ],
+  "classes": [
+    "badge",
+    "badge-accent",
+    "badge-danger",
+    "badge-dot",
+    "badge-success",
+    "badge-warn",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-stack",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "hero-actions",
+    "icon",
+    "lead",
+    "prompt",
+    "row-between",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "body",
+    "button",
+    "code",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        "/* Primary: Apple system blue */ .btn-primary",
+        "/* Secondary: flat outlined on dark surface */ .btn-secondary",
+        "Apple-blue primary ────────────────── */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent-active",
+        "--accent-hover",
+        "--fg",
+        "--focus-ring",
+        "--surface"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "no shadows ────────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--font-mono",
+        "--meta",
+        "--motion-fast",
+        "--muted",
+        "--radius-md",
+        "--surface",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        "not shadow ───────────────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-accent",
+        ".badge-danger",
+        ".badge-dot",
+        ".badge-success",
+        ".badge-warn",
+        "/* ─── Badges — Apple HIG semantic palette ───────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-accent",
+        "badge-danger",
+        "badge-dot",
+        "badge-success",
+        "badge-warn"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--danger",
+        "--success",
+        "--warn"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "a:hover",
+        "kbd ────────────────────────────────────────── */ a"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "kbd",
+        "kbd ────────────────────────────────────────── */ a"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--font-mono",
+        "--muted",
+        "--radius-sm",
+        "--surface",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".lead",
+        "/* 28px */ h3",
+        "/* 38px — Heading 1 */ h2",
+        "/* ─── Typography — Berkeley Mono only ───────────────────── */ h1",
+        "h1",
+        "h2",
+        "h3",
+        "muted */ .eyebrow"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--fg-2",
+        "--leading-body",
+        "--muted",
+        "--text-2xl",
+        "--text-3xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* Section labels — same font",
+        "/* ─── Layout — narrow reading column ─────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "row-between",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 5,
+    "pixelValues": 24,
+    "hardcodedFontFamilies": 0
+  }
+}

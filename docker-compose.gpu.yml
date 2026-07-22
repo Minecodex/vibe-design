@@ -1,0 +1,138 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command:
+      - mysqld
+      - --max-connections=300
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-appdb}
+      MYSQL_USER: ${MYSQL_USER:-appuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-apppassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  backend:
+    image: ${BACKEND_GPU_APP_IMAGE:-kakj/xscz-backend-app:gpu-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TZ: Asia/Shanghai
+      DATABASE_URL: mysql+aiomysql://${MYSQL_USER:-appuser}:${MYSQL_PASSWORD:-apppassword}@mysql:3306/${MYSQL_DATABASE:-appdb}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      REDIS_REQUIRED: ${REDIS_REQUIRED:-true}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    # bubblewrap command sandbox needs to create namespaces inside the container.
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/workspace:/app/workspace
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  agent-worker:
+    image: ${BACKEND_GPU_APP_IMAGE:-kakj/xscz-backend-app:gpu-latest}
+    command: python -m app.workers.agent_worker
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    env_file: .env
+    environment:
+      TZ: Asia/Shanghai
+      DATABASE_URL: mysql+aiomysql://${MYSQL_USER:-appuser}:${MYSQL_PASSWORD:-apppassword}@mysql:3306/${MYSQL_DATABASE:-appdb}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      REDIS_REQUIRED: ${REDIS_REQUIRED:-true}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/workspace:/app/workspace
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  background-worker:
+    image: ${BACKEND_GPU_APP_IMAGE:-kakj/xscz-backend-app:gpu-latest}
+    command: python -m app.workers.background_worker
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    env_file: .env
+    environment:
+      TZ: Asia/Shanghai
+      DATABASE_URL: mysql+aiomysql://${MYSQL_USER:-appuser}:${MYSQL_PASSWORD:-apppassword}@mysql:3306/${MYSQL_DATABASE:-appdb}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      REDIS_ENABLED: ${REDIS_ENABLED:-true}
+      REDIS_REQUIRED: ${REDIS_REQUIRED:-true}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/workspace:/app/workspace
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: ${FRONTEND_APP_IMAGE:-kakj/xscz-frontend-app:latest}
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      APP_API_BASE_URL: ${APP_API_BASE_URL:-http://127.0.0.1:8000}
+    ports:
+      - "5173:80"
+    volumes:
+      - ./backend/uploads:/app/uploads:ro
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  default:
+    name: appnet

@@ -1,0 +1,495 @@
+{
+  "schemaVersion": 1,
+  "brandId": "cal",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Cal — reference components",
+    "description": "Reference fixture for design-systems/cal. Pure-white canvas, charcoal\n        (#242424) text, link-blue reserved for hyperlinks, and a multi-layer\n        ring-shadow stack that replaces CSS borders.",
+    "styleBlockCount": 1,
+    "selectorCount": 60,
+    "classCount": 26,
+    "elementCount": 25
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-hover",
+      "--bg",
+      "--border",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--accent-on",
+      "--border-soft",
+      "--danger",
+      "--elev-flat",
+      "--meta",
+      "--radius-lg",
+      "--space-1",
+      "--surface-warm",
+      "--text-2xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-muted",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn:focus-visible",
+    ".card:hover",
+    ".container",
+    ".eyebrow",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* Primary: charcoal (#242424) on white — Cal.com's signature CTA */ .btn-primary",
+    "/* Secondary: white with ring-shadow border — uses the elevation system */ .btn-secondary",
+    "/* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — charcoal-on-white primary",
+    "/* ─── Cards — white surface",
+    "/* ─── Inputs — minimal",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links — the only blue in the system ───────────────── */ a",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Typography — Cal Sans for display",
+    ":root",
+    "Inter for body ─── */ h1",
+    "a.card-link",
+    "a.card-link:hover",
+    "a:hover",
+    "body",
+    "ghost secondary ─ */ .btn",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "kbd",
+    "multi-layer ring-shadow stack ─ */ .card",
+    "p",
+    "ring-on-focus ─────────────────────── */ .field",
+    "section",
+    "section + section"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "card-link",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "row-between",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn:focus-visible",
+        "/* Primary: charcoal (#242424) on white — Cal.com's signature CTA */ .btn-primary",
+        "/* Secondary: white with ring-shadow border — uses the elevation system */ .btn-secondary",
+        "ghost secondary ─ */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--focus-ring"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "ring-on-focus ─────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--bg",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--fg-2",
+        "--focus-ring",
+        "--font-body",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card:hover",
+        "a.card-link",
+        "a.card-link:hover",
+        "multi-layer ring-shadow stack ─ */ .card"
+      ],
+      "classes": [
+        "card",
+        "card-link"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--fg-2"
+      ]
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-muted",
+        ".badge-success",
+        "/* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--muted",
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links — the only blue in the system ───────────────── */ a",
+        "a.card-link",
+        "a.card-link:hover",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--accent-hover",
+        "--fg-2"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--elev-ring",
+        "--font-mono",
+        "--muted",
+        "--radius-sm",
+        "--surface",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".eyebrow",
+        ".lead",
+        "Inter for body ─── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--font-body",
+        "--leading-body",
+        "--muted",
+        "--text-3xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 8,
+    "pixelValues": 30,
+    "hardcodedFontFamilies": 0
+  }
+}

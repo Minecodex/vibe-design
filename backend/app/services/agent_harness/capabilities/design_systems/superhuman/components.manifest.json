@@ -1,0 +1,521 @@
+{
+  "schemaVersion": 1,
+  "brandId": "superhuman",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Superhuman — reference components",
+    "description": "Reference fixture for design-systems/superhuman. The fastest email\n        experience ever made — keyboard-first velocity, warm cream CTAs, lavender\n        as the sole accent, charcoal ink at weight 460.",
+    "styleBlockCount": 1,
+    "selectorCount": 70,
+    "classCount": 31,
+    "elementCount": 28
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--fg",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--accent-hover",
+      "--danger",
+      "--elev-flat",
+      "--elev-ring",
+      "--fg-2",
+      "--meta",
+      "--radius-md",
+      "--space-1",
+      "--text-xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-accent",
+    ".badge-dot",
+    ".badge-muted",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".body-xs",
+    ".btn-dark:hover",
+    ".btn-ghost:hover",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn:focus-visible",
+    ".card .card-eyebrow",
+    ".card:hover",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field input:hover",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".kbd-row",
+    ".lead",
+    ".meta-divider",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-5 > * + *",
+    ".stack-6 > * + *",
+    "/* Dark Primary — charcoal bg on white sections (DESIGN.md §4). */ .btn-dark",
+    "/* Eyebrow — micro label",
+    "/* Ghost / Text Link — underline only",
+    "/* Warm Cream primary — the signature CTA. Charcoal text on cream. */ .btn-primary",
+    "/* ─── Badges ─────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — 8px radius",
+    "/* ─── Cards — 16px radius",
+    "/* ─── Inputs — borders define them",
+    "/* ─── Keyboard chips — Superhuman is keyboard-first ─────── */ kbd",
+    "/* ─── Layout helpers ─────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links — Amethyst-style underline (DESIGN.md §4) ────── */ a",
+    "/* ─── Reset ──────────────────────────────────────────────── */ *",
+    "/* ─── Typography — non-standard weight axis (460/540/600/700) ─ */ h1",
+    ":root",
+    "a:hover",
+    "body",
+    "focus deepens to charcoal ─ */ .field",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "never pill",
+    "no fill. */ .btn-ghost",
+    "no shadow by default ─ */ .card",
+    "p",
+    "parchment border",
+    "section",
+    "section + section",
+    "the only place we go bold (700) per DESIGN.md §3 */ .eyebrow",
+    "warm cream signature ─ */ .btn"
+  ],
+  "classes": [
+    "badge",
+    "badge-accent",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "body-xs",
+    "btn",
+    "btn-ghost",
+    "btn-primary",
+    "card",
+    "card-eyebrow",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "kbd-row",
+    "lead",
+    "meta-divider",
+    "row-between",
+    "stack-3",
+    "stack-4",
+    "stack-5"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "br",
+    "button",
+    "code",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "hr",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-dark:hover",
+        ".btn-ghost:hover",
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn:focus-visible",
+        "/* Dark Primary — charcoal bg on white sections (DESIGN.md §4). */ .btn-dark",
+        "/* Warm Cream primary — the signature CTA. Charcoal text on cream. */ .btn-primary",
+        "no fill. */ .btn-ghost",
+        "warm cream signature ─ */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-ghost",
+        "btn-primary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--fg",
+        "--focus-ring",
+        "--surface-warm"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field input:hover",
+        ".field label",
+        ".field-help",
+        "/* Eyebrow — micro label",
+        "focus deepens to charcoal ─ */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--bg",
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--font-body",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--space-4",
+        "--text-base",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card .card-eyebrow",
+        ".card:hover",
+        "no shadow by default ─ */ .card"
+      ],
+      "classes": [
+        "card",
+        "card-eyebrow"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--border",
+        "--elev-raised",
+        "--fg",
+        "--muted",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-accent",
+        ".badge-dot",
+        ".badge-muted",
+        ".badge-success",
+        "/* ─── Badges ─────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-accent",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--accent-on",
+        "--muted",
+        "--radius-pill",
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links — Amethyst-style underline (DESIGN.md §4) ────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        ".kbd-row",
+        "/* ─── Keyboard chips — Superhuman is keyboard-first ─────── */ kbd"
+      ],
+      "classes": [
+        "kbd-row"
+      ],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--space-2"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".lead",
+        "/* ─── Typography — non-standard weight axis (460/540/600/700) ─ */ h1",
+        "h1",
+        "h2",
+        "h3",
+        "the only place we go bold (700) per DESIGN.md §3 */ .eyebrow"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--fg",
+        "--leading-body",
+        "--muted",
+        "--text-2xl",
+        "--text-3xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-5 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4",
+        "stack-5"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-5",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 8,
+    "pixelValues": 28,
+    "hardcodedFontFamilies": 0
+  }
+}

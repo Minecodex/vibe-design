@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 1,
+  "brandId": "claude",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Claude (Anthropic) — reference components",
+    "description": "Reference fixture for design-systems/claude. Literary salon aesthetic:\n        warm parchment canvas, terracotta accent, Anthropic Serif headings.\n        Every visible value comes from tokens.css via var(--*).",
+    "styleBlockCount": 1,
+    "selectorCount": 55,
+    "classCount": 25,
+    "elementCount": 25
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--danger",
+      "--elev-flat",
+      "--elev-ring",
+      "--motion-base",
+      "--radius-lg",
+      "--space-1",
+      "--text-3xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-muted",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary:active",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".container",
+    ".eyebrow",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* :root paste — sourced verbatim from design-systems/claude/tokens.css. Keep in sync when tokens change. */ :root",
+    "/* Primary: Terracotta Brand — the only button with chromatic color */ .btn-primary",
+    "/* Secondary: Warm Sand — workhorse button */ .btn-secondary",
+    "/* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons ───────────────────────────────────────────── */ .btn",
+    "/* ─── Cards — ivory surface",
+    "/* ─── Inputs ────────────────────────────────────────────── */ .field",
+    "/* ─── Kbd ───────────────────────────────────────────────── */ kbd",
+    "/* ─── Layout primitives ─────────────────────────────────── */ .container",
+    "/* ─── Links ─────────────────────────────────────────────── */ a",
+    "/* ─── Reset (minimal) ───────────────────────────────────── */ *",
+    "/* ─── Section layouts ───────────────────────────────────── */ .hero-grid",
+    "/* ─── Typography — Anthropic Serif for all headings ─────── */ h1",
+    "a:hover",
+    "body",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "p",
+    "section",
+    "section + section",
+    "whisper shadow ─────────────── */ .card"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "row-between",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:active",
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        "/* Primary: Terracotta Brand — the only button with chromatic color */ .btn-primary",
+        "/* Secondary: Warm Sand — workhorse button */ .btn-secondary",
+        "/* ─── Buttons ───────────────────────────────────────────── */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent-active",
+        "--accent-hover",
+        "--focus-ring",
+        "--surface-warm"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "/* ─── Inputs ────────────────────────────────────────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--border-soft",
+        "--ease-standard",
+        "--fg",
+        "--fg-2",
+        "--focus-ring",
+        "--font-body",
+        "--meta",
+        "--motion-fast",
+        "--radius-md",
+        "--surface",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        "whisper shadow ─────────────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-muted",
+        ".badge-success",
+        "/* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--muted",
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links ─────────────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "/* ─── Kbd ───────────────────────────────────────────────── */ kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".eyebrow",
+        ".lead",
+        "/* ─── Typography — Anthropic Serif for all headings ─────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--font-body",
+        "--leading-body",
+        "--meta",
+        "--muted",
+        "--text-2xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout primitives ─────────────────────────────────── */ .container",
+        "/* ─── Section layouts ───────────────────────────────────── */ .hero-grid",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 5,
+    "pixelValues": 45,
+    "hardcodedFontFamilies": 0
+  }
+}

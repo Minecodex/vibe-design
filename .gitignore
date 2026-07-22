@@ -1,0 +1,133 @@
+# ============================================================
+# 环境变量（保留 .env.example）
+# ============================================================
+.env
+.env.*
+!.env.example
+!.env.example_big
+
+# 私钥和证书密钥材料
+*.pem
+*.key
+
+# ============================================================
+# 前端
+# ============================================================
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+frontend/.vite/
+frontend/*.local
+
+# ============================================================
+# 后端
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# 测试 & 覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# 构建产物
+*.egg-info/
+dist/
+build/
+*.egg
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# ruff
+.ruff_cache/
+
+# ============================================================
+# 数据库
+# ============================================================
+*.db
+*.sqlite3
+
+# ============================================================
+# K8s Secrets（overlay 中的敏感 env 文件，不提交）
+# ============================================================
+k8s/overlays/**/*.env
+
+# ============================================================
+# IDE
+# ============================================================
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================
+# 系统文件
+# ============================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================================================
+# 日志
+# ============================================================
+*.log
+logs/
+
+# ============================================================
+# 临时文件
+# ============================================================
+*.tmp
+*.bak
+*.swp
+*.orig
+.worktrees/
+
+/backend/uploads/
+/backend/models_docs/
+/model_docs/
+/docs/plans/
+/.claude/
+/agent-harness/cli_anything/ai_code/core/__init__.py
+/agent-harness/cli_anything/ai_code/core/session.py
+/agent-harness/cli_anything/ai_code/tests/conftest.py
+/agent-harness/cli_anything/ai_code/tests/test_core.py
+/agent-harness/cli_anything/ai_code/tests/test_full_e2e.py
+/agent-harness/cli_anything/ai_code/utils/__init__.py
+/agent-harness/cli_anything/ai_code/utils/ai_code_backend.py
+/agent-harness/cli_anything/ai_code/__init__.py
+/agent-harness/cli_anything/ai_code/__main__.py
+/agent-harness/cli_anything/ai_code/ai_code_cli.py
+/agent-harness/cli_anything/ai_code/README.md
+/agent-harness/AI_CODE.md
+/agent-harness/setup.py
+/agent-harness/TEST.md
+/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+/docker/models/mat/MAT_Places512_G_fp16.safetensors
+/docker/models/powerpaint/PowerPaint-v2-1/
+/docker/models/powerpaint/realisticVisionV60B1_v51VAE/
+/docker/models/powerpaint/PowerPaint-v2-1/
+/uploads/
+/workspace/
+/work/

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>画布 Photoshop 插件</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="panel-header">
+      <div>
+        <h1>画布 Photoshop 插件</h1>
+        <p>登录后即可接收画布中的 PS 编辑任务</p>
+      </div>
+      <button id="logout-button" class="ghost-button" hidden>退出</button>
+    </header>
+
+    <section id="login-view" class="panel-card">
+      <h2>登录</h2>
+      <p class="hint">服务地址默认来自配置，可按实际后端地址修改。</p>
+      <sp-textfield id="account-input" class="login-field" placeholder="用户名 / 邮箱">
+        <sp-label slot="label">账户</sp-label>
+      </sp-textfield>
+      <sp-textfield id="password-input" class="login-field" type="password" placeholder="请输入密码">
+        <sp-label slot="label">密码</sp-label>
+      </sp-textfield>
+      <sp-textfield id="service-url-input" class="login-field" placeholder="http://localhost:8000">
+        <sp-label slot="label">服务地址</sp-label>
+      </sp-textfield>
+      <button id="login-button" class="primary-button">登录</button>
+      <p id="login-message" class="message"></p>
+    </section>
+
+    <section id="projects-view" class="hidden">
+      <div class="panel-card">
+        <div class="section-header">
+          <div>
+            <h2>项目列表</h2>
+            <p class="hint">选择一个项目后，可查看项目图片并添加到 Photoshop。</p>
+          </div>
+          <div class="header-actions">
+            <button id="refresh-projects" class="ghost-button">刷新</button>
+            <button id="project-logout-button" class="ghost-button">退出</button>
+          </div>
+        </div>
+        <div id="project-list" class="project-grid"></div>
+      </div>
+      <p id="workspace-message" class="message"></p>
+    </section>
+
+    <section id="assets-view" class="hidden">
+      <div class="panel-card">
+        <div class="section-header">
+          <div>
+            <h2 id="current-project-label">项目图片</h2>
+            <p class="hint">点击图片下方按钮即可添加到当前 Photoshop 文档。</p>
+          </div>
+          <button id="back-projects" class="ghost-button">返回</button>
+        </div>
+        <div id="asset-list" class="asset-grid"></div>
+      </div>
+      <p id="save-message" class="message"></p>
+    </section>
+  </div>
+
+  <dialog id="job-dialog" class="job-dialog">
+    <div class="job-dialog-body">
+      <h3>检测到新的 PS 编辑任务</h3>
+      <p id="job-dialog-message"></p>
+      <div class="dialog-actions">
+        <button id="job-dialog-cancel" type="button" class="ghost-button">取消</button>
+        <button id="job-dialog-confirm" type="button" class="primary-button">导入到 Photoshop</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="status-dialog" class="status-dialog">
+    <div class="status-dialog-body">
+      <div class="status-dialog-content">
+        <span id="status-dialog-icon" class="status-dialog-icon">✓</span>
+        <p id="status-dialog-message"></p>
+      </div>
+      <div class="dialog-actions">
+        <button id="status-dialog-close" type="button" class="primary-button">确定</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="./saveLayerSelection.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>

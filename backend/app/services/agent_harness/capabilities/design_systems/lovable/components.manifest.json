@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "brandId": "lovable",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Lovable — reference components",
+    "description": "Reference fixture for design-systems/lovable. Warm parchment canvas\n        (#f7f4ed), opacity-driven gray ramp from charcoal #1c1c1c, Camera Plain\n        Variable display type with -1.5px tracking, borders-not-shadows for cards,\n        the signature inset-shadow on dark CTAs.",
+    "styleBlockCount": 1,
+    "selectorCount": 60,
+    "classCount": 24,
+    "elementCount": 26
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--bg",
+      "--border",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-flat",
+      "--fg",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--surface",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--border-soft",
+      "--danger",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg-2",
+      "--radius-lg",
+      "--space-1",
+      "--success",
+      "--surface-warm",
+      "--text-2xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".body-muted",
+    ".body-sm",
+    ".btn-ghost:hover",
+    ".btn-primary:hover",
+    ".btn:active",
+    ".card:hover",
+    ".container",
+    ".eyebrow",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field textarea",
+    ".field textarea::placeholder",
+    ".field textarea:focus-visible",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".pill-dot",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* DESIGN.md §4 active feedback */ .btn:focus-visible",
+    "/* Ghost / Outline — DESIGN.md §4 secondary actions */ .btn-ghost",
+    "/* Primary Dark — the signature inset-shadow CTA from DESIGN.md §4 */ .btn-primary",
+    "/* hsl(var(--accent)) per §4 */ kbd",
+    "/* subtle darken on hover */ /* ─── Pills & badges — action pill (9999px) per §4 ────────── */ .pill",
+    "/* ─── Buttons — inset-shadow CTA",
+    "/* ─── Cards — borders define edges",
+    "/* ─── Inputs — warm cream surface",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links — underline carries the signal",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Typography — Camera Plain Variable carries the personality ─ */ h1",
+    ":root",
+    "NOT color ────── */ a",
+    "NOT shadows ──────────── */ .card",
+    "a:hover",
+    "body",
+    "ghost outline",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "p",
+    "pill action ─ */ .btn",
+    "section",
+    "section + section",
+    "soft cream border ─────── */ .field"
+  ],
+  "classes": [
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-ghost",
+    "btn-primary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "pill",
+    "pill-dot",
+    "row-between",
+    "stack-3",
+    "stack-4"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "br",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "textarea",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-ghost:hover",
+        ".btn-primary:hover",
+        ".btn:active",
+        "/* DESIGN.md §4 active feedback */ .btn:focus-visible",
+        "/* Ghost / Outline — DESIGN.md §4 secondary actions */ .btn-ghost",
+        "/* Primary Dark — the signature inset-shadow CTA from DESIGN.md §4 */ .btn-primary",
+        "pill action ─ */ .btn"
+      ],
+      "classes": [
+        "btn",
+        "btn-ghost",
+        "btn-primary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field textarea",
+        ".field textarea::placeholder",
+        ".field textarea:focus-visible",
+        ".field-help",
+        "soft cream border ─────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "label",
+        "textarea"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--focus-ring",
+        "--font-body",
+        "--leading-body",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--space-3",
+        "--space-4",
+        "--surface",
+        "--text-base",
+        "--text-sm"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card:hover",
+        "NOT shadows ──────────── */ .card"
+      ],
+      "classes": [
+        "card"
+      ],
+      "elements": [],
+      "tokenReferences": []
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".pill-dot",
+        "/* subtle darken on hover */ /* ─── Pills & badges — action pill (9999px) per §4 ────────── */ .pill"
+      ],
+      "classes": [
+        "pill",
+        "pill-dot"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "NOT color ────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "/* hsl(var(--accent)) per §4 */ kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".eyebrow",
+        ".lead",
+        "/* ─── Typography — Camera Plain Variable carries the personality ─ */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--muted",
+        "--text-3xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--text-xl",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 9,
+    "pixelValues": 32,
+    "hardcodedFontFamilies": 0
+  }
+}

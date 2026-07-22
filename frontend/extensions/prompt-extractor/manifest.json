@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "提取插件",
+  "version": "1.0.2",
+  "description": "右键图片提取可用于文生图的一段完整提示词。",
+  "permissions": ["contextMenus", "storage", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

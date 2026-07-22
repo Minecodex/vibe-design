@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "brandId": "playstation",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "PlayStation — reference components",
+    "description": "Reference fixture for design-systems/playstation. Console Black hero,\n        Paper White content panels, SST weight 300 display type, 1.2× scale-on-hover\n        with PlayStation Cyan fill and a 2px PlayStation Blue ring.",
+    "styleBlockCount": 1,
+    "selectorCount": 73,
+    "classCount": 28,
+    "elementCount": 25
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--elev-raised",
+      "--fg",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-2xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--accent-active",
+      "--danger",
+      "--elev-flat",
+      "--elev-ring",
+      "--fg-2",
+      "--meta",
+      "--motion-base",
+      "--radius-sm",
+      "--space-1",
+      "--surface-warm",
+      "--text-3xl",
+      "--text-xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".btn-primary:hover",
+    ".btn-secondary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".card a",
+    ".card a:hover",
+    ".card h3",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".panel-light .btn-secondary:hover",
+    ".panel-light .eyebrow",
+    ".panel-light a",
+    ".panel-light a:hover",
+    ".panel-light h1",
+    ".panel-light h2",
+    ".panel-light h3",
+    ".pill-row",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-6 > * + *",
+    "/* Body Gray */ .panel-light .body-muted",
+    "/* Display Ink */ .panel-light .lead",
+    "/* No ALL-CAPS — sentence case eyebrow */ .eyebrow",
+    "/* On Paper White panels",
+    "/* Platform pill — distinctive game-store white-on-dark tag */ .pill",
+    "/* Primary — PlayStation Blue → Cyan power-on signature */ .btn-primary",
+    "/* Secondary on dark — White surface",
+    "/* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — full-pill",
+    "/* ─── Cards — feature tile",
+    "/* ─── Inputs — 3px radius",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links & inline ────────────────────────────────────── */ a",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Surface alternation — three-channel layout ────────── */ .panel-light",
+    "/* ─── Typography — SST weight 300 at display sizes ──────── */ h1",
+    "1.2× cyan power-on hover ─────── */ .btn",
+    "24px radius",
+    "2px blue focus ring ──────────── */ .field",
+    ":root",
+    "a:hover",
+    "blue ink */ .btn-secondary",
+    "body",
+    "feather lift ───── */ .card",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "kbd",
+    "p",
+    "secondary inverts to outline ink */ .panel-light .btn-secondary",
+    "section"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-sm",
+    "btn",
+    "btn-primary",
+    "btn-secondary",
+    "card",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "panel-light",
+    "pill",
+    "pill-row",
+    "row-between",
+    "stack-3",
+    "stack-4",
+    "stack-6"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "body",
+    "button",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-primary:hover",
+        ".btn-secondary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        ".panel-light .btn-secondary:hover",
+        "/* Primary — PlayStation Blue → Cyan power-on signature */ .btn-primary",
+        "1.2× cyan power-on hover ─────── */ .btn",
+        "blue ink */ .btn-secondary",
+        "secondary inverts to outline ink */ .panel-light .btn-secondary"
+      ],
+      "classes": [
+        "btn",
+        "btn-primary",
+        "btn-secondary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent",
+        "--accent-hover",
+        "--accent-on",
+        "--focus-ring"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "2px blue focus ring ──────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--ease-standard",
+        "--focus-ring",
+        "--font-body",
+        "--motion-fast",
+        "--text-base",
+        "--text-sm"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card a",
+        ".card a:hover",
+        ".card h3",
+        ".panel-light .btn-secondary:hover",
+        ".panel-light .eyebrow",
+        ".panel-light a",
+        ".panel-light a:hover",
+        ".panel-light h1",
+        ".panel-light h2",
+        ".panel-light h3",
+        "/* Body Gray */ .panel-light .body-muted",
+        "/* Display Ink */ .panel-light .lead",
+        "/* ─── Surface alternation — three-channel layout ────────── */ .panel-light",
+        "feather lift ───── */ .card",
+        "secondary inverts to outline ink */ .panel-light .btn-secondary"
+      ],
+      "classes": [
+        "card",
+        "panel-light"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--accent",
+        "--accent-hover",
+        "--accent-on"
+      ]
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-success",
+        ".pill-row",
+        "/* Platform pill — distinctive game-store white-on-dark tag */ .pill",
+        "/* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success",
+        "pill",
+        "pill-row"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--space-2",
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        ".card a",
+        ".card a:hover",
+        ".panel-light a",
+        ".panel-light a:hover",
+        "/* ─── Links & inline ────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--accent"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--font-mono",
+        "--muted",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".card h3",
+        ".lead",
+        ".panel-light .eyebrow",
+        ".panel-light h1",
+        ".panel-light h2",
+        ".panel-light h3",
+        "/* Body Gray */ .panel-light .body-muted",
+        "/* Display Ink */ .panel-light .lead",
+        "/* No ALL-CAPS — sentence case eyebrow */ .eyebrow",
+        "/* ─── Typography — SST weight 300 at display sizes ──────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--leading-body",
+        "--muted",
+        "--text-2xl",
+        "--text-4xl",
+        "--text-base",
+        "--text-lg",
+        "--text-sm"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4",
+        "stack-6"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 25,
+    "pixelValues": 34,
+    "hardcodedFontFamilies": 0
+  }
+}

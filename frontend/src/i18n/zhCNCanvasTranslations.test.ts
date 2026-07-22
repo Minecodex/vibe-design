@@ -1,0 +1,38 @@
+import { describe, expect, it } from 'vitest'
+
+import zhCN from './locales/zh-CN.json'
+
+describe('zh-CN canvas translations', () => {
+  it('uses readable Chinese copy for canvas actions and crop labels', () => {
+    expect(zhCN.processing).toBe('处理中...')
+    expect(zhCN.done).toBe('完成')
+    expect(zhCN.canvas.tools.import_success).toBe('导入成功')
+    expect(zhCN.canvas.generator.generate_now).toBe('立即生成')
+    expect(zhCN.canvas.generator.model_label).toBe('生成模型')
+    expect(zhCN.canvas.generator.ratio_label).toBe('画布比例')
+    expect(zhCN.canvas.generator.standard_suffix).toBe('标准')
+    expect(zhCN.canvas.generator.ratio_hint_square).toBe('方形')
+    expect(zhCN.canvas.generator.ratio_hint_landscape).toBe('横向')
+    expect(zhCN.canvas.generator.ratio_hint_portrait).toBe('竖向')
+    expect(zhCN.canvas.generator.reference_limit_reached).toBe('参考图已达上限')
+    expect(zhCN.canvas.generator_added_success).toBe('{{type}}已添加到画布')
+    expect(zhCN.canvas.chat.tool_tips.gen_video).toBe('生成视频')
+    expect(zhCN.canvas.chat.tool_tips.expand).toBe('扩图')
+    expect(zhCN.canvas.chat.tool_tips.cutout).toBe('抠图')
+    expect(zhCN.canvas.toolbar.spatial_angle).toBe('空间角度')
+    expect(zhCN.canvas.toolbar.crop).toBe('裁剪')
+    expect(zhCN.canvas.toolbar.image_info).toBe('图片信息')
+    expect(zhCN.canvas.detail.creator).toBe('创建人：')
+    expect(zhCN.canvas.detail.format).toBe('图片格式：')
+    expect(zhCN.canvas.detail.size).toBe('图片大小：')
+    expect(zhCN.canvas.detail.updated_at).toBe('更新时间：')
+    expect(zhCN.canvas.crop.title).toBe('裁剪')
+    expect(zhCN.canvas.crop.presets_label).toBe('预设')
+    expect(zhCN.canvas.crop.crop_hint).toBe('完成后会用裁剪结果替换当前图片。')
+    expect(zhCN.canvas.crop.noop_hint).toBe('当前图片小于目标平台分辨率，完成后不会对图片做处理。')
+    expect(zhCN.canvas.crop.success).toBe('裁剪完成')
+    expect(zhCN.canvas.crop.failed).toBe('裁剪失败')
+    expect(zhCN.canvas.crop.open_failed).toBe('打开裁剪失败')
+    expect(zhCN.canvas.action_failed).toBe('操作失败')
+  })
+})

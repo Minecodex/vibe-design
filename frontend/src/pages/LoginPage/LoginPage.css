@@ -1,0 +1,183 @@
+.login-page-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--app-bg);
+  color: var(--app-foreground);
+}
+
+.dark .login-page-container {
+  background-color: var(--app-bg);
+  color: var(--app-foreground);
+}
+
+/* 动态背景区域 */
+.login-bg-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.login-bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bg-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+.bg-scene.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.bg-base-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Container for positioning the floating element via top/left */
+.bg-element-container {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -50%); /* Base anchoring to center of its left/top point */
+}
+
+/* The actual element that scales and moves */
+.bg-element-img {
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, opacity;
+  border-radius: 8px; /* For art/posters */
+  display: block;
+}
+
+/* Stage: BASE -> only bg visible, element hidden high up */
+.stage-BASE .bg-element-img {
+  opacity: 0;
+  transform: translateY(-80px) scale(1.6);
+}
+
+/* Stage: APPEAR -> Floating off-center */
+.stage-APPEAR .bg-element-img {
+  opacity: 1;
+  transform: translateY(-80px) scale(1.6);
+}
+
+/* Stage: MERGE -> Embedded into the base object */
+.stage-MERGE .bg-element-img {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* 渐变遮罩，使右侧登录框更清晰 */
+.login-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent 38%, color-mix(in srgb, var(--app-bg) 72%, transparent) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dark .login-bg-overlay {
+  background: linear-gradient(to right, transparent 38%, color-mix(in srgb, var(--app-bg) 82%, transparent) 100%);
+}
+
+/* 登录框容器 */
+.login-content-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end; /* 右侧 */
+  align-items: center;
+  padding-right: 8%;
+  pointer-events: none;
+}
+
+/* 透明玻璃材质登录框 */
+.login-glass-panel {
+  width: 440px;
+  background: var(--app-glass);
+  backdrop-filter: var(--app-blur);
+  -webkit-backdrop-filter: var(--app-blur);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  padding: 48px 40px;
+  box-shadow: var(--app-shadow-panel);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+
+.dark .login-glass-panel {
+  background: var(--app-glass);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow-panel);
+}
+
+/* 小标志 */
+.login-page-logo {
+  position: absolute;
+  top: 32px;
+  left: 48px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 24px;
+}
+
+.login-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 20px;
+  background-color: var(--app-primary);
+  color: var(--app-primary-foreground);
+}
+
+.dark .login-logo-icon {
+  background-color: var(--app-primary);
+  color: var(--app-primary-foreground);
+}
+
+/* Actions at top right */
+.login-top-actions {
+  position: absolute;
+  top: 32px;
+  right: 48px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

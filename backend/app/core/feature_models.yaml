@@ -1,0 +1,17 @@
+image_features:
+  erase:
+    model_name: gemini-3.1-flash-image-preview-official
+    builtin_provider_model_names:
+      lingyaai: nano-banana-2
+  text_redraw:
+    model_name: gemini-3.1-flash-image-preview-official
+    builtin_provider_model_names:
+      lingyaai: nano-banana-2
+  hd_upscale:
+    model_name: gemini-3.1-flash-image-preview-official
+    builtin_provider_model_names:
+      lingyaai: nano-banana-2
+  spatial_angle:
+    model_name: gemini-3.1-flash-image-preview-official
+    builtin_provider_model_names:
+      lingyaai: nano-banana-2

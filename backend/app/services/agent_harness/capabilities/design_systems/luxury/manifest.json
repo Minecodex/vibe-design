@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "od-design-system-project/v1",
+  "id": "luxury",
+  "name": "Design System Inspired by Luxury",
+  "category": "Professional & Corporate",
+  "description": "Category: Professional & Corporate",
+  "source": {
+    "type": "bundled"
+  },
+  "files": {
+    "design": "DESIGN.md",
+    "tokens": "tokens.css",
+    "components": "components.html"
+  },
+  "usage": "USAGE.md",
+  "componentsManifest": "components.manifest.json",
+  "assetsDir": "assets",
+  "previewDir": "preview",
+  "sourceFiles": {
+    "report": "source/token-contract.report.json"
+  },
+  "importMode": "normalized",
+  "craft": {
+    "applies": [],
+    "exemptions": []
+  }
+}

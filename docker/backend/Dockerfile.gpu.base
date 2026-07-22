@@ -1,0 +1,70 @@
+# syntax=docker/dockerfile:1.7-labs
+FROM python:3.12-slim-bookworm AS base
+
+ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_DEFAULT_TIMEOUT=180
+ARG PIP_RETRIES=10
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+RUN set -eux; \
+    printf '%s\n' \
+        'Acquire::Retries "5";' \
+        'Acquire::http::Timeout "30";' \
+        'Acquire::https::Timeout "30";' \
+        > /etc/apt/apt.conf.d/99mirror-retries; \
+    if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+        printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://mirrors.aliyun.com/debian' \
+            'Suites: bookworm bookworm-updates' \
+            'Components: main' \
+            'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
+            '' \
+            'Types: deb' \
+            'URIs: https://mirrors.aliyun.com/debian-security' \
+            'Suites: bookworm-security' \
+            'Components: main' \
+            'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
+            > /etc/apt/sources.list.d/debian.sources; \
+    fi; \
+    if [ -f /etc/apt/sources.list ]; then \
+        printf '%s\n' \
+            'deb https://mirrors.aliyun.com/debian bookworm main' \
+            'deb https://mirrors.aliyun.com/debian bookworm-updates main' \
+            'deb https://mirrors.aliyun.com/debian-security bookworm-security main' \
+            > /etc/apt/sources.list; \
+    fi; \
+    apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+        default-libmysqlclient-dev pkg-config gcc curl ripgrep \
+        bubblewrap file \
+        libreoffice libreoffice-impress poppler-utils pandoc nodejs npm \
+        fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
+        fonts-wqy-zenhei fonts-wqy-microhei fontconfig \
+    && fc-cache -fv \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r appgroup && useradd -r -g appgroup appuser \
+    && mkdir -p /opt/xscz/metadata /app/uploads /ms-playwright \
+    && chown -R appuser:appgroup /opt/xscz /app /ms-playwright
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g --registry=https://registry.npmmirror.com docx@^8.5.0 pptxgenjs
+
+COPY backend/runtime ./runtime
+COPY backend/requirements.txt ./requirements.txt
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install --disable-pip-version-check --progress-bar off \
+        --index-url "$PIP_INDEX_URL" \
+        --default-timeout "$PIP_DEFAULT_TIMEOUT" \
+        --retries "$PIP_RETRIES" \
+        -r requirements.txt && \
+    python -m playwright install --with-deps chromium && \
+    chown -R appuser:appgroup /ms-playwright
+
+RUN set -eux; \
+    python -m runtime.dev_requirements_fingerprint requirements.txt > /opt/xscz/metadata/backend-runtime-requirements.sha256 && \
+    python -m runtime.installed_python_packages > /opt/xscz/metadata/backend-python-packages.json

@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "brandId": "warp",
+  "source": {
+    "componentsHtml": "components.html",
+    "tokensCss": "tokens.css"
+  },
+  "fixture": {
+    "title": "Warp — reference components",
+    "description": "Reference fixture for design-systems/warp. Warm dark canvas,\n        Matter Regular at every tier, almost-monochromatic warm grays,\n        ghostly mist borders instead of shadows.",
+    "styleBlockCount": 1,
+    "selectorCount": 60,
+    "classCount": 28,
+    "elementCount": 28
+  },
+  "tokens": {
+    "declared": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--danger",
+      "--ease-standard",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-lg",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-1",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--surface-warm",
+      "--text-2xl",
+      "--text-3xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xl",
+      "--text-xs",
+      "--tracking-display",
+      "--warn"
+    ],
+    "referenced": [
+      "--accent",
+      "--accent-active",
+      "--accent-hover",
+      "--accent-on",
+      "--bg",
+      "--border",
+      "--border-soft",
+      "--container-gutter-desktop",
+      "--container-gutter-phone",
+      "--container-gutter-tablet",
+      "--container-max",
+      "--ease-standard",
+      "--fg",
+      "--fg-2",
+      "--focus-ring",
+      "--font-body",
+      "--font-display",
+      "--font-mono",
+      "--leading-body",
+      "--leading-tight",
+      "--meta",
+      "--motion-base",
+      "--motion-fast",
+      "--muted",
+      "--radius-md",
+      "--radius-pill",
+      "--radius-sm",
+      "--section-y-desktop",
+      "--section-y-phone",
+      "--section-y-tablet",
+      "--space-12",
+      "--space-2",
+      "--space-3",
+      "--space-4",
+      "--space-5",
+      "--space-6",
+      "--space-8",
+      "--success",
+      "--surface",
+      "--text-2xl",
+      "--text-4xl",
+      "--text-base",
+      "--text-lg",
+      "--text-sm",
+      "--text-xs",
+      "--tracking-display"
+    ],
+    "unusedDeclared": [
+      "--danger",
+      "--elev-flat",
+      "--elev-raised",
+      "--elev-ring",
+      "--radius-lg",
+      "--space-1",
+      "--surface-warm",
+      "--text-3xl",
+      "--text-xl",
+      "--warn"
+    ],
+    "undeclaredReferenced": []
+  },
+  "selectors": [
+    "*::after",
+    "*::before",
+    ".badge-dot",
+    ".badge-success",
+    ".body-muted",
+    ".body-sm",
+    ".btn-ghost:hover",
+    ".btn-primary:hover",
+    ".btn:active",
+    ".btn:focus-visible",
+    ".card-eyebrow",
+    ".card:hover",
+    ".container",
+    ".features-grid",
+    ".field input",
+    ".field input::placeholder",
+    ".field input:focus-visible",
+    ".field label",
+    ".field-help",
+    ".form",
+    ".form-actions",
+    ".form-row",
+    ".hero-actions",
+    ".hero-grid",
+    ".hero-meta",
+    ".icon",
+    ".lead",
+    ".prompt b",
+    ".row-between",
+    ".stack-3 > * + *",
+    ".stack-4 > * + *",
+    ".stack-5 > * + *",
+    ".stack-6 > * + *",
+    "/* Editorial uppercase eyebrow — DESIGN.md §3 magazine signal */ .eyebrow",
+    "/* Ghost: text-only",
+    "/* Primary: Earth Gray pill — the brand's restrained CTA */ .btn-primary",
+    "/* ─── Badges ────────────────────────────────────────────── */ .badge",
+    "/* ─── Buttons — restrained dark pills ───────────────────── */ .btn",
+    "/* ─── Cards — bordered",
+    "/* ─── Hero scroll prompt — terminal monospace flavor ───── */ .prompt",
+    "/* ─── Inputs — warm dark",
+    "/* ─── Layout helpers ────────────────────────────────────── */ .hero-grid",
+    "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+    "/* ─── Links + kbd ───────────────────────────────────────── */ a",
+    "/* ─── Reset ─────────────────────────────────────────────── */ *",
+    "/* ─── Typography — Matter Regular at every tier ─────────── */ h1",
+    ":root",
+    "a:hover",
+    "body",
+    "brightness-shift focus ────────── */ .field",
+    "h1",
+    "h2",
+    "h3",
+    "html",
+    "kbd",
+    "no shadow ───────────────────────── */ .card",
+    "p",
+    "section",
+    "section + section",
+    "underline on hover — DESIGN.md §4 */ .btn-ghost"
+  ],
+  "classes": [
+    "badge",
+    "badge-dot",
+    "badge-success",
+    "body-muted",
+    "body-sm",
+    "btn",
+    "btn-ghost",
+    "btn-primary",
+    "card",
+    "card-eyebrow",
+    "container",
+    "eyebrow",
+    "features-grid",
+    "field",
+    "field-help",
+    "form",
+    "form-actions",
+    "form-row",
+    "hero-actions",
+    "hero-grid",
+    "hero-meta",
+    "icon",
+    "lead",
+    "prompt",
+    "row-between",
+    "stack-3",
+    "stack-4",
+    "stack-5"
+  ],
+  "elements": [
+    "a",
+    "article",
+    "aside",
+    "b",
+    "body",
+    "br",
+    "button",
+    "code",
+    "div",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "head",
+    "html",
+    "input",
+    "kbd",
+    "label",
+    "main",
+    "meta",
+    "p",
+    "path",
+    "section",
+    "span",
+    "style",
+    "svg",
+    "time",
+    "title"
+  ],
+  "groups": [
+    {
+      "id": "buttons",
+      "label": "Buttons and calls to action",
+      "present": true,
+      "selectors": [
+        ".btn-ghost:hover",
+        ".btn-primary:hover",
+        ".btn:active",
+        ".btn:focus-visible",
+        "/* Primary: Earth Gray pill — the brand's restrained CTA */ .btn-primary",
+        "/* ─── Buttons — restrained dark pills ───────────────────── */ .btn",
+        "underline on hover — DESIGN.md §4 */ .btn-ghost"
+      ],
+      "classes": [
+        "btn",
+        "btn-ghost",
+        "btn-primary"
+      ],
+      "elements": [
+        "button"
+      ],
+      "tokenReferences": [
+        "--accent-active",
+        "--accent-hover",
+        "--fg",
+        "--focus-ring"
+      ]
+    },
+    {
+      "id": "inputs",
+      "label": "Form fields and controls",
+      "present": true,
+      "selectors": [
+        ".field input",
+        ".field input::placeholder",
+        ".field input:focus-visible",
+        ".field label",
+        ".field-help",
+        "brightness-shift focus ────────── */ .field"
+      ],
+      "classes": [
+        "field",
+        "field-help",
+        "form",
+        "form-actions",
+        "form-row"
+      ],
+      "elements": [
+        "form",
+        "input",
+        "label"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--ease-standard",
+        "--fg",
+        "--fg-2",
+        "--focus-ring",
+        "--font-body",
+        "--meta",
+        "--motion-fast",
+        "--muted",
+        "--radius-sm",
+        "--space-4",
+        "--surface",
+        "--text-sm",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "cards",
+      "label": "Cards and panels",
+      "present": true,
+      "selectors": [
+        ".card-eyebrow",
+        ".card:hover",
+        "no shadow ───────────────────────── */ .card"
+      ],
+      "classes": [
+        "card",
+        "card-eyebrow"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--fg-2",
+        "--font-mono",
+        "--meta",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "badges",
+      "label": "Badges, chips, and status labels",
+      "present": true,
+      "selectors": [
+        ".badge-dot",
+        ".badge-success",
+        "/* ─── Badges ────────────────────────────────────────────── */ .badge"
+      ],
+      "classes": [
+        "badge",
+        "badge-dot",
+        "badge-success"
+      ],
+      "elements": [],
+      "tokenReferences": [
+        "--success"
+      ]
+    },
+    {
+      "id": "links",
+      "label": "Links and inline actions",
+      "present": true,
+      "selectors": [
+        "/* ─── Links + kbd ───────────────────────────────────────── */ a",
+        "a:hover"
+      ],
+      "classes": [],
+      "elements": [
+        "a"
+      ],
+      "tokenReferences": [
+        "--fg"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "Keyboard hints",
+      "present": true,
+      "selectors": [
+        "/* ─── Links + kbd ───────────────────────────────────────── */ a",
+        "kbd"
+      ],
+      "classes": [],
+      "elements": [
+        "kbd"
+      ],
+      "tokenReferences": [
+        "--border",
+        "--fg-2",
+        "--font-mono",
+        "--radius-sm",
+        "--surface",
+        "--text-xs"
+      ]
+    },
+    {
+      "id": "icons",
+      "label": "Icon slots",
+      "present": true,
+      "selectors": [
+        ".icon"
+      ],
+      "classes": [
+        "icon"
+      ],
+      "elements": [
+        "svg"
+      ],
+      "tokenReferences": []
+    },
+    {
+      "id": "typography",
+      "label": "Typography scale and text utilities",
+      "present": true,
+      "selectors": [
+        ".body-muted",
+        ".body-sm",
+        ".lead",
+        "/* Editorial uppercase eyebrow — DESIGN.md §3 magazine signal */ .eyebrow",
+        "/* ─── Typography — Matter Regular at every tier ─────────── */ h1",
+        "h1",
+        "h2",
+        "h3"
+      ],
+      "classes": [
+        "body-muted",
+        "body-sm",
+        "eyebrow",
+        "lead"
+      ],
+      "elements": [
+        "h1",
+        "h2",
+        "h3",
+        "p"
+      ],
+      "tokenReferences": [
+        "--fg-2",
+        "--leading-body",
+        "--muted",
+        "--text-2xl",
+        "--text-4xl",
+        "--text-lg",
+        "--text-sm",
+        "--tracking-display"
+      ]
+    },
+    {
+      "id": "layout",
+      "label": "Layout primitives",
+      "present": true,
+      "selectors": [
+        ".container",
+        ".row-between",
+        ".stack-3 > * + *",
+        ".stack-4 > * + *",
+        ".stack-5 > * + *",
+        ".stack-6 > * + *",
+        "/* ─── Layout ─────────────────────────────────────────────── */ .container",
+        "section",
+        "section + section"
+      ],
+      "classes": [
+        "container",
+        "features-grid",
+        "hero-grid",
+        "row-between",
+        "stack-3",
+        "stack-4",
+        "stack-5"
+      ],
+      "elements": [
+        "main",
+        "section"
+      ],
+      "tokenReferences": [
+        "--border-soft",
+        "--container-gutter-phone",
+        "--section-y-phone",
+        "--space-3",
+        "--space-4",
+        "--space-5",
+        "--space-6"
+      ]
+    }
+  ],
+  "literals": {
+    "colorExpressions": 1,
+    "pixelValues": 26,
+    "hardcodedFontFamilies": 0
+  }
+}
