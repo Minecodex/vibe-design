@@ -15,6 +15,7 @@
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
   <img alt="React 18" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111">
   <img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
+  <a href="./LICENSE"><img alt="Apache License 2.0" src="https://img.shields.io/badge/License-Apache%202.0-D22128?logo=apache&logoColor=white"></a>
 </p>
 
 ![像素重组画布与 AI Agent](./docs/images/cc28d383-24a5-4995-a7da-0ed56e7c92c6.png)
@@ -62,7 +63,7 @@
 - 当前运行参数按 8 核 / 16 线程、32 GB 内存进行配置
 - GPU 部署配置面向约 16 GB 显存的主机
 - 一个能够通过公网 URL 访问对象的 TOS Bucket
-- 受支持的模型提供商账号；APIMart 凭证在登录后按用户配置
+- 受支持的模型提供商账号；模型 API Key 由管理员在组织管理中配置
 
 ### 已验证镜像版本
 
@@ -134,7 +135,13 @@ curl http://127.0.0.1:8000/health
 | 邮箱 | `admin@admin.com` |
 | 密码 | `123456` |
 
-可使用用户名或邮箱登录，登录后**必须立即修改默认密码**。登录页有意不开放公开注册；进入系统后，请在应用设置中配置管理员的 APIMart Key，并按需创建普通用户账号。
+可使用用户名或邮箱登录，登录后**必须立即修改默认密码**。登录页有意不开放公开注册；进入系统后，可按需创建普通用户账号。
+
+### 4. 配置模型 API Key
+
+前往 [APIMart](https://apimart.ai) 获取模型 API Key。模型 API Key 需要由管理员在系统的**组织管理**中为对应用户配置：打开用户编辑窗口，在 `APIMart Key` 区域填写并保存 Key。不要将真实 API Key 写入仓库、文档或默认配置。
+
+![在组织管理中配置 APIMart Key](./docs/images/f984a109-a634-4016-b57f-4f2b07f98eds.png)
 
 ### 其他部署架构
 
@@ -166,7 +173,7 @@ curl http://127.0.0.1:8000/health
 
 ### 模型与提供商
 
-- 内置 APIMart 接入，并按用户加密存储凭证。
+- 内置 [APIMart](https://apimart.ai) 接入；管理员可在组织管理中为用户配置并加密存储模型 API Key。
 - 可选的本地/OpenAI 兼容 Ollama 运行时，支持多模态和图片能力。
 - 通过能力注册表管理不同模型的尺寸、比例、参考图、时长、音频与计费参数。
 - 当前目录涵盖由提供商支持的 Gemini、Claude、DeepSeek、GLM、Kimi、GPT Image、Seedream、Seedance 和 Kling 模型；最终目录由运行时配置决定。
@@ -286,4 +293,4 @@ ai-code/
 
 ## 许可证
 
-仓库当前尚未包含 `LICENSE` 文件。在维护者正式添加许可证前，本项目未授予任何开源许可。将项目作为开源软件公开发布前，请选择并添加一份 OSI 批准的许可证。
+本项目采用 [Apache License 2.0](./LICENSE) 开源协议。仓库内引入的第三方组件仍遵循其各自的许可证与署名要求。

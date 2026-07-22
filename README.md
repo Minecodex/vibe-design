@@ -15,6 +15,7 @@
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
   <img alt="React 18" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111">
   <img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
+  <a href="./LICENSE"><img alt="Apache License 2.0" src="https://img.shields.io/badge/License-Apache%202.0-D22128?logo=apache&logoColor=white"></a>
 </p>
 
 ![Pixel Reorganization canvas with an AI agent](./docs/images/cc28d383-24a5-4995-a7da-0ed56e7c92c6.png)
@@ -62,7 +63,7 @@ The commands below use a **pinned, tested image set**. Do not replace the tags w
 - The supplied runtime tuning targets 8 CPU cores / 16 threads and 32 GB RAM
 - The GPU profile is prepared for a host with approximately 16 GB VRAM
 - A TOS object-storage bucket that can serve uploaded objects through public URLs
-- A supported provider account; APIMart credentials are configured per user after sign-in
+- A supported provider account; model API keys are configured by an administrator in Organization Management
 
 ### Tested image release
 
@@ -134,7 +135,13 @@ The database migration creates a default administrator account for the first sig
 | Email | `admin@admin.com` |
 | Password | `123456` |
 
-Sign in with the username or email and **change the default password immediately**. The login page intentionally does not expose public registration. After signing in, configure the administrator's APIMart key in the application settings and create regular user accounts as needed.
+Sign in with the username or email and **change the default password immediately**. The login page intentionally does not expose public registration. After signing in, create regular user accounts as needed.
+
+### 4. Configure the model API key
+
+Visit [APIMart](https://apimart.ai) to obtain a model API key. An administrator must configure the key for the corresponding user in **Organization Management**: open the user editor, enter the key in the `APIMart Key` section, and save it. Never add a real API key to the repository, documentation, or default configuration.
+
+![Configure an APIMart Key in Organization Management](./docs/images/f984a109-a634-4016-b57f-4f2b07f98eds.png)
 
 ### Other deployment profiles
 
@@ -166,7 +173,7 @@ Always set `FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260722` alongside the se
 
 ### Models and providers
 
-- Built-in APIMart integration with a per-user encrypted credential flow.
+- Built-in [APIMart](https://apimart.ai) integration; administrators can configure encrypted model API keys for users in Organization Management.
 - Optional local/OpenAI-compatible Ollama runtime for multimodal and image capabilities.
 - Registry-driven support for model-specific sizes, ratios, references, durations, audio, and pricing.
 - Current catalog includes provider-backed Gemini, Claude, DeepSeek, GLM, Kimi, GPT Image, Seedream, Seedance, and Kling models. The effective catalog is determined at runtime.
@@ -286,4 +293,4 @@ Use [GitHub Issues](https://github.com/kakj-go/ai-code/issues) to start a discus
 
 ## License
 
-This repository does not currently include a `LICENSE` file. No open-source license is granted until the maintainers add one. Choose and add an OSI-approved license before publishing the project as open source.
+This project is licensed under the [Apache License 2.0](./LICENSE). Third-party components included in the repository remain subject to their respective licenses and attribution requirements.
