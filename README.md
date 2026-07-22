@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img alt="Images 20260713" src="https://img.shields.io/badge/images-20260713-111827">
+  <img alt="Images 20260722" src="https://img.shields.io/badge/images-20260722-111827">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
   <img alt="React 18" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111">
   <img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
@@ -68,10 +68,10 @@ The commands below use a **pinned, tested image set**. Do not replace the tags w
 
 | Component | Pinned image |
 | --- | --- |
-| Frontend | `kakj/xscz-frontend-app:20260713` |
-| CPU backend | `kakj/xscz-backend-app:cpu-20260713` |
-| GPU backend | `kakj/xscz-backend-app:gpu-20260713` |
-| ARM64 backend | `kakj/xscz-backend-app:arm64-20260713` |
+| Frontend | `kakj/xscz-frontend-app:20260722` |
+| CPU backend | `kakj/xscz-backend-app:cpu-20260722` |
+| GPU backend | `kakj/xscz-backend-app:gpu-20260722` |
+| ARM64 backend | `kakj/xscz-backend-app:arm64-20260722` |
 
 ### 1. Prepare the configuration
 
@@ -106,8 +106,8 @@ TOS_PUBLIC_BASE_URL=<optional-cdn-or-public-prefix>
 ### 2. Start the pinned CPU release
 
 ```bash
-export BACKEND_CPU_APP_IMAGE=kakj/xscz-backend-app:cpu-20260713
-export FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260713
+export BACKEND_CPU_APP_IMAGE=kakj/xscz-backend-app:cpu-20260722
+export FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260722
 
 docker compose -f docker-compose.cpu.yml pull
 docker compose -f docker-compose.cpu.yml up -d mysql redis
@@ -140,11 +140,11 @@ Sign in with the username or email and **change the default password immediately
 
 | Target | Compose file | Backend image variable | Pinned value |
 | --- | --- | --- | --- |
-| CPU / x86_64 | `docker-compose.cpu.yml` | `BACKEND_CPU_APP_IMAGE` | `kakj/xscz-backend-app:cpu-20260713` |
-| NVIDIA GPU / x86_64 | `docker-compose.gpu.yml` | `BACKEND_GPU_APP_IMAGE` | `kakj/xscz-backend-app:gpu-20260713` |
-| ARM64 | `docker-compose.arm.yml` | `BACKEND_ARM64_APP_IMAGE` | `kakj/xscz-backend-app:arm64-20260713` |
+| CPU / x86_64 | `docker-compose.cpu.yml` | `BACKEND_CPU_APP_IMAGE` | `kakj/xscz-backend-app:cpu-20260722` |
+| NVIDIA GPU / x86_64 | `docker-compose.gpu.yml` | `BACKEND_GPU_APP_IMAGE` | `kakj/xscz-backend-app:gpu-20260722` |
+| ARM64 | `docker-compose.arm.yml` | `BACKEND_ARM64_APP_IMAGE` | `kakj/xscz-backend-app:arm64-20260722` |
 
-Always set `FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260713` alongside the selected backend image. Full commands are maintained in [docker/deploy.md](./docker/deploy.md).
+Always set `FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260722` alongside the selected backend image. Full commands are maintained in [docker/deploy.md](./docker/deploy.md).
 
 ## Core capabilities
 

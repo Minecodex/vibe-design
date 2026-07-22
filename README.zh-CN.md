@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img alt="Images 20260713" src="https://img.shields.io/badge/images-20260713-111827">
+  <img alt="Images 20260722" src="https://img.shields.io/badge/images-20260722-111827">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
   <img alt="React 18" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=111">
   <img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
@@ -68,10 +68,10 @@
 
 | 组件 | 固定镜像 |
 | --- | --- |
-| 前端 | `kakj/xscz-frontend-app:20260713` |
-| CPU 后端 | `kakj/xscz-backend-app:cpu-20260713` |
-| GPU 后端 | `kakj/xscz-backend-app:gpu-20260713` |
-| ARM64 后端 | `kakj/xscz-backend-app:arm64-20260713` |
+| 前端 | `kakj/xscz-frontend-app:20260722` |
+| CPU 后端 | `kakj/xscz-backend-app:cpu-20260722` |
+| GPU 后端 | `kakj/xscz-backend-app:gpu-20260722` |
+| ARM64 后端 | `kakj/xscz-backend-app:arm64-20260722` |
 
 ### 1. 准备配置
 
@@ -106,8 +106,8 @@ TOS_PUBLIC_BASE_URL=<可选的-CDN-或公网访问前缀>
 ### 2. 启动固定版本的 CPU 服务
 
 ```bash
-export BACKEND_CPU_APP_IMAGE=kakj/xscz-backend-app:cpu-20260713
-export FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260713
+export BACKEND_CPU_APP_IMAGE=kakj/xscz-backend-app:cpu-20260722
+export FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260722
 
 docker compose -f docker-compose.cpu.yml pull
 docker compose -f docker-compose.cpu.yml up -d mysql redis
@@ -140,11 +140,11 @@ curl http://127.0.0.1:8000/health
 
 | 目标 | Compose 文件 | 后端镜像变量 | 固定值 |
 | --- | --- | --- | --- |
-| CPU / x86_64 | `docker-compose.cpu.yml` | `BACKEND_CPU_APP_IMAGE` | `kakj/xscz-backend-app:cpu-20260713` |
-| NVIDIA GPU / x86_64 | `docker-compose.gpu.yml` | `BACKEND_GPU_APP_IMAGE` | `kakj/xscz-backend-app:gpu-20260713` |
-| ARM64 | `docker-compose.arm.yml` | `BACKEND_ARM64_APP_IMAGE` | `kakj/xscz-backend-app:arm64-20260713` |
+| CPU / x86_64 | `docker-compose.cpu.yml` | `BACKEND_CPU_APP_IMAGE` | `kakj/xscz-backend-app:cpu-20260722` |
+| NVIDIA GPU / x86_64 | `docker-compose.gpu.yml` | `BACKEND_GPU_APP_IMAGE` | `kakj/xscz-backend-app:gpu-20260722` |
+| ARM64 | `docker-compose.arm.yml` | `BACKEND_ARM64_APP_IMAGE` | `kakj/xscz-backend-app:arm64-20260722` |
 
-选择后端镜像时，必须同时设置 `FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260713`。完整命令维护在 [docker/deploy.md](./docker/deploy.md) 中。
+选择后端镜像时，必须同时设置 `FRONTEND_APP_IMAGE=kakj/xscz-frontend-app:20260722`。完整命令维护在 [docker/deploy.md](./docker/deploy.md) 中。
 
 ## 核心能力
 
