@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      APP_ENV: development
+      DATABASE_URL: sqlite+aiosqlite:///./ci.db
+      HARNESS_STORAGE_DATABASE_URL: sqlite:///./ci-harness.db
+      REDIS_REQUIRED: 'false'
+      SECRET_KEY: ci-only-public-test-secret-not-for-deployment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install native image library
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips42
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest tests
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.10.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  ci-gate:
+    name: CI
+    if: ${{ always() }}
+    needs: ["backend", "frontend"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every mandatory job to succeed
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          optional = set([])
+          jobs = json.loads(os.environ["JOB_RESULTS"])
+          failed = {
+              name: job["result"]
+              for name, job in jobs.items()
+              if job["result"] != "success"
+              and not (name in optional and job["result"] == "skipped")
+          }
+          if failed:
+              print(f"Required CI jobs did not succeed: {failed}")
+              sys.exit(1)
+          print("All mandatory CI jobs passed.")
+          PY

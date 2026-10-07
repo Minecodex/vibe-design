@@ -294,3 +294,8 @@ Use [GitHub Issues](https://github.com/kakj-go/ai-code/issues) to start a discus
 ## License
 
 This project is licensed under the [Apache License 2.0](./LICENSE). Third-party components included in the repository remain subject to their respective licenses and attribution requirements.
+
+
+## Contributing and CI
+
+Changes to the default branch require a pull request and passing CI. See [the branch protection and CI policy](docs/ci.md).
