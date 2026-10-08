@@ -1,11 +1,16 @@
-// @ts-nocheck
+import type { TFunction } from 'i18next'
 
 export function CanvasStaleOverlay({
   isDark,
   isRefreshingCanvas,
   onRefreshCanvas,
   t,
-}: any) {
+}: {
+  isDark: boolean
+  isRefreshingCanvas: boolean
+  onRefreshCanvas: () => void | Promise<void>
+  t: TFunction
+}) {
   return (
     <div
       style={{

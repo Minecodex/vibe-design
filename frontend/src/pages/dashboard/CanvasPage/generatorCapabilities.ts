@@ -280,7 +280,7 @@ export function getAvailableVideoResolutions(
   })
 }
 
-export function getGeneratorOptionsDropdownType(_isImageGroup: boolean): 'res' {
+export function getGeneratorOptionsDropdownType(): 'res' {
   return 'res'
 }
 

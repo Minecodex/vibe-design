@@ -32,17 +32,7 @@ import { canRenameCanvasItem } from '../canvasItemRename'
 import { isRetryableFailedGenerationItem } from '../generationFailure'
 import { handleScrollableWheel } from '../scrollableWheel'
 
-function ImageDetailCard({
-  item,
-  data,
-  position,
-  isDark,
-  t,
-  showCloseButton,
-  onClose,
-  onMouseEnter,
-  onMouseLeave,
-}: any) {
+function ImageDetailCard({ item, data, position, t, showCloseButton, onClose, onMouseEnter, onMouseLeave }: any) {
   const [copied, setCopied] = useState(false)
   const generationMeta = data?.generationMeta
   const copyLabel = t('copy', '复制')

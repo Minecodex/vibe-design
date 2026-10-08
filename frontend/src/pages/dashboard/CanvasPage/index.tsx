@@ -90,7 +90,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
     portrait: t('canvas.generator.ratio_hint_portrait', 'Portrait'),
   }
   const standardSuffix = t('canvas.generator.standard_suffix', 'Standard')
-  const { tools, selectTools, addTools } = getCanvasToolDefinitions(t, isDark)
+  const { tools, selectTools, addTools } = getCanvasToolDefinitions(t)
   const { id } = useParams<{ id: string }>()
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContentRef = useRef<HTMLDivElement>(null)

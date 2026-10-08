@@ -61,26 +61,7 @@ function WpsSuiteIcon() {
   )
 }
 
-export function HomeChatWorkspacePreviewRail({
-  title,
-  metaSummary,
-  isDark: _isDark,
-  testId,
-  onClose,
-  onDownload,
-  onOpenExternal,
-  externalOpenSuites = ['office'],
-  isOpeningExternal = false,
-  isOpenExternalDisabled = false,
-  onSave,
-  saveLabel,
-  isSaveDisabled = false,
-  isSaving = false,
-  contentClassName,
-  actionsBeforeDownload,
-  footerOverlay,
-  children,
-}: HomeChatWorkspacePreviewRailProps) {
+export function HomeChatWorkspacePreviewRail({ title, metaSummary, testId, onClose, onDownload, onOpenExternal, externalOpenSuites = ['office'], isOpeningExternal = false, isOpenExternalDisabled = false, onSave, saveLabel, isSaveDisabled = false, isSaving = false, contentClassName, actionsBeforeDownload, footerOverlay, children }: HomeChatWorkspacePreviewRailProps) {
   const { t } = useTranslation()
   const availableExternalOpenSuites = externalOpenSuites.filter((suite) => suite !== 'browser')
 

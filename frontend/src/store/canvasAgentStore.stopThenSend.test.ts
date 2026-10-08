@@ -182,8 +182,10 @@ describe('canvasAgentStore stop-then-send', () => {
     // First send is rejected by the active-run guard (409); the retry succeeds.
     streamHarnessSendMessageMock
       .mockImplementationOnce(async function* () {
+
         const err: any = new Error('Conversation already has an active run')
         err.status = 409
+        yield* [] // This fixture intentionally emits no events.
         throw err
       })
       .mockImplementationOnce(async function* () {
@@ -215,6 +217,8 @@ describe('canvasAgentStore stop-then-send', () => {
   it('does not stay stuck on thinking if the resend still fails', async () => {
     getHarnessConversationMock.mockResolvedValue({ data: conversationDetail('idle', 'idle') })
     streamHarnessSendMessageMock.mockImplementation(async function* () {
+
+      yield* [] // This fixture intentionally emits no events.
       throw new Error('Conversation already has an active run')
     })
 
@@ -236,8 +240,10 @@ describe('canvasAgentStore stop-then-send', () => {
     })
     streamHarnessRespondToAgentMock
       .mockImplementationOnce(async function* () {
+
         const err: any = new Error('Conversation already has an active run')
         err.status = 409
+        yield* [] // This fixture intentionally emits no events.
         throw err
       })
       .mockImplementationOnce(async function* () {

@@ -172,11 +172,7 @@ function getCheckerboardBackground(size = 12) {
   return `linear-gradient(45deg, #d7d7d7 25%, transparent 25%), linear-gradient(-45deg, #d7d7d7 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d7d7d7 75%), linear-gradient(-45deg, transparent 75%, #d7d7d7 75%) 0 0 / ${size}px ${size}px, #f5f5f5`
 }
 
-function ToolbarPopover({
-  children,
-  isDark: _isDark,
-  minWidth,
-}: {
+function ToolbarPopover({ children, minWidth }: {
   children: ReactNode
   isDark: boolean
   minWidth?: number
@@ -205,14 +201,7 @@ function ToolbarPopover({
   )
 }
 
-function ToolbarButton({
-  label,
-  active,
-  onClick,
-  children,
-  panel,
-  isDark: _isDark = false,
-}: {
+function ToolbarButton({ label, active, onClick, children, panel }: {
   label: string
   active?: boolean
   onClick: () => void

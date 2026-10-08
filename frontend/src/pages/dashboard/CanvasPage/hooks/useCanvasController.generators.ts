@@ -49,46 +49,7 @@ import {
 } from '../generationTaskBinding'
 
 export function useCanvasControllerGenerators(args: any) {
-  const {
-    t,
-    id,
-    user,
-    canvasItems,
-    offsetRef,
-    zoomRef,
-    setOffset,
-    setSelectedItems,
-    updateCanvasItems,
-    saveCanvasItems,
-    updateItem,
-    getItemDims,
-    getItemReferenceImages,
-    getResolvedVideoCapability,
-    getResolvedVideoDurations,
-    getResolvedImageCapability,
-    withReferenceImages,
-    availableImageModels,
-    availableVideoModels,
-    imageModel,
-    imageProvider,
-    videoModel,
-    videoProvider,
-    imageRes,
-    imageRatio,
-    videoAspect,
-    videoDuration,
-    videoQuality,
-    setImageAnchoredImageDraft,
-    imageAnchoredImageDraft,
-    setImageAnchoredVideoDraft,
-    imageAnchoredVideoDraft,
-    spatialAngleSession,
-    setSpatialAngleSession,
-    setActiveDropdown,
-    selectAndCenterCanvasItem,
-    loadIntrinsicImageSize,
-    notifiedTasksRef,
-  } = args
+  const { t, id, user, canvasItems, offsetRef, zoomRef, setSelectedItems, updateCanvasItems, saveCanvasItems, updateItem, getItemDims, getItemReferenceImages, getResolvedVideoCapability, getResolvedVideoDurations, getResolvedImageCapability, withReferenceImages, availableImageModels, availableVideoModels, imageModel, imageProvider, videoModel, videoProvider, imageRes, imageRatio, videoAspect, videoDuration, videoQuality, setImageAnchoredImageDraft, imageAnchoredImageDraft, setImageAnchoredVideoDraft, imageAnchoredVideoDraft, spatialAngleSession, setSpatialAngleSession, setActiveDropdown, selectAndCenterCanvasItem, loadIntrinsicImageSize, notifiedTasksRef } = args
 
   // Use refs so the polling closure always sees the latest values
   // without triggering useEffect re-runs (same pattern as MessageList.tsx)

@@ -369,14 +369,7 @@ function resolvePolicyDimensions(
   return null
 }
 
-export function resolveMediaModelDimensions({
-  config,
-  provider,
-  model: _model,
-  resolution,
-  ratio,
-  kind = 'image',
-}: {
+export function resolveMediaModelDimensions({ config, provider, resolution, ratio, kind = 'image' }: {
   config?: MediaDimensionConfig | null
   provider?: string | null
   model?: string | null

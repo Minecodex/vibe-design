@@ -6,7 +6,7 @@ describe('harnessStreamSession', () => {
   it('resumes from last sequence and settles after stream closes', async () => {
     const events: string[] = []
     const closed: AbortController[] = []
-    const stream = vi.fn(async function* (_conversationId: string, afterSequence?: number | AbortSignal, _signal?: AbortSignal) {
+    const stream = vi.fn(async function* (_conversationId: string, afterSequence?: number | AbortSignal) {
       expect(afterSequence).toBe(7)
       yield 'event-8'
     })
@@ -31,8 +31,10 @@ describe('harnessStreamSession', () => {
   it('does not surface abort as a stream error', async () => {
     const errors: unknown[] = []
     const stream = vi.fn(async function* () {
+
       const error = new Error('aborted')
       error.name = 'AbortError'
+      yield* [] // This fixture intentionally emits no events.
       throw error
     })
 

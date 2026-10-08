@@ -1384,9 +1384,11 @@ describe('homeHarnessStore', () => {
     it('marks the conversation as running as soon as the harness stream starts', async () => {
     let releaseStream!: () => void
     streamHarnessSendMessageMock.mockImplementation(async function* () {
+
       await new Promise<void>((resolve) => {
         releaseStream = resolve
       })
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -1420,19 +1422,23 @@ describe('homeHarnessStore', () => {
       callCount += 1
       if (callCount === 1) {
         return (async function* () {
+
           await new Promise<void>((resolve) => {
             signal.addEventListener('abort', () => resolve(), { once: true })
           })
           const abortError = new Error('Aborted')
           abortError.name = 'AbortError'
+          yield* [] // This fixture intentionally emits no events.
           throw abortError
         })()
       }
 
       return (async function* () {
+
         await new Promise<void>((resolve) => {
           releaseSecondStream = resolve
         })
+        yield* [] // This fixture intentionally emits no events.
       })()
     })
     cancelHarnessConversationRunMock.mockResolvedValueOnce({
@@ -1480,9 +1486,11 @@ describe('homeHarnessStore', () => {
     it('does not wait for later artifact mode changes before sending the fast-start payload', async () => {
     let releaseStream!: () => void
     streamHarnessSendMessageMock.mockImplementation(async function* () {
+
       await new Promise<void>((resolve) => {
         releaseStream = resolve
       })
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -2058,7 +2066,9 @@ describe('homeHarnessStore', () => {
       },
     })
     streamHarnessConversationEventsMock.mockImplementation(async function* () {
+
       await new Promise(() => {})
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -3130,6 +3140,7 @@ describe('homeHarnessStore', () => {
         afterSequenceOrSignal?: number | AbortSignal,
         signal?: AbortSignal,
       ) {
+
         const activeSignal = afterSequenceOrSignal instanceof AbortSignal
           ? afterSequenceOrSignal
           : signal
@@ -3140,6 +3151,7 @@ describe('homeHarnessStore', () => {
         await new Promise<void>((resolve) => {
           activeSignal?.addEventListener('abort', () => resolve(), { once: true })
         })
+        yield* [] // This fixture intentionally emits no events.
       }
     })())
 
@@ -4330,8 +4342,10 @@ describe('homeHarnessStore stop-then-action recovery', () => {
   function conflictThenComplete(mock: ReturnType<typeof vi.fn>) {
     mock
       .mockImplementationOnce(async function* () {
+
         const err: any = new Error('Conversation already has an active run')
         err.status = 409
+        yield* [] // This fixture intentionally emits no events.
         throw err
       })
       .mockImplementationOnce(async function* () {

@@ -21,6 +21,7 @@ export interface HarnessMessageLike {
     id?: string | number | null
     role: string
     content?: string | null
+    blocks?: Record<string, unknown>[] | null
     attachments?: Record<string, any>[] | null
     metadata?: Record<string, any> | null
     created_at?: string | null

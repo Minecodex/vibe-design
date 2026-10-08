@@ -6,7 +6,7 @@ import type { HomeChatOfficeSheetSnapshot } from './homeChatOfficeSnapshots'
 const createWorkbookMock = vi.fn()
 const addEventMock = vi.fn(() => ({ dispose: vi.fn() }))
 const disposeMock = vi.fn()
-const createUniverMock = vi.fn((_arg?: any) => ({
+function createFakeUniverSurface() { return {
   univerAPI: {
     createWorkbook: createWorkbookMock,
     addEvent: addEventMock,
@@ -15,11 +15,12 @@ const createUniverMock = vi.fn((_arg?: any) => ({
       SheetEditEnded: 'SheetEditEnded',
     },
   },
-}))
+} }
+const createUniverMock = vi.fn<(config: unknown) => ReturnType<typeof createFakeUniverSurface>>(createFakeUniverSurface)
 const presetConfigSpy = vi.fn((config: unknown) => config)
 
 vi.mock('@univerjs/presets', () => ({
-  createUniver: (arg: any) => createUniverMock(arg),
+  createUniver: (config: unknown) => createUniverMock(config),
 }))
 
 vi.mock('@univerjs/preset-sheets-core', () => ({

@@ -1,6 +1,6 @@
-// @ts-nocheck
-
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
+import type { RefObject } from 'react'
+import type { useCanvasCamera } from '../hooks/useCanvasCamera'
 
 import type { CanvasItem } from '@/api/endpoints/projects'
 
@@ -179,7 +179,14 @@ function getSceneRect(item: CanvasItem, args: {
   }
 }
 
-export const CanvasSceneLayer = React.memo(function CanvasSceneLayer(props: any) {
+type CanvasSceneLayerProps = Omit<Parameters<typeof getVisibleCanvasSceneItems>[0], 'viewport'> & {
+  canvasRef: RefObject<HTMLElement>
+  canvasCamera?: ReturnType<typeof useCanvasCamera>
+  isDark: boolean
+  onReadyChange?: (ready: boolean) => void
+}
+
+export const CanvasSceneLayer = React.memo(function CanvasSceneLayer(props: CanvasSceneLayerProps) {
   const {
     canvasRef,
     canvasItems,
@@ -203,7 +210,7 @@ export const CanvasSceneLayer = React.memo(function CanvasSceneLayer(props: any)
   useEffect(() => {
     if (!canvasCamera?.subscribe) return undefined
 
-    return canvasCamera.subscribe((camera: any, options: any) => {
+    return canvasCamera.subscribe((camera, options) => {
       if (options?.committed) {
         return
       }

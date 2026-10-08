@@ -4,33 +4,7 @@ import React from 'react'
 import { ChevronDown, Copy, Layers } from 'lucide-react'
 
 export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorkspaceMultiSelectToolbar(props: any) {
-  const {
-    selectedItems,
-    canvasItems,
-    getItemDims,
-    canvasRef,
-    zoom,
-    offset,
-    handleItemMouseDown,
-    setContextMenu,
-    setActiveContextMenuItem,
-    getCanvasSelectionBorder,
-    activeTool,
-    getCanvasSelectionHandleAppearance,
-    isDark,
-    handleUngroup,
-    setMultiSelectToolsOpen,
-    multiSelectToolsOpen,
-    t,
-    setGroupBackgroundColor,
-    handleCreateGroup,
-    handleMergeLayers,
-    handleAlign,
-    handleAutoArrange,
-    handleSpacing,
-    handleBulkExport,
-    handleContextMenuAction,
-  } = props
+  const { selectedItems, canvasItems, getItemDims, canvasRef, zoom, offset, handleItemMouseDown, setContextMenu, setActiveContextMenuItem, getCanvasSelectionBorder, activeTool, getCanvasSelectionHandleAppearance, isDark, handleUngroup, setMultiSelectToolsOpen, multiSelectToolsOpen, t, setGroupBackgroundColor, handleCreateGroup, handleMergeLayers, handleAlign, handleAutoArrange, handleSpacing, handleContextMenuAction } = props
 
   if (selectedItems.length === 0) return null
 

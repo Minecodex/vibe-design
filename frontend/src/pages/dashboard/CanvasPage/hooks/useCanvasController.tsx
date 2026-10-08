@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
 
 
 import { buildCanvasSelectionMenuItems } from '../contextMenu'
@@ -10,7 +11,7 @@ import { canPhotoshopEditSelection } from '../photoshopEdit'
 import { type EditableTextRedrawSegment } from '../textRedraw'
 import { type ModifierState } from '../gestureMode'
 import { type BrushDraftState, type BrushResizeState, type BrushToolbarState, type BrushToolState, type CropHandle, type CropPanelState, type ImageEraseSession, type MediaResizeState } from '../types'
-import { createTextCanvasItem, estimateTextCanvasSize, getVariantForFontFamily, normalizeTextCanvasItem } from '../textTypography'
+import { createTextCanvasItem, estimateTextCanvasSize, getVariantForFontFamily } from '../textTypography';
 import { useCanvasControllerMarks } from './useCanvasController.marks'
 import { useCanvasControllerMedia } from './useCanvasController.media'
 import { useCanvasControllerGenerators } from './useCanvasController.generators'
@@ -189,8 +190,8 @@ export function useCanvasController(args: any) {
     offsetRef,
   })
 
-  const itemIndex = useMemo(() => new Map(
-    canvasItems.map((item: any) => [item.id, item]),
+  const itemIndex = useMemo(() => new Map<string, CanvasItem>(
+    canvasItems.map((item: CanvasItem) => [item.id, item] as const),
   ), [canvasItems])
 
   const groupChildrenIndex = useMemo(() => {

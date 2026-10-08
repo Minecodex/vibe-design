@@ -21,7 +21,7 @@ export interface CropArea {
   height: number
 }
 
-export interface CropRect extends CropArea {}
+export type CropRect = CropArea
 
 export const CROP_PRESET_GROUPS: CropPresetGroup[] = [
   {

@@ -1,7 +1,6 @@
 // @ts-nocheck
-import {
-    Plus, History, X, Paperclip, Bot, Lightbulb, Zap, ArrowUp, Film, Square, Trash2, Globe, Box, Check, Loader2, Image as ImageIcon, Layers, MessageSquare, FileText, Presentation, TableProperties, LayoutTemplate, SlidersHorizontal,
-} from 'lucide-react'
+// @ts-nocheck
+import { Plus, History, X, Paperclip, Bot, Lightbulb, Zap, ArrowUp, Film, Square, Trash2, Globe, Box, Check, Loader2, Image as ImageIcon, Layers, MessageSquare, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"

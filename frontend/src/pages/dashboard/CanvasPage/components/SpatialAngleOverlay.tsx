@@ -10,7 +10,7 @@ interface SpatialAngleOverlayProps {
   onConfirm: (x: number, y: number, scale: string) => void
 }
 
-export function SpatialAngleOverlay({ session, isDark: _isDark, onCancel, onConfirm }: SpatialAngleOverlayProps) {
+export function SpatialAngleOverlay({ session, onCancel, onConfirm }: SpatialAngleOverlayProps) {
   const { t } = useTranslation()
 
   const [x, setX] = useState(session.x)

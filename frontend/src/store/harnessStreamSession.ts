@@ -140,13 +140,12 @@ function waitForReconnectDelay(delayMs: number, signal: AbortSignal): Promise<vo
       return
     }
 
-    let timer: ReturnType<typeof setTimeout>
     const abort = () => {
       clearTimeout(timer)
       resolve()
     }
 
-    timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       signal.removeEventListener('abort', abort)
       resolve()
     }, delayMs)

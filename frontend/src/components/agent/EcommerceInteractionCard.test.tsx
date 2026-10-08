@@ -242,7 +242,7 @@ describe('EcommerceInteractionCard', () => {
   })
 
   it('shares the max reference image limit across all reference sections', async () => {
-    const onRequestReferenceImages = vi.fn((_source, onSelect, _options) => {
+    const onRequestReferenceImages = vi.fn<NonNullable<Parameters<typeof EcommerceInteractionCard>[0]['onRequestReferenceImages']>>((_source, onSelect) => {
       onSelect(['/api/v1/uploads/first.png', '/api/v1/uploads/second.png'])
     })
     render(

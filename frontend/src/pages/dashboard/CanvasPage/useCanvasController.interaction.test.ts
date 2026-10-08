@@ -130,7 +130,7 @@ describe('useCanvasController interaction wiring', () => {
   })
 
   it('builds shared item lookup indexes once in the controller and passes them into the viewport hook', () => {
-    expect(controllerSource).toContain('const itemIndex = useMemo(() => new Map(')
+    expect(controllerSource).toMatch(/const itemIndex = useMemo\(\(\) => new Map(?:<[^>]+>)?\(/)
     expect(controllerSource).toContain('const groupChildrenIndex = useMemo(() => {')
     expect(controllerSource).toContain('itemIndex,')
     expect(controllerSource).toContain('groupChildrenIndex,')
@@ -157,7 +157,7 @@ describe('useCanvasController interaction wiring', () => {
     expect(controllerSource).toContain('baseGuideCandidates,')
     expect(controllerSource).toContain('baseGuideCandidateBuckets,')
     expect(viewportSource).toContain('baseGuideCandidateBuckets,')
-    expect(viewportSource).toContain('baseGuideCandidates,')
+    expect(controllerSource).toContain('buildGuideCandidateBuckets(baseGuideCandidates)')
     expect(viewportSource).toContain('const candidates = filterGuideCandidateBuckets(baseGuideCandidateBuckets, movingIds)')
     expect(viewportSource).toContain('resolveActiveGuidesFromBuckets(draggedBounds, candidates, getGuideThresholdInCanvas(_zoom))')
   })

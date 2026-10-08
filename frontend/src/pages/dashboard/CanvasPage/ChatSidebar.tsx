@@ -1009,7 +1009,7 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
         }
     }, [checkMarkChipDeletion, getEditorText, getTextBeforeCursor, saveEditorSelection])
 
-    const createMentionChipHtml = useCallback((item: CanvasItem, _isDarkMode: boolean) => {
+    const createMentionChipHtml = useCallback((item: CanvasItem) => {
         const itemName = item.name || t('canvas.chat.item_types.image')
 
         const thumbUrl = item.url
@@ -1028,7 +1028,7 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
     // Insert a single mention chip into the editor, returns the last inserted element
     const insertSingleMentionChip = useCallback((item: CanvasItem, parent: Node, insertBeforeNode: Node | null): HTMLElement => {
         const chipContainer = document.createElement('span')
-        chipContainer.innerHTML = createMentionChipHtml(item, isDark)
+        chipContainer.innerHTML = createMentionChipHtml(item)
         const chip = chipContainer.firstElementChild as HTMLElement
 
         chip.addEventListener('click', (e) => {
@@ -1227,7 +1227,7 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
 
     const NUMBER_CIRCLES = ['\u2460', '\u2461', '\u2462', '\u2463', '\u2464', '\u2465', '\u2466', '\u2467', '\u2468', '\u2469']
 
-    const createMarkChipHtml = useCallback((mark: CanvasMark, _isDarkMode: boolean) => {
+    const createMarkChipHtml = useCallback((mark: CanvasMark) => {
         const displayLabel = mark.customLabel || mark.selectedLabel || ''
         const numIcon = NUMBER_CIRCLES[mark.number - 1] || `(${mark.number})`
         const thumbHtml = mark.imageUrl
@@ -1306,7 +1306,7 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
             }
 
             const chipContainer = document.createElement('span')
-            chipContainer.innerHTML = createMarkChipHtml(mark, isDark)
+            chipContainer.innerHTML = createMarkChipHtml(mark)
             const chip = chipContainer.firstElementChild as HTMLElement
 
             chip.addEventListener('click', (e) => {

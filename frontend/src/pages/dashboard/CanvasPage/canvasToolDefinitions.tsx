@@ -8,7 +8,7 @@ export interface CanvasToolDefinitions {
   addTools: ToolItem[]
 }
 
-export function getCanvasToolDefinitions(t: TFunction, _isDark: boolean): CanvasToolDefinitions {
+export function getCanvasToolDefinitions(t: TFunction): CanvasToolDefinitions {
   const tools: ToolItem[] = [
     {
       key: 'select',

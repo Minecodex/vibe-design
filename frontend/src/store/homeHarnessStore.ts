@@ -686,7 +686,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 return loadHarnessUiConfigRequest
             },
 
-            loadConversations: async (_projectId) => {
+            loadConversations: async () => {
                 if (loadHarnessConversationsRequest) {
                     return loadHarnessConversationsRequest
                 }
@@ -967,43 +967,46 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         })))
                     }
                 } finally {
-                    if (!isActiveHarnessSend(get, targetConversationId, abortController)) {
-                        return
-                    }
-                    if (typeof targetConversationId === 'string') {
-                        const currentSession = getConversationSession(get(), targetConversationId)
-                        if (currentSession.runStatus === 'cancelled') {
-                            finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                    const settleConversationStream = async () => {
+                        if (!isActiveHarnessSend(get, targetConversationId, abortController)) {
                             return
                         }
-                        if (sawTurnCompleted) {
-                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                        if (typeof targetConversationId === 'string') {
+                            const currentSession = getConversationSession(get(), targetConversationId)
+                            if (currentSession.runStatus === 'cancelled') {
+                                finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                                return
+                            }
+                            if (sawTurnCompleted) {
+                                finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                                return
+                            }
+                            const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
+                            if (resumed) {
+                                return
+                            }
+                        }
+                        if (sendError) {
+                            // The send failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
                             return
                         }
-                        const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
-                        if (resumed) {
-                            return
-                        }
-                    }
-                    if (sendError) {
-                        // The send failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1175,40 +1178,43 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         console.error('Agent resume error:', err)
                     }
                 } finally {
-                    if (typeof targetConversationId === 'string') {
-                        const currentSession = getConversationSession(get(), targetConversationId)
-                        if (currentSession.runStatus === 'cancelled') {
-                            finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                    const settleConversationStream = async () => {
+                        if (typeof targetConversationId === 'string') {
+                            const currentSession = getConversationSession(get(), targetConversationId)
+                            if (currentSession.runStatus === 'cancelled') {
+                                finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                                return
+                            }
+                            if (sawTurnCompleted) {
+                                finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                                return
+                            }
+                            const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
+                            if (resumed) {
+                                return
+                            }
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
                             return
                         }
-                        if (sawTurnCompleted) {
-                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                            return
-                        }
-                        const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
-                        if (resumed) {
-                            return
-                        }
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1284,32 +1290,35 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         console.error('Plan execution error:', err)
                     }
                 } finally {
-                    if (sawTurnCompleted) {
-                        finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                        return
-                    }
-                    if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
-                        return
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
+                    const settleConversationStream = async () => {
+                        if (sawTurnCompleted) {
+                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                            return
+                        }
+                        if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
+                            return
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
+                            return
+                        }
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1352,32 +1361,35 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         console.error('Plan revision error:', err)
                     }
                 } finally {
-                    if (sawTurnCompleted) {
-                        finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                        return
-                    }
-                    if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
-                        return
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
+                    const settleConversationStream = async () => {
+                        if (sawTurnCompleted) {
+                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                            return
+                        }
+                        if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
+                            return
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
+                            return
+                        }
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 

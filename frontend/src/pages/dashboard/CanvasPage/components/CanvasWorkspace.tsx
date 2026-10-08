@@ -1,4 +1,6 @@
-// @ts-nocheck
+import type { ComponentProps } from 'react'
+import type { TFunction } from 'i18next'
+import type { CanvasItem } from '@/api/endpoints/projects'
 import { CanvasBrushToolPanel } from './CanvasBrushToolPanel'
 import { CanvasBrushToolbar } from './CanvasBrushToolbar'
 import { CanvasLeftToolbar } from './CanvasLeftToolbar'
@@ -6,199 +8,28 @@ import { CanvasTextToolbar } from './CanvasTextToolbar'
 import { CanvasWorkspaceBottomBar } from './CanvasWorkspaceBottomBar'
 import { CanvasWorkspaceCanvasArea } from './CanvasWorkspaceCanvasArea'
 
-export function CanvasWorkspace(props: any) {
-  const {
-    isGuest,
-    isDark,
-    tools,
-    selectTools,
-    addTools,
-    activeTool,
-    setActiveTool,
-    isSelectMenuOpen,
-    setIsSelectMenuOpen,
-    hoveredSelectTool,
-    setHoveredSelectTool,
-    isAddMenuOpen,
-    setIsAddMenuOpen,
-    hoveredAddTool,
-    setHoveredAddTool,
-    addNewGenerator,
-    imageInputRef,
-    videoInputRef,
-    setIsAssetLibraryOpen,
-    canvasRef,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    setContextMenu,
-    setSelectedItems,
-    setActiveContextMenuItem,
-    handleCanvasClick,
-    handlePlaceTextAtPoint,
-    isPanning,
-    isWheeling,
-    MARK_CURSOR,
-    canvasContentRef,
-    offset,
-    zoom,
-    zoomIn,
-    zoomOut,
-    canvasItems,
-    handleItemMouseDown,
-    getCanvasSelectionBorder,
-    beginTransaction,
-    setActiveGuides,
-    movingItemIdsRef,
-    setResizingGroupId,
-    setMediaResizeState,
-    setBrushResizeState,
-    resizingHandle,
-    dragItemStart,
-    resizingStart,
-    getCanvasSelectionHandleAppearance,
-    editingNameId,
-    setEditingNameId,
-    clampCanvasStackZIndex,
-    isHoverOnlyFailedVideoTask,
-    getItemDims,
-    activeDropdown,
-    setActiveDropdown,
-    isTransientMarkModeActive,
-    hoveredMarkableImageId,
-    markModifierState,
-    cropState,
-    selectedItems,
-    selectionBox,
-    getMediaSelectionOverlayMetrics,
-    getResolvedImageCapability,
-    getResolvedVideoCapability,
-    getResolvedVideoDurations,
-    getItemReferenceImages,
-    shouldDisableVideoAspectRatio,
-    getVideoGeneratorCapability,
-    availableImageModels,
-    availableVideoModels,
-    imageModel,
-    videoModel,
-    imageRes,
-    imageRatio,
-    videoAspect,
-    videoQuality,
-    referenceImageInputRef,
-    firstFrameImageInputRef,
-    tailFrameImageInputRef,
-    anchoredImageReferenceInputRef,
-    anchoredReferenceImageInputRef,
-    anchoredFirstFrameImageInputRef,
-    anchoredTailFrameImageInputRef,
-    setHoveredMarkableImageId,
-    imageAnchoredImageDraft,
-    imageAnchoredVideoDraft,
-    imageDetailItemId,
-    addMark,
-    isMarkModifierPressed,
-    handleOpenHDUpscale,
-    handleOpenCutout,
-    handleOpenImageErase,
-    handleOpenTextRedraw,
-    handleOpenSpatialAngle,
-    handleOpenCropPanel,
-    handleDeleteCanvasImage,
-    handleOpenImageDetails,
-    t,
-    updateItem,
-    getCanvasSelectionContainerOverflow,
-    textRedrawState,
-    textRedrawExtractingItemIds,
-    getTextRedrawExtractingBadgeStyle,
-    cropDragState,
-    handleCropMoveMouseDown,
-    handleCropHandleMouseDown,
-    renderSelectionHandles,
-    shouldShowGeneratorControlPanel,
-    getMediaDisplayInitializationUpdate,
-    normalizeReferenceImages,
-    getImageGeneratorCapability,
-    withReferenceImages,
-    videoDuration,
-    ratioHintLabels,
-    standardSuffix,
-    formatResolutionOptionLabel,
-    formatAspectRatioOptionLabelWithDimensions,
-    formatDimensionLabel,
-    shouldShowImageToolbar,
-    imageAnchoredImageDraftItem,
-    updateImageAnchoredImageDraft,
-    openGeneratorAssetLibrary,
-    openImageAnchoredImageDraft,
-    handleGenerateAnchoredImage,
-    imageAnchoredVideoDraftItem,
-    imageAnchoredVideoCapability,
-    imageAnchoredVideoAllowedDurations,
-    updateImageAnchoredVideoDraft,
-    openImageAnchoredVideoDraft,
-    handleMoveAnchoredVideoSourcePlacement,
-    setPreviewImageUrl,
-    handleGenerateAnchoredVideo,
-    getItemAmountCents,
-    handleGenerateImage,
-    handleGenerateVideo,
-    handleRetryFailedGeneration,
-    handleAppendImageMentionToChat,
-    cropCommitMode,
-    setCropExpandedGroups,
-    cropExpandedGroups,
-    CROP_PRESET_GROUPS,
-    handleSelectCropPreset,
-    handleCropDimensionChange,
-    setCropState,
-    handleApplyCrop,
-    marks,
-    multiSelectToolsOpen,
-    setMultiSelectToolsOpen,
-    handleCreateGroup,
-    handleMergeLayers,
-    handleUngroup,
-    setGroupBackgroundColor,
-    handleAlign,
-    handleAutoArrange,
-    handleSpacing,
-    handleBulkExport,
-    isLayerPanelOpen,
-    setIsLayerPanelOpen,
-    imageDetailItem,
-    imageDetailData,
-    imageDetailPanelPosition,
-    handleCloseImageDetails,
-    TEXT_REDRAW_PANEL_TOKENS,
-    textRedrawPanelPosition,
-    handleChangeTextRedrawSegment,
-    handleCancelTextRedraw,
-    handleSubmitTextRedraw,
-    selectedSingleItem,
-    selectedSingleItemRect,
-    textEditingItemId,
-    textToolbarState,
-    setTextToolbarState,
-    brushDraft,
-    brushToolState,
-    setBrushToolState,
-    brushToolbarState,
-    setBrushToolbarState,
-    handleStartTextEdit,
-    handleCancelTextEdit,
-    handleCommitTextEdit,
-    updateTextStyle,
-    updateBrushItem,
-    selectedSingleItemViewportWidth,
-    shouldRenderSelectedMeta,
-    selectedIsImageGroup,
-    selectedIsGenerator,
-    selectedSingleItemWidth,
-    selectedSingleItemHeight,
-    projectedGuides,
-  } = props
+type TextToolbarProps = ComponentProps<typeof CanvasTextToolbar>
+type BrushToolbarProps = ComponentProps<typeof CanvasBrushToolbar>
+type BrushPanelProps = ComponentProps<typeof CanvasBrushToolPanel>
+type CanvasWorkspaceProps = ComponentProps<typeof CanvasLeftToolbar>
+  & ComponentProps<typeof CanvasWorkspaceBottomBar>
+  & Record<string, unknown>
+  & {
+    t: TFunction
+    selectedSingleItem: CanvasItem | null
+    selectedSingleItemRect: TextToolbarProps['rect'] | null
+    textToolbarState: TextToolbarProps['state']
+    setTextToolbarState: TextToolbarProps['setState']
+    updateTextStyle: TextToolbarProps['updateTextStyle']
+    brushToolState: BrushPanelProps['state']
+    setBrushToolState: BrushPanelProps['setState']
+    brushToolbarState: BrushToolbarProps['state']
+    setBrushToolbarState: BrushToolbarProps['setState']
+    updateBrushItem: BrushToolbarProps['updateBrushItem']
+  }
+
+export function CanvasWorkspace(props: CanvasWorkspaceProps) {
+  const { isGuest, isDark, tools, selectTools, addTools, activeTool, setActiveTool, isSelectMenuOpen, setIsSelectMenuOpen, hoveredSelectTool, setHoveredSelectTool, isAddMenuOpen, setIsAddMenuOpen, hoveredAddTool, setHoveredAddTool, addNewGenerator, imageInputRef, videoInputRef, setIsAssetLibraryOpen, zoom, zoomIn, zoomOut, t, isLayerPanelOpen, setIsLayerPanelOpen, selectedSingleItem, selectedSingleItemRect, textToolbarState, setTextToolbarState, brushToolState, setBrushToolState, brushToolbarState, setBrushToolbarState, updateTextStyle, updateBrushItem } = props
 
   const textToolbarLabels = {
     fill: t('canvas.text_toolbar.fill', '濉厖'),
@@ -247,7 +78,7 @@ export function CanvasWorkspace(props: any) {
           activeTool={activeTool}
           state={brushToolState}
           setState={setBrushToolState}
-          brushToolIndex={tools.findIndex((tool: any) => tool.key === 'brush')}
+          brushToolIndex={tools.findIndex((tool) => tool.key === 'brush')}
           totalTools={tools.length}
         />
 

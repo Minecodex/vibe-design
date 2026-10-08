@@ -13,13 +13,7 @@ interface HomeChatFileVersionControlProps {
   onSelectVersion: (versionId: string) => void
 }
 
-export function HomeChatFileVersionControl({
-  file,
-  selectedVersionId,
-  isDark: _isDark,
-  disabled = false,
-  onSelectVersion,
-}: HomeChatFileVersionControlProps) {
+export function HomeChatFileVersionControl({ file, selectedVersionId, disabled = false, onSelectVersion }: HomeChatFileVersionControlProps) {
   const { t } = useTranslation()
   const versions = file.versions || []
   if (versions.length <= 0) {

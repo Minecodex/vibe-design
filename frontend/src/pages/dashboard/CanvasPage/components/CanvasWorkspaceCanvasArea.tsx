@@ -75,24 +75,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
   const [webglFallback, setWebglFallback] = React.useState(false)
   const [hoverDomItemId, setHoverDomItemId] = React.useState<string | null>(null)
   const [viewportSize, setViewportSize] = React.useState({ width: 0, height: 0 })
-  const {
-    canvasRef,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    setContextMenu,
-    setSelectedItems,
-    setActiveContextMenuItem,
-    handleCanvasClick,
-    isPanning,
-    activeTool,
-    MARK_CURSOR,
-    canvasContentRef,
-    offset,
-    zoom,
-    isWheeling,
-    brushDraft,
-  } = props
+  const { canvasRef, handleMouseDown, handleMouseMove, handleMouseUp, setContextMenu, setSelectedItems, setActiveContextMenuItem, handleCanvasClick, isPanning, activeTool, MARK_CURSOR, canvasContentRef, brushDraft } = props
   const isCanvasStale = Boolean(props.isCanvasStale)
   const clipboardCatcherRef = React.useRef<HTMLDivElement | null>(null)
   const hasInternalClipboardPasteIntent = Boolean(

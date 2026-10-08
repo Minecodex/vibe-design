@@ -11,12 +11,7 @@ interface HomeChatThinkingPickerProps {
   onThinkingChange: (enabled: boolean) => void
 }
 
-export function HomeChatThinkingPicker({
-  isDark: _isDark,
-  thinkingEnabled,
-  thinkingAvailable,
-  onThinkingChange,
-}: HomeChatThinkingPickerProps) {
+export function HomeChatThinkingPicker({ thinkingEnabled, thinkingAvailable, onThinkingChange }: HomeChatThinkingPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [hovered, setHovered] = useState(false)

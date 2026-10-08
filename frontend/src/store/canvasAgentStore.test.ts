@@ -1,3 +1,7 @@
+import type { AgentEvent, MediaReferenceData } from '@/api/endpoints/agent'
+// Legacy wire fixtures intentionally use retired tags to check replay and terminal-event guards.
+import { httpResponse, conversationDetail, runtimeState, conversationSession, artifactTask } from './testing/harnessStateFixtures'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { __chatStoreTestUtils, type ChatMessage, type MessageBlock, useChatStore } from './canvasAgentStore'
@@ -7,109 +11,7 @@ import { resetCanvasGenerationTaskRuntimeForTests } from './canvasGenerationTask
 import { agentApi } from '@/api/endpoints/agent'
 import * as agentModule from '@/api/endpoints/agent'
 
-function turnCompleted(
-  status: 'completed' | 'failed' | 'blocked' | 'cancelled' | 'waiting_input',
-  data: Record<string, any> = {},
-): any {
-  const conversationId = String(data.conversation_id || 'conv-canvas')
-  const runId = String(data.run_id || 'run-canvas')
-  const summary = String(data.summary || data.message || data.terminal_error || '')
-  return {
-    type: 'turn_completed',
-    sequence: data.sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      conversation_id: conversationId,
-      run_id: runId,
-      turn_id: runId,
-      status,
-      error: status === 'failed' || status === 'blocked'
-        ? {
-          error_type: data.error_type || 'Failed',
-          summary,
-          user_visible: data.user_visible !== false,
-          failure_signature: data.failure_signature ?? null,
-        }
-        : null,
-      runtime_snapshot: {
-        runtime_status: status,
-        run_state: status,
-        turn_status: status,
-        ...(data.runtime_snapshot || {}),
-      },
-      completed_at: '2026-05-01T00:00:00.000Z',
-      duration_ms: null,
-    },
-  }
-}
-
-function presentationDelta(
-  sequence: number,
-  blockKey: string,
-  delta: string,
-  options: Record<string, any> = {},
-): any {
-  const runId = String(options.run_id || 'run-canvas')
-  const messageKey = String(options.message_key || `message:${runId}`)
-  return {
-    type: 'presentation.block.delta',
-    sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      protocol_version: 2,
-      type: 'presentation.block.delta',
-      op_id: `test:${sequence}:${blockKey}:delta`,
-      source_sequence: sequence,
-      message_key: messageKey,
-      block_key: blockKey,
-      parent_block_key: options.parent_block_key ?? null,
-      payload: { field: options.field || 'text', delta },
-    },
-  }
-}
-
-function presentationComplete(
-  sequence: number,
-  blockKey: string,
-  text: string,
-  options: Record<string, any> = {},
-): any {
-  const runId = String(options.run_id || 'run-canvas')
-  const messageKey = String(options.message_key || `message:${runId}`)
-  const uiKind = String(options.ui_kind || 'text')
-  const payload = { text, ...(options.payload || {}) }
-  return {
-    type: 'presentation.block.complete',
-    sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      protocol_version: 2,
-      type: 'presentation.block.complete',
-      op_id: `test:${sequence}:${blockKey}:complete`,
-      source_sequence: sequence,
-      message_key: messageKey,
-      block_key: blockKey,
-      parent_block_key: options.parent_block_key ?? null,
-      block: {
-        id: blockKey,
-        block_key: blockKey,
-        kind: options.kind || (uiKind === 'text' || uiKind === 'assistant_text' ? 'text' : 'content'),
-        order: options.order || 0,
-        status: options.status || 'completed',
-        visible: true,
-        ui_kind: uiKind,
-        uiKind,
-        payload,
-        revision: sequence,
-        source_sequence: sequence,
-      },
-      payload,
-    },
-  }
-}
+import { turnCompleted, presentationDelta, presentationComplete } from './testing/harnessEventFixtures'
 
 describe('canvasAgentStore defaults', () => {
   it('disables web search by default', () => {
@@ -122,7 +24,7 @@ describe('canvasAgentStore defaults', () => {
     useChatStore.setState({
       isStreaming: true,
       streamingBlocks: EMPTY_MESSAGE_BLOCKS,
-    } as any)
+    })
 
     const before = useChatStore.getState().streamingBlocks
     useChatStore.getState().newChat()
@@ -135,7 +37,7 @@ describe('canvasAgentStore defaults', () => {
     useChatStore.getState().reset()
 
     const conversationId = 'conv-canvas-thinking-noop'
-    const session = {
+    const session = conversationSession({
       messages: [],
       activePlan: null,
       pendingInteraction: null,
@@ -151,7 +53,7 @@ describe('canvasAgentStore defaults', () => {
       appliedPresentationOps: [],
       generationProjection: createGenerationProjectionState(),
       messagesPage: { hasMore: false, oldestSeq: null, loading: false },
-    }
+    })
 
     useChatStore.setState({
       conversationId,
@@ -167,7 +69,7 @@ describe('canvasAgentStore defaults', () => {
       conversationSessions: {
         [conversationId]: session,
       },
-    } as any)
+    })
 
     const before = useChatStore.getState()
     let notifications = 0
@@ -176,11 +78,11 @@ describe('canvasAgentStore defaults', () => {
     })
 
     __chatStoreTestUtils.handleAgentEventV2(
-      {
+      ({
         type: 'subagent_completed',
         sequence: 9,
         data: { conversation_id: conversationId },
-      } as any,
+      } as unknown as AgentEvent),
       useChatStore.setState,
       useChatStore.getState,
       conversationId,
@@ -219,14 +121,14 @@ describe('canvasAgentStore defaults', () => {
   it('does not send design_workflow as an explicit canvas skill when creating a harness conversation', async () => {
     const createHarnessConversationMock = vi
       .spyOn(agentApi, 'createHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-default-skill',
           title: '新会话',
           skill_id: 'design_workflow',
           runtime_profile: 'canvas',
           project_id: 64,
-          phase: 'idle',
+          phase: 'discovery',
           mode: 'fast',
           web_search_enabled: false,
           status: 'idle',
@@ -234,8 +136,8 @@ describe('canvasAgentStore defaults', () => {
           engine_version: 'harness',
           created_at: '2026-05-11T00:00:00Z',
           updated_at: '2026-05-11T00:00:00Z',
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       projectId: 64,
@@ -243,7 +145,7 @@ describe('canvasAgentStore defaults', () => {
       mode: 'fast',
       webSearchEnabled: false,
       modelPreferences: { auto: false },
-    } as any)
+    })
 
     await useChatStore.getState().createHarnessConversation(undefined, undefined)
 
@@ -263,23 +165,23 @@ describe('canvasAgentStore defaults', () => {
   it('uses the backend canvas skill policy when creating a harness conversation', async () => {
     const getUiConfigMock = vi
       .spyOn(agentApi, 'getUiConfig')
-      .mockResolvedValue({
+      .mockResolvedValue(httpResponse({
         data: {
           hidden_tool_calls: [],
           canvas_default_skill_id: 'custom_canvas_default',
           canvas_explicit_skill_ids: ['poster'],
         },
-      } as any)
+      }))
     const createHarnessConversationMock = vi
       .spyOn(agentApi, 'createHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-policy',
           title: '新会话',
           skill_id: 'custom_canvas_default',
           runtime_profile: 'canvas',
           project_id: 64,
-          phase: 'idle',
+          phase: 'discovery',
           mode: 'fast',
           web_search_enabled: false,
           status: 'idle',
@@ -287,11 +189,11 @@ describe('canvasAgentStore defaults', () => {
           engine_version: 'harness',
           created_at: '2026-05-11T00:00:00Z',
           updated_at: '2026-05-11T00:00:00Z',
-        },
-      } as any)
+        }),
+      }))
     const listHarnessSkillsMock = vi
       .spyOn(agentApi, 'listHarnessSkills')
-      .mockResolvedValue({
+      .mockResolvedValue(httpResponse({
         data: [
           {
             id: 'poster',
@@ -310,7 +212,7 @@ describe('canvasAgentStore defaults', () => {
             },
           },
         ],
-      } as any)
+      }))
 
     await useChatStore.getState().loadUiConfig()
     expect(useChatStore.getState().uiConfig.canvasSkills?.map(skill => skill.id)).toEqual(['poster'])
@@ -320,7 +222,7 @@ describe('canvasAgentStore defaults', () => {
       mode: 'fast',
       webSearchEnabled: false,
       modelPreferences: { auto: false },
-    } as any)
+    })
 
     await useChatStore.getState().createHarnessConversation(undefined, undefined)
 
@@ -330,7 +232,7 @@ describe('canvasAgentStore defaults', () => {
       }),
     )
 
-    useChatStore.setState({ activeSkillId: 'poster' } as any)
+    useChatStore.setState({ activeSkillId: 'poster' })
     await useChatStore.getState().createHarnessConversation(undefined, undefined)
 
     expect(createHarnessConversationMock).toHaveBeenLastCalledWith(
@@ -348,23 +250,23 @@ describe('canvasAgentStore defaults', () => {
   it('force reloads the backend canvas skill policy for the tools panel', async () => {
     const getUiConfigMock = vi
       .spyOn(agentApi, 'getUiConfig')
-      .mockResolvedValueOnce({
+      .mockResolvedValueOnce(httpResponse({
         data: {
           hidden_tool_calls: [],
           canvas_default_skill_id: 'design_workflow',
           canvas_explicit_skill_ids: ['logo'],
         },
-      } as any)
-      .mockResolvedValueOnce({
+      }))
+      .mockResolvedValueOnce(httpResponse({
         data: {
           hidden_tool_calls: [],
           canvas_default_skill_id: 'design_workflow',
           canvas_explicit_skill_ids: ['logo', 'menswear-ecommerce-hero'],
         },
-      } as any)
+      }))
     const listHarnessSkillsMock = vi
       .spyOn(agentApi, 'listHarnessSkills')
-      .mockResolvedValue({ data: [] } as any)
+      .mockResolvedValue(httpResponse({ data: [] }))
 
     await useChatStore.getState().loadUiConfig()
     expect(__chatStoreTestUtils.normalizeCanvasSelectedSkillId('menswear-ecommerce-hero', useChatStore.getState().uiConfig)).toBeNull()
@@ -385,15 +287,15 @@ describe('canvasAgentStore defaults', () => {
       .mockImplementation(async function* () {})
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-local-ref',
           title: 'Canvas',
           runtime_status: 'completed',
           status: 'completed',
           messages: [],
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-local-ref',
@@ -403,7 +305,7 @@ describe('canvasAgentStore defaults', () => {
       webSearchEnabled: false,
       modelPreferences: { auto: false },
       uiConfig: { hiddenToolCalls: [] },
-    } as any)
+    })
 
     await useChatStore.getState().sendMessage(
       '照着 @[本地上传图](canvas:img-local-1) 生成一张新图',
@@ -421,7 +323,7 @@ describe('canvasAgentStore defaults', () => {
             },
           },
         ],
-      } as any,
+      },
     )
 
     expect(streamHarnessSendMessageMock).toHaveBeenCalledWith(
@@ -455,15 +357,15 @@ describe('canvasAgentStore defaults', () => {
       .mockImplementation(async function* () {})
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-null-product-prompt',
           title: 'Canvas',
           runtime_status: 'completed',
           status: 'completed',
           messages: [],
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-menswear-ecommerce-hero',
@@ -477,7 +379,7 @@ describe('canvasAgentStore defaults', () => {
         canvasDefaultSkillId: 'design_workflow',
         canvasExplicitSkillIds: ['menswear-ecommerce-hero'],
       },
-    } as any)
+    })
 
     await useChatStore.getState().sendMessage('生成一张商品图')
 
@@ -513,9 +415,9 @@ describe('canvasAgentStore defaults', () => {
       webSearchEnabled: false,
       modelPreferences: { auto: false },
       uiConfig: { hiddenToolCalls: [] },
-    } as any)
+    })
 
-    const reference = {
+    const reference: MediaReferenceData = {
       id: 'upload:references/inputs/upload_001/source.jpeg',
       kind: 'upload_attachment',
       media_type: 'image',
@@ -535,8 +437,8 @@ describe('canvasAgentStore defaults', () => {
           name: 'source.jpeg',
           reference,
         },
-      ] as any,
-      { references: [reference] } as any,
+      ],
+      { references: [reference] },
     )
 
     expect(useChatStore.getState().messages[0].attachments?.[0]).toMatchObject({
@@ -581,7 +483,7 @@ describe('canvasAgentStore defaults', () => {
       webSearchEnabled: false,
       modelPreferences: { auto: false },
       uiConfig: { hiddenToolCalls: [] },
-    } as any)
+    })
 
     await useChatStore.getState().sendMessage(
       'Use this image',
@@ -594,7 +496,7 @@ describe('canvasAgentStore defaults', () => {
           _previewObjectUrl: 'blob:pending-thumb',
           _clientAttachmentId: 'pending-1',
         },
-      ] as any,
+      ],
     )
 
     expect(useChatStore.getState().messages[0].attachments?.[0]).toMatchObject({
@@ -636,24 +538,24 @@ describe('canvasAgentStore defaults', () => {
         yield presentationComplete(4, 'assistant-new-output', '充值后的新输出', {
           run_id: 'run-canvas-failed-cursor',
         })
-        yield {
+        yield ({
           type: 'message_done',
           sequence: 5,
           data: {
             conversation_id: 'conv-canvas-failed-cursor',
           },
-        } as any
+        } as unknown as AgentEvent)
       })
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {})
     const listWorkspaceFilesMock = vi
       .spyOn(agentApi, 'listWorkspaceFiles')
-      .mockResolvedValue({ data: [] } as any)
+      .mockResolvedValue(httpResponse({ data: [] }))
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValueOnce({
-        data: {
+      .mockResolvedValueOnce(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-failed-cursor',
           title: 'Canvas',
           runtime_profile: 'canvas',
@@ -687,10 +589,10 @@ describe('canvasAgentStore defaults', () => {
               created_at: '2026-04-20T00:00:02.000Z',
             },
           ],
-        },
-      } as any)
-      .mockResolvedValueOnce({
-        data: {
+        }),
+      }))
+      .mockResolvedValueOnce(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-failed-cursor',
           title: 'Canvas',
           runtime_profile: 'canvas',
@@ -724,14 +626,14 @@ describe('canvasAgentStore defaults', () => {
               created_at: '2026-04-20T00:01:02.000Z',
             },
           ],
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       projectId: 64,
       uiConfig: { hiddenToolCalls: [] },
       modelPreferences: { auto: false },
-    } as any)
+    })
 
     await useChatStore.getState().loadConversation('conv-canvas-failed-cursor')
     await useChatStore.getState().sendMessage('第二次')
@@ -757,16 +659,17 @@ describe('canvasAgentStore defaults', () => {
   })
 
   it('surfaces a protocol error when a terminal canvas snapshot arrives without turn_completed', async () => {
-    let resolveSnapshot: ((value: any) => void) | null = null
-    const snapshotPromise = new Promise((resolve) => {
+    type SnapshotResponse = Awaited<ReturnType<typeof agentApi.getHarnessConversation>>
+    let resolveSnapshot: ((value: SnapshotResponse) => void) | null = null
+    const snapshotPromise = new Promise<SnapshotResponse>((resolve) => {
       resolveSnapshot = resolve
     })
     const streamHarnessSendMessageMock = vi
       .spyOn(agentModule, 'streamHarnessSendMessage')
       .mockImplementation(async function* () {
         yield presentationDelta(31, 'canvas-final', '', { run_id: 'run-canvas-live-snapshot' })
-        resolveSnapshot?.({
-          data: {
+        resolveSnapshot?.(httpResponse({
+          data: conversationDetail({
             id: 'conv-canvas-live-snapshot',
             title: 'Canvas',
             runtime_profile: 'canvas',
@@ -787,26 +690,26 @@ describe('canvasAgentStore defaults', () => {
               event_last_sequence: 40,
             },
             messages: [],
-          },
-        })
+          }),
+        }))
         await snapshotPromise
         yield presentationComplete(32, 'canvas-final', '画布正文', { run_id: 'run-canvas-live-snapshot' })
-        yield {
+        yield ({
           type: 'message_done',
           sequence: 33,
           data: {
             conversation_id: 'conv-canvas-live-snapshot',
           },
-        } as any
+        } as unknown as AgentEvent)
       })
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {})
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockImplementationOnce(() => snapshotPromise as any)
-      .mockResolvedValue({
-        data: {
+      .mockImplementationOnce(() => snapshotPromise)
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-live-snapshot',
           title: 'Canvas',
           runtime_profile: 'canvas',
@@ -827,11 +730,11 @@ describe('canvasAgentStore defaults', () => {
             event_last_sequence: 40,
           },
           messages: [],
-        },
-      } as any)
+        }),
+      }))
     const listWorkspaceFilesMock = vi
       .spyOn(agentApi, 'listWorkspaceFiles')
-      .mockResolvedValue({ data: [] } as any)
+      .mockResolvedValue(httpResponse({ data: [] }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-live-snapshot',
@@ -842,7 +745,7 @@ describe('canvasAgentStore defaults', () => {
       modelPreferences: { auto: false },
       uiConfig: { hiddenToolCalls: [] },
       conversationSessions: {
-        'conv-canvas-live-snapshot': {
+        'conv-canvas-live-snapshot': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -855,9 +758,9 @@ describe('canvasAgentStore defaults', () => {
           eventStreamController: null,
           lastSequence: 30,
           runStatus: 'idle',
-        },
+        }),
       },
-    } as any)
+    })
 
     const sendPromise = useChatStore.getState().sendMessage('把标题调大')
     await Promise.resolve()
@@ -888,22 +791,22 @@ describe('canvasAgentStore defaults', () => {
         yield presentationComplete(41, 'canvas-final-answer', '已生成 3 个方向，请选择 A/B/C。', {
           run_id: 'run-message-done-completed',
         })
-        yield {
+        yield ({
           type: 'message_done',
           sequence: 42,
           data: {
             conversation_id: 'conv-canvas-message-done-completed',
             status: 'completed',
           },
-        } as any
+        } as unknown as AgentEvent)
       })
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {})
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-message-done-completed',
           title: '鹦鹉咖啡',
           runtime_profile: 'canvas',
@@ -932,18 +835,18 @@ describe('canvasAgentStore defaults', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'completed',
             run_state: 'completed',
             run_status: 'running',
             current_action: 'running:generate_image',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
     const listWorkspaceFilesMock = vi
       .spyOn(agentApi, 'listWorkspaceFiles')
-      .mockResolvedValue({ data: [] } as any)
+      .mockResolvedValue(httpResponse({ data: [] }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-message-done-completed',
@@ -954,7 +857,7 @@ describe('canvasAgentStore defaults', () => {
       modelPreferences: { auto: false },
       uiConfig: { hiddenToolCalls: [] },
       conversationSessions: {
-        'conv-canvas-message-done-completed': {
+        'conv-canvas-message-done-completed': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -967,9 +870,9 @@ describe('canvasAgentStore defaults', () => {
           eventStreamController: null,
           lastSequence: 40,
           runStatus: 'idle',
-        },
+        }),
       },
-    } as any)
+    })
 
     await useChatStore.getState().sendMessage('继续')
 
@@ -994,8 +897,8 @@ describe('canvasAgentStore defaults', () => {
   it('restores persisted model preferences when loading a canvas harness conversation', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-model-prefs',
           title: 'Canvas model prefs',
           runtime_profile: 'canvas',
@@ -1022,8 +925,8 @@ describe('canvasAgentStore defaults', () => {
             multimodal_provider: 'builtin',
             auto: false,
           },
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       projectId: 64,
@@ -1036,7 +939,7 @@ describe('canvasAgentStore defaults', () => {
         multimodal_provider: 'current-provider',
         auto: false,
       },
-    } as any)
+    })
 
     await useChatStore.getState().loadConversation('conv-canvas-model-prefs')
 
@@ -1057,7 +960,7 @@ describe('canvasAgentStore defaults', () => {
   it('prepends an older page and advances the pagination cursor on loadOlderMessages', async () => {
     const listMessagesMock = vi
       .spyOn(agentApi, 'listHarnessConversationMessages')
-      .mockResolvedValue({
+      .mockResolvedValue(httpResponse({
         data: {
           messages: [
             { id: 'older-1', role: 'user', content: '更早的问题', created_at: '2026-01-01T00:00:00Z' },
@@ -1065,14 +968,14 @@ describe('canvasAgentStore defaults', () => {
           ],
           messages_page: { has_more: false, oldest_seq: 5 },
         },
-      } as any)
+      }))
 
     useChatStore.setState({
       conversationId: 'conv-older',
       projectId: 1,
       messages: [{ id: 'recent-1', role: 'user', content: '最近', createdAt: '2026-01-02T00:00:00Z' }],
       conversationSessions: {
-        'conv-older': {
+        'conv-older': conversationSession({
           messages: [{ id: 'recent-1', role: 'user', content: '最近', createdAt: '2026-01-02T00:00:00Z' }],
           activePlan: null,
           pendingInteraction: null,
@@ -1086,9 +989,9 @@ describe('canvasAgentStore defaults', () => {
           eventStreamController: null,
           lastSequence: 0,
           messagesPage: { hasMore: true, oldestSeq: 42, loading: false },
-        },
+        }),
       },
-    } as any)
+    })
 
     await useChatStore.getState().loadOlderMessages()
 
@@ -1112,7 +1015,7 @@ describe('canvasAgentStore defaults', () => {
       conversationId: 'conv-no-older',
       projectId: 1,
       conversationSessions: {
-        'conv-no-older': {
+        'conv-no-older': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -1126,9 +1029,9 @@ describe('canvasAgentStore defaults', () => {
           eventStreamController: null,
           lastSequence: 0,
           messagesPage: { hasMore: false, oldestSeq: null, loading: false },
-        },
+        }),
       },
-    } as any)
+    })
 
     await useChatStore.getState().loadOlderMessages()
 
@@ -1237,7 +1140,7 @@ describe('canvasAgentStore history replay', () => {
         content: '我来为您生成一张猴子吃葡萄的照片，然后分析其内容。',
         created_at: '2026-05-11T05:50:00.000Z',
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.id).toBe('assistant-reply')
@@ -1269,7 +1172,7 @@ describe('canvasAgentStore history replay', () => {
           model_visible: true,
         },
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.id).toBe('conv:user-visible')
@@ -1304,7 +1207,7 @@ describe('canvasAgentStore history replay', () => {
           source_event_sequence: 138,
         },
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.id).toBe('run:summary')
@@ -1350,7 +1253,7 @@ describe('canvasAgentStore history replay', () => {
         content: '{"status":"processing","task_id":"task-1","message":"图片生成任务已异步提交"}',
         created_at: '2026-05-11T05:50:45.301Z',
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.role).toBe('assistant')
@@ -1409,7 +1312,7 @@ describe('canvasAgentStore history replay', () => {
           },
         ],
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(2)
     expect(messages[0]?.id).toBe(`run:render:${uiKind}`)
@@ -1490,7 +1393,7 @@ describe('canvasAgentStore history replay', () => {
         content: '继续确认后续产品方向',
         created_at: '2026-05-12T09:00:20.000Z',
       },
-    ] as any)
+    ])
 
     const interactionBlock = messages[0]?.blocks?.[0]
     expect(interactionBlock?.uiKind).toBe('interaction_form')
@@ -1532,7 +1435,7 @@ describe('canvasAgentStore history replay', () => {
           selected_skill_id: 'logo',
         },
       },
-    ] as any)
+    ])
 
     expect(messages[0]?.role).toBe('user')
     expect(messages[0]?.skillId).toBe('brand_strategy_architect')
@@ -1543,8 +1446,8 @@ describe('canvasAgentStore history replay', () => {
   it('replaces a stale streaming canvas session with persisted interaction messages once the snapshot is waiting for input', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-runtime-interaction',
           title: '阿旭咖啡',
           runtime_profile: 'canvas',
@@ -1608,7 +1511,7 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'waiting_input',
             run_state: 'waiting_input',
             user_interaction: {
@@ -1631,9 +1534,9 @@ describe('canvasAgentStore history replay', () => {
                 ],
               },
             },
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
 
     useChatStore.setState({
       projectId: 64,
@@ -1652,7 +1555,7 @@ describe('canvasAgentStore history replay', () => {
       currentStreamText: '',
       streamingBlocks: [],
       conversationSessions: {
-        'conv-runtime-interaction': {
+        'conv-runtime-interaction': conversationSession({
           messages: [
             {
               id: 'user-1',
@@ -1671,10 +1574,10 @@ describe('canvasAgentStore history replay', () => {
           abortController: null,
           eventStreamController: null,
           lastSequence: 0,
-        },
+        }),
       },
       conversations: [],
-    } as any)
+    })
 
     await useChatStore.getState().loadConversation('conv-runtime-interaction')
 
@@ -1694,8 +1597,8 @@ describe('canvasAgentStore history replay', () => {
   it('persists cancellation when stopping a running canvas conversation', async () => {
     const cancelHarnessConversationRunMock = vi
       .spyOn(agentApi, 'cancelHarnessConversationRun')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-cancel',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1735,13 +1638,13 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'cancelled',
             run_state: 'cancelled',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
 
     const abortController = new AbortController()
     const eventStreamController = new AbortController()
@@ -1762,7 +1665,7 @@ describe('canvasAgentStore history replay', () => {
       currentStreamText: '',
       streamingBlocks: [],
       conversations: [
-        {
+        conversationDetail({
           id: 'conv-canvas-cancel',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1775,10 +1678,10 @@ describe('canvasAgentStore history replay', () => {
           runtime_status: 'running',
           created_at: '2026-05-13T07:00:00.000Z',
           updated_at: '2026-05-13T07:00:30.000Z',
-        },
+        }),
       ],
       conversationSessions: {
-        'conv-canvas-cancel': {
+        'conv-canvas-cancel': conversationSession({
           messages: [
             {
               id: 'user-1',
@@ -1798,9 +1701,9 @@ describe('canvasAgentStore history replay', () => {
           abortController,
           eventStreamController,
           lastSequence: 0,
-        },
+        }),
       },
-    } as any)
+    })
 
     useChatStore.getState().stopStreaming()
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -1820,8 +1723,8 @@ describe('canvasAgentStore history replay', () => {
   it('keeps the canvas session cancelled when the cancel endpoint only acknowledges a healthy foreign owner request', async () => {
     const cancelHarnessConversationRunMock = vi
       .spyOn(agentApi, 'cancelHarnessConversationRun')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-cancel-requested',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1840,13 +1743,13 @@ describe('canvasAgentStore history replay', () => {
           run_id: 'run-cancel-requested',
           messages: [],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'running',
             run_state: 'executing',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
 
     const abortController = new AbortController()
     const eventStreamController = new AbortController()
@@ -1860,7 +1763,7 @@ describe('canvasAgentStore history replay', () => {
       currentStreamText: '',
       streamingBlocks: [],
       conversations: [
-        {
+        conversationDetail({
           id: 'conv-canvas-cancel-requested',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1873,10 +1776,10 @@ describe('canvasAgentStore history replay', () => {
           runtime_status: 'running',
           created_at: '2026-05-13T07:00:00.000Z',
           updated_at: '2026-05-13T07:00:30.000Z',
-        },
+        }),
       ],
       conversationSessions: {
-        'conv-canvas-cancel-requested': {
+        'conv-canvas-cancel-requested': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -1889,9 +1792,9 @@ describe('canvasAgentStore history replay', () => {
           abortController,
           eventStreamController,
           lastSequence: 0,
-        },
+        }),
       },
-    } as any)
+    })
 
     useChatStore.getState().stopStreaming()
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -1908,8 +1811,8 @@ describe('canvasAgentStore history replay', () => {
   it('replays a cancelled canvas conversation without resubscribing to SSE', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-detail-cancelled',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1934,13 +1837,13 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'cancelled',
             run_state: 'cancelled',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {})
@@ -1959,8 +1862,8 @@ describe('canvasAgentStore history replay', () => {
   it('applies a turn_completed(cancelled) SSE event immediately without waiting for a detail refresh', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-live-cancelled',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -1985,13 +1888,13 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'running',
             run_state: 'executing',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {
@@ -2002,7 +1905,7 @@ describe('canvasAgentStore history replay', () => {
         })
       })
 
-    useChatStore.setState({ projectId: 70, viewerUserId: null } as any)
+    useChatStore.setState({ projectId: 70, viewerUserId: null })
     await useChatStore.getState().loadConversation('conv-canvas-live-cancelled')
     await new Promise((resolve) => setTimeout(resolve, 0))
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -2020,8 +1923,8 @@ describe('canvasAgentStore history replay', () => {
   it('keeps a newer canvas run active when an older turn_completed(cancelled) event arrives late', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-run-race',
           title: '鹦鹉咖啡',
           runtime_profile: 'canvas',
@@ -2052,15 +1955,15 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'running',
             run_status: 'running',
             run_state: 'executing',
             run_id: 'run-old',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* (
@@ -2079,7 +1982,7 @@ describe('canvasAgentStore history replay', () => {
             conversation_id: 'conv-canvas-run-race',
             runtime_status: 'running',
           },
-        } as any
+        }
         yield turnCompleted('cancelled', {
           sequence: 4,
           conversation_id: 'conv-canvas-run-race',
@@ -2090,7 +1993,7 @@ describe('canvasAgentStore history replay', () => {
         })
       })
 
-    useChatStore.setState({ projectId: 70, viewerUserId: null } as any)
+    useChatStore.setState({ projectId: 70, viewerUserId: null })
     await useChatStore.getState().loadConversation('conv-canvas-run-race')
     await new Promise((resolve) => setTimeout(resolve, 0))
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -2108,8 +2011,8 @@ describe('canvasAgentStore history replay', () => {
   it('applies a turn_completed(failed) SSE event immediately without waiting for a detail refresh', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-live-failed',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -2134,13 +2037,13 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'running',
             run_state: 'executing',
             user_interaction: null,
-          },
-        },
-      } as any)
+          }),
+        }),
+      }))
     const streamHarnessConversationEventsMock = vi
       .spyOn(agentModule, 'streamHarnessConversationEvents')
       .mockImplementation(async function* () {
@@ -2154,7 +2057,7 @@ describe('canvasAgentStore history replay', () => {
         })
       })
 
-    useChatStore.setState({ projectId: 70, viewerUserId: null } as any)
+    useChatStore.setState({ projectId: 70, viewerUserId: null })
     await useChatStore.getState().loadConversation('conv-canvas-live-failed')
     await new Promise((resolve) => setTimeout(resolve, 0))
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -2173,8 +2076,8 @@ describe('canvasAgentStore history replay', () => {
   it('keeps a running canvas harness conversation alive when the SSE transport detaches and resubscribes after the shared delay', async () => {
     const getHarnessConversationMock = vi
       .spyOn(agentApi, 'getHarnessConversation')
-      .mockResolvedValueOnce({
-        data: {
+      .mockResolvedValueOnce(httpResponse({
+        data: conversationDetail({
           id: 'conv-canvas-live-running',
           title: '生成一个猴子的图片',
           runtime_profile: 'canvas',
@@ -2199,15 +2102,15 @@ describe('canvasAgentStore history replay', () => {
             },
           ],
           workspace_files: [],
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'running',
             run_state: 'executing',
             user_interaction: null,
-          },
-        },
-      } as any)
-    getHarnessConversationMock.mockResolvedValueOnce({
-      data: {
+          }),
+        }),
+      }))
+    getHarnessConversationMock.mockResolvedValueOnce(httpResponse({
+      data: conversationDetail({
         id: 'conv-canvas-live-running',
         title: '生成一个猴子的图片',
         runtime_profile: 'canvas',
@@ -2232,13 +2135,13 @@ describe('canvasAgentStore history replay', () => {
           },
         ],
         workspace_files: [],
-        runtime_state: {
+        runtime_state: runtimeState({
           runtime_status: 'running',
           run_state: 'executing',
           user_interaction: null,
-        },
-      },
-    } as any)
+        }),
+      }),
+    }))
 
     let streamCalls = 0
     const streamHarnessConversationEventsMock = vi
@@ -2249,6 +2152,7 @@ describe('canvasAgentStore history replay', () => {
           afterSequenceOrSignal?: number | AbortSignal,
           signal?: AbortSignal,
         ) {
+
           const activeSignal = afterSequenceOrSignal instanceof AbortSignal
             ? afterSequenceOrSignal
             : signal
@@ -2259,10 +2163,11 @@ describe('canvasAgentStore history replay', () => {
           await new Promise<void>((resolve) => {
             activeSignal?.addEventListener('abort', () => resolve(), { once: true })
           })
+          yield* [] // This fixture intentionally emits no events.
         }
       })())
 
-    useChatStore.setState({ projectId: 70, viewerUserId: null } as any)
+    useChatStore.setState({ projectId: 70, viewerUserId: null })
     await useChatStore.getState().loadConversation('conv-canvas-live-running')
     await new Promise((resolve) => setTimeout(resolve, 0))
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -2305,7 +2210,7 @@ describe('canvasAgentStore stream delta batching', () => {
       workspaceFiles: [],
       _abortController: null,
       conversationSessions: {
-        '183': {
+        '183': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -2329,9 +2234,9 @@ describe('canvasAgentStore stream delta batching', () => {
           abortController: null,
           eventStreamController: null,
           lastSequence: 0,
-        },
+        }),
       },
-    } as any)
+    })
   })
 
   afterEach(() => {
@@ -2371,10 +2276,10 @@ describe('canvasAgentStore stream delta batching', () => {
       ...state,
       conversationSessions: {
         ...state.conversationSessions,
-        '183': {
+        '183': conversationSession({
           ...state.conversationSessions['183'],
           lastSequence: 11,
-        },
+        }),
       },
     }))
 
@@ -2383,10 +2288,10 @@ describe('canvasAgentStore stream delta batching', () => {
       ...state,
       conversationSessions: {
         ...state.conversationSessions,
-        '183': {
+        '183': conversationSession({
           ...state.conversationSessions['183'],
           appliedPresentationOps: [replayed.data.op_id],
-        },
+        }),
       },
     }))
 
@@ -2411,7 +2316,7 @@ describe('canvasAgentStore stream delta batching', () => {
       ...state,
       conversationSessions: {
         ...state.conversationSessions,
-        '183': {
+        '183': conversationSession({
           ...state.conversationSessions['183'],
           isStreaming: true,
           runStatus: 'running',
@@ -2430,18 +2335,17 @@ describe('canvasAgentStore stream delta batching', () => {
                   status: 'completed',
                   visible: true,
                   uiKind: 'text',
-                  content: '最终回答',
                   payload: { text: '最终回答' },
                   revision: 0,
-                  source_sequence: 0,
+                  sourceSequence: 0,
                 },
               ],
             },
           ],
           streamingBlocks: [],
-        },
+        }),
       },
-    } as any))
+    }))
 
     handleAgentEventV2(
       turnCompleted('completed', {
@@ -2481,7 +2385,7 @@ describe('canvasAgentStore stream delta batching', () => {
         },
         message_id: 'assistant-message-1',
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledTimes(1)
     expect(onCanvasUpdate).toHaveBeenCalledWith(
@@ -2519,7 +2423,7 @@ describe('canvasAgentStore stream delta batching', () => {
           task_id: 348,
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledWith(
       'sync_canvas_revision',
@@ -2559,7 +2463,7 @@ describe('canvasAgentStore stream delta batching', () => {
           },
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledWith(
       'sync_canvas_revision',
@@ -2597,7 +2501,7 @@ describe('canvasAgentStore stream delta batching', () => {
           canvas_item_deleted: false,
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledWith(
       'sync_canvas_revision',
@@ -2642,7 +2546,7 @@ describe('canvasAgentStore stream delta batching', () => {
           },
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenNthCalledWith(
       1,
@@ -2685,7 +2589,7 @@ describe('canvasAgentStore stream delta batching', () => {
           error_message: 'Provider failed',
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledTimes(1)
     expect(onCanvasUpdate).toHaveBeenCalledWith(
@@ -2728,7 +2632,7 @@ describe('canvasAgentStore stream delta batching', () => {
           },
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenNthCalledWith(
       1,
@@ -2768,7 +2672,7 @@ describe('canvasAgentStore stream delta batching', () => {
           canvas_item_deleted: true,
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledWith(
       'sync_canvas_revision',
@@ -2847,7 +2751,7 @@ describe('canvasAgentStore stream delta batching', () => {
           canvas_revision: -1,
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     handleAgentEventV2({
       type: 'generation_failed',
@@ -2860,7 +2764,7 @@ describe('canvasAgentStore stream delta batching', () => {
           canvas_revision: 47,
         },
       },
-    } as any, set, get, 184)
+    }, set, get, 184)
 
     expect(onCanvasUpdate).not.toHaveBeenCalled()
     useChatStore.getState().setOnCanvasUpdate(null)
@@ -2876,10 +2780,10 @@ describe('canvasAgentStore stream delta batching', () => {
       ...state,
       conversationSessions: {
         ...state.conversationSessions,
-        '183': {
+        '183': conversationSession({
           ...state.conversationSessions['183'],
           lastSequence: 25,
-        },
+        }),
       },
     }))
 
@@ -2894,7 +2798,7 @@ describe('canvasAgentStore stream delta batching', () => {
           url: '/old.png',
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     handleAgentEventV2({
       type: 'generation_completed',
@@ -2908,7 +2812,7 @@ describe('canvasAgentStore stream delta batching', () => {
           artifact_id: 'new-media',
         },
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).toHaveBeenCalledTimes(1)
     expect(onCanvasUpdate).toHaveBeenCalledWith(
@@ -3050,7 +2954,7 @@ describe('canvasAgentStore updateToolCall', () => {
       conversationId: 164,
       messages: [assistantMessage],
       conversationSessions: {
-        '164': {
+        '164': conversationSession({
           messages: [assistantMessage],
           activePlan: null,
           pendingInteraction: null,
@@ -3064,7 +2968,7 @@ describe('canvasAgentStore updateToolCall', () => {
           eventStreamController: null,
           lastSequence: 0,
           generationProjection: createGenerationProjectionState(),
-        },
+        }),
       },
     })
 
@@ -3137,7 +3041,7 @@ describe('canvasAgentStore updateToolCall', () => {
       conversationId: 28,
       messages: [assistantMessage],
       conversationSessions: {
-        '28': {
+        '28': conversationSession({
           messages: [assistantMessage],
           activePlan: null,
           pendingInteraction: null,
@@ -3151,7 +3055,7 @@ describe('canvasAgentStore updateToolCall', () => {
           eventStreamController: null,
           lastSequence: 0,
           generationProjection: createGenerationProjectionState(),
-        },
+        }),
       },
     })
 
@@ -3212,7 +3116,7 @@ describe('canvasAgentStore updateToolCall', () => {
       messages: [assistantMessage],
       isStreaming: false,
       conversationSessions: {
-        'conv-canvas-late-media': {
+        'conv-canvas-late-media': conversationSession({
           messages: [assistantMessage],
           activePlan: null,
           pendingInteraction: null,
@@ -3226,9 +3130,9 @@ describe('canvasAgentStore updateToolCall', () => {
           eventStreamController: null,
           lastSequence: 19,
           generationProjection: createGenerationProjectionState(),
-        },
+        }),
       },
-    } as any)
+    })
 
     handleAgentEventV2(presentationComplete(
       20,
@@ -3310,8 +3214,8 @@ describe('canvasAgentStore updateToolCall', () => {
     }
     const getHarnessGenerationArtifactTaskMock = vi
       .spyOn(agentApi, 'getHarnessGenerationArtifactTask')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: artifactTask({
           task_id: taskId,
           artifact_ref: artifactRef,
           status: 'completed',
@@ -3324,15 +3228,15 @@ describe('canvasAgentStore updateToolCall', () => {
             status: 'completed',
             url: resultUrl,
           },
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-terminal-media-poll',
       messages: [assistantMessage],
       isStreaming: true,
       conversationSessions: {
-        'conv-canvas-terminal-media-poll': {
+        'conv-canvas-terminal-media-poll': conversationSession({
           messages: [assistantMessage],
           activePlan: null,
           pendingInteraction: null,
@@ -3346,9 +3250,9 @@ describe('canvasAgentStore updateToolCall', () => {
           eventStreamController: null,
           lastSequence: 18,
           generationProjection: createGenerationProjectionState(),
-        },
+        }),
       },
-    } as any)
+    })
 
     handleAgentEventV2(turnCompleted('completed', {
       conversation_id: 'conv-canvas-terminal-media-poll',
@@ -3385,8 +3289,8 @@ describe('canvasAgentStore updateToolCall', () => {
     const get = useChatStore.getState
     const getHarnessGenerationArtifactTaskMock = vi
       .spyOn(agentApi, 'getHarnessGenerationArtifactTask')
-      .mockResolvedValue({
-        data: {
+      .mockResolvedValue(httpResponse({
+        data: artifactTask({
           task_id: 'presentation-task-1',
           artifact_ref: 'artifact_ref:presentation-media-1',
           status: 'completed',
@@ -3399,15 +3303,15 @@ describe('canvasAgentStore updateToolCall', () => {
             status: 'completed',
             url: '/api/v1/uploads/canvas/1/presentation-final.png',
           },
-        },
-      } as any)
+        }),
+      }))
 
     useChatStore.setState({
       conversationId: 'conv-canvas-presentation-media-poll',
       messages: [],
       isStreaming: true,
       conversationSessions: {
-        'conv-canvas-presentation-media-poll': {
+        'conv-canvas-presentation-media-poll': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -3421,9 +3325,9 @@ describe('canvasAgentStore updateToolCall', () => {
           eventStreamController: null,
           lastSequence: 7,
           generationProjection: createGenerationProjectionState(),
-        },
+        }),
       },
-    } as any)
+    })
 
     handleAgentEventV2(presentationComplete(
       8,
@@ -3485,7 +3389,7 @@ describe('canvasAgentStore updateToolCall', () => {
       onCanvasUpdate,
       conversationSessions: {
         ...state.conversationSessions,
-        '183': {
+        '183': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -3498,8 +3402,8 @@ describe('canvasAgentStore updateToolCall', () => {
           abortController: null,
           eventStreamController: null,
           lastSequence: 24,
-        },
-        '184': {
+        }),
+        '184': conversationSession({
           messages: [],
           activePlan: null,
           pendingInteraction: null,
@@ -3512,9 +3416,9 @@ describe('canvasAgentStore updateToolCall', () => {
           abortController: null,
           eventStreamController: null,
           lastSequence: 0,
-        },
+        }),
       },
-    } as any))
+    }))
 
     handleAgentEventV2({
       type: 'canvas_update',
@@ -3530,7 +3434,7 @@ describe('canvasAgentStore updateToolCall', () => {
         },
         message_id: 'assistant-message-project-7',
       },
-    } as any, set, get, 183)
+    }, set, get, 183)
 
     expect(onCanvasUpdate).not.toHaveBeenCalled()
     expect(useChatStore.getState().conversationSessions['183']?.lastSequence).toBe(25)

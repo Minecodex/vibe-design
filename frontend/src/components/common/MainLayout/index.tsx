@@ -61,7 +61,6 @@ export function MainLayout() {
   const isLowBalance = user !== null && !providerBalanceSyncEnabled && (user.balance_cents ?? 0) < 700 && (deployType !== 'private' || isAdmin)
 
   // Refresh deploy mode before rendering billing surfaces from persisted auth state.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     void fetchDeployType()
     void refreshBalance()

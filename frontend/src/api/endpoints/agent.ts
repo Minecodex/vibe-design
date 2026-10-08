@@ -1455,7 +1455,9 @@ export async function* fetchSSE(
         if (buffer.trim().startsWith('data: ')) {
             try {
                 yield normalizeAgentEvent(JSON.parse(buffer.trim().slice(6)) as Record<string, any>)
-            } catch { }
+            } catch {
+                // Ignore a malformed trailing SSE fragment, as for complete lines above.
+            }
         }
     } finally {
         try {
