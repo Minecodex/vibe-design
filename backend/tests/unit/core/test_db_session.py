@@ -17,12 +17,12 @@ def test_build_engine_kwargs_uses_configured_pool_values_for_non_sqlite_urls():
 
     assert db_session._build_engine_kwargs(settings) == {
         "pool_pre_ping": True,
-        "echo": True,
+        "echo": db_session.SQLALCHEMY_ECHO,
         "pool_size": 20,
         "max_overflow": 30,
-        "pool_timeout": 45,
-        "pool_recycle": 1800,
-        "pool_use_lifo": True,
+        "pool_timeout": db_session.DB_POOL_TIMEOUT,
+        "pool_recycle": db_session.DB_POOL_RECYCLE,
+        "pool_use_lifo": db_session.DB_POOL_USE_LIFO,
     }
 
 

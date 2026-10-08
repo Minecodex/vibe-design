@@ -56,6 +56,14 @@ async def test_retry_generation_artifact_reuses_canvas_placeholder_and_saved_ref
 ):
     monkeypatch.setattr("app.core.config.settings.HARNESS_WORKSPACE_ROOT", str(tmp_path))
     monkeypatch.setattr("app.core.config.settings.BUILTIN_PROVIDER_API_KEY", "test-key")
+    from app.models.user import User
+    from app.models.user_apimart_credential import UserApimartCredential
+
+    db_session.add(User(
+        id=7, email="retry@example.com", username="generation_retry", hashed_password="unused",
+    ))
+    db_session.add(UserApimartCredential(user_id=7, api_key="test-key"))
+    await db_session.commit()
 
     provider_calls: list[dict] = []
     started_task_ids: list[str] = []

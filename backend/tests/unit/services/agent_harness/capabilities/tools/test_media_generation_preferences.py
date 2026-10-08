@@ -22,6 +22,11 @@ from app.services.generation_intake_service import GenerationIntakeResult
 
 
 @pytest_asyncio.fixture(autouse=True)
+async def _generation_provider_credential(apimart_user):
+    return apimart_user
+
+
+@pytest_asyncio.fixture(autouse=True)
 async def _use_test_generation_db(db_session):
     @asynccontextmanager
     async def _session_factory():

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import math
 
-from app.core.providers import LINGYAAI_BUILTIN_MODELS, PROVIDER_REGISTRY
+from app.core.providers import (
+    BUILTIN_PROVIDER_MODEL_NAME_ALIASES,
+    LINGYAAI_BUILTIN_MODELS,
+    PROVIDER_REGISTRY,
+)
 
 
 def _iter_builtin_models() -> list[dict]:
@@ -35,14 +39,23 @@ def _build_pricing_rules() -> dict[str, dict]:
                 "prices": prices,
             }
 
+    for aliases in BUILTIN_PROVIDER_MODEL_NAME_ALIASES["apimart"].values():
+        for alias, canonical in aliases.items():
+            if canonical in pricing:
+                pricing[alias] = pricing[canonical]
     return pricing
 
 
 def _build_model_labels() -> dict[str, str]:
-    return {
+    labels = {
         model["model_name"]: model["label"]
         for model in _iter_builtin_label_models()
     }
+    for aliases in BUILTIN_PROVIDER_MODEL_NAME_ALIASES["apimart"].values():
+        for alias, canonical in aliases.items():
+            if canonical in labels:
+                labels[alias] = labels[canonical]
+    return labels
 
 
 PRICING_RULES: dict[str, dict] = _build_pricing_rules()

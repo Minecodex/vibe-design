@@ -64,15 +64,17 @@ async def test_stream_harness_events_resumes_from_durable_sequence_cursor(monkey
             "runtime_status": "failed",
             "run_state": "failed",
             "turn_status": "failed",
+            "run_id": "run-1",
         },
         touch_updated_at=False,
     )
-    first = append_event(
+    # Resume cursors refer to committed events, not queued live deltas.
+    first = append_conversation_event(
         7,
         conversation["id"],
         run_id="run-1",
         event_type="presentation.block.delta",
-        data=_presentation_delta(conversation["id"], "run-1", "first"),
+        payload=_presentation_delta(conversation["id"], "run-1", "first"),
         lane="user",
     )
     append_event(

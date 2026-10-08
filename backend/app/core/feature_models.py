@@ -4,8 +4,8 @@ from pathlib import Path
 
 import yaml
 
-from app.core.config import settings
 from app.core.default_models import DEFAULT_IMAGE_MODEL
+from app.core.providers import get_active_builtin_provider_code, resolve_builtin_model_name_for_provider
 
 _YAML_PATH = Path(__file__).with_suffix(".yaml")
 
@@ -45,8 +45,10 @@ FEATURE_IMAGE_MODELS, FEATURE_IMAGE_MODEL_PROVIDER_OVERRIDES = _load_feature_ima
 
 
 def get_feature_image_model(feature_name: str, *, builtin_provider_code: str | None = None) -> str:
-    provider_code = (builtin_provider_code or settings.BUILTIN_PROVIDER_CODE or "").strip().lower()
+    provider_code = (builtin_provider_code or get_active_builtin_provider_code()).strip().lower()
     provider_model = FEATURE_IMAGE_MODEL_PROVIDER_OVERRIDES.get(feature_name, {}).get(provider_code)
-    if provider_model:
-        return provider_model
-    return FEATURE_IMAGE_MODELS.get(feature_name, DEFAULT_IMAGE_MODEL)
+    return resolve_builtin_model_name_for_provider(
+        "text2image",
+        provider_model or FEATURE_IMAGE_MODELS.get(feature_name, DEFAULT_IMAGE_MODEL),
+        builtin_provider_code=provider_code,
+    )

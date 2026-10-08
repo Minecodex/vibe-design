@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import pytest
@@ -11,25 +10,6 @@ from app.db.base import Base
 from app.db.session import AsyncSessionLocal
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    yield loop
-    loop.close()
-    asyncio.set_event_loop(None)
-
-
-@pytest.fixture(autouse=True)
-def ensure_current_event_loop():
-    try:
-        asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    yield
 
 
 @pytest.fixture(autouse=True)
@@ -55,15 +35,17 @@ def isolate_harness_storage(monkeypatch, tmp_path):
     )
 
 
-@pytest_asyncio.fixture(scope="session", loop_scope="session")
+@pytest_asyncio.fixture
 async def test_engine():
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield engine
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-    await engine.dispose()
+    try:
+        yield engine
+    finally:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+        await engine.dispose()
 
 
 @pytest_asyncio.fixture
@@ -72,6 +54,33 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
     async with TestSessionLocal() as session:
         yield session
         await session.rollback()
+
+
+@pytest_asyncio.fixture
+async def apimart_user(db_session, monkeypatch):
+    """A synthetic account key for tests that exercise authenticated generation."""
+    from app.models.user import User
+    from app.models.user_apimart_credential import UserApimartCredential
+
+    user = User(
+        id=1,
+        email="generation-tests@example.com",
+        username="generation_tests",
+        hashed_password="unused-test-password",
+    )
+    db_session.add(user)
+    db_session.add(UserApimartCredential(user_id=1, api_key="test-key"))
+    await db_session.commit()
+
+    @asynccontextmanager
+    async def session_factory():
+        yield db_session
+
+    monkeypatch.setattr(
+        "app.services.user_apimart_key_service.LoopSafeAsyncSessionLocal",
+        session_factory,
+    )
+    return user
 
 
 @pytest_asyncio.fixture
@@ -86,14 +95,15 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_db] = override_get_db
     app.state.db_session_factory = override_session_factory
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test",
-    ) as ac:
-        yield ac
-
-    app.dependency_overrides.clear()
-    app.state.db_session_factory = AsyncSessionLocal
+    try:
+        async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test",
+        ) as ac:
+            yield ac
+    finally:
+        app.dependency_overrides.clear()
+        app.state.db_session_factory = AsyncSessionLocal
 
 
 @pytest_asyncio.fixture

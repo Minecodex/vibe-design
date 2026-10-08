@@ -46,11 +46,14 @@ async def test_register_duplicate_username(auth_service):
 
 @pytest.mark.asyncio
 async def test_authenticate_user_not_found(auth_service):
-    with patch.object(auth_service.repo, 'get_by_email', new_callable=AsyncMock) as mock_get_by_email:
+    with patch.object(auth_service.repo, 'get_by_email', new_callable=AsyncMock) as mock_get_by_email, \
+         patch.object(auth_service.repo, 'get_by_username', new_callable=AsyncMock) as mock_get_by_username:
         mock_get_by_email.return_value = None
+        mock_get_by_username.return_value = None
         
         result = await auth_service.authenticate("test@example.com", "Password123!")
         assert result is None
+        mock_get_by_username.assert_awaited_once_with("test@example.com")
 
 @pytest.mark.asyncio
 async def test_authenticate_wrong_password(auth_service):

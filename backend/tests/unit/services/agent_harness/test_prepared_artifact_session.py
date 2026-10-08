@@ -54,7 +54,10 @@ def test_prepared_workspace_materializes_only_inside_workdir(tmp_path):
     assert session.strategy == "template_driven_deck"
     assert session.entry_path == "html-ppt-prepared/index.html"
     assert session.source_root == "skill"
-    assert entry.is_file()
+    assert entry.resolve().is_relative_to(tmp_path.resolve())
+    assert entry.parent.is_dir()
+    # A skill without a seed template prepares a directory for authoring.
+    assert entry.is_file() == (Path(skill.skill_dir) / "assets" / "template.html").is_file()
     assert not assets_runtime.exists()
 
 

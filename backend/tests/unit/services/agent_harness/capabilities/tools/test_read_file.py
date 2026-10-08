@@ -203,7 +203,13 @@ async def test_read_file_changed_file_invalidates_compact_unchanged_result(tmp_p
 async def test_read_file_can_use_doc_fallback_extractor(tmp_path: Path, monkeypatch) -> None:
     ctx = _ctx(tmp_path)
     path = ctx.reference_inputs_dir / "legacy.doc"
-    path.write_bytes(b"legacy-doc-placeholder")
+    path.write_bytes(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1legacy-doc-placeholder")
+
+    # Exercise the fallback independently of the installed MarkItDown version.
+    monkeypatch.setattr(
+        "app.services.agent_harness.capabilities.tools._internal.harness_file_readers._extract_with_markitdown",
+        lambda _resolved: None,
+    )
 
     monkeypatch.setattr(
         "app.services.agent_harness.capabilities.tools._internal.harness_file_readers._extract_doc_text_with_soffice",

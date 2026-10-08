@@ -1,6 +1,6 @@
 from app.core.config import settings
 
-DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image-preview-official"
+DEFAULT_IMAGE_MODEL = "gemini-3.1-flash-image-preview"
 DEFAULT_IMAGE_MODEL_LABEL = "NanoBanana2"
 DEFAULT_MULTIMODAL_MODEL = "claude-opus-4-8"
 DEFAULT_THINKING_MULTIMODAL_MODEL = "claude-opus-4-6-thinking"

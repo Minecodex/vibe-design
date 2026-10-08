@@ -5,8 +5,8 @@ from app.core.billing_pricing import calculate_amount_cents, get_model_label, ge
 from app.core.providers import PROVIDER_REGISTRY
 
 EXPECTED_PRICED_BUILTIN_MODELS = {
-    "gemini-3.1-flash-image-preview-official",
-    "gemini-3-pro-image-preview-official",
+    "gemini-3.1-flash-image-preview",
+    "gemini-3-pro-image-preview",
     "imagen-4.0-apimart",
     "gpt-image-2",
     "doubao-seedream-4-5",
@@ -34,8 +34,8 @@ def test_all_approved_builtin_models_have_pricing_cents():
 
 
 def test_representative_builtin_models_expose_expected_pricing_modes():
-    assert get_model_pricing("gemini-3.1-flash-image-preview-official")["pricing_mode"] == "per_resolution"
-    assert get_model_pricing("gemini-3-pro-image-preview-official")["pricing_mode"] == "per_resolution"
+    assert get_model_pricing("gemini-3.1-flash-image-preview")["pricing_mode"] == "per_resolution"
+    assert get_model_pricing("gemini-3-pro-image-preview")["pricing_mode"] == "per_resolution"
     assert get_model_pricing("imagen-4.0-apimart")["pricing_mode"] == "flat"
     assert get_model_pricing("gpt-image-2")["pricing_mode"] == "per_resolution"
     assert get_model_pricing("kling-v2-6")["pricing_mode"] == "per_second"
@@ -104,13 +104,13 @@ def test_calculate_amount_cents_supports_representative_pricing_modes():
     assert calculate_amount_cents("gpt-image-2", resolution="1K") == 4
     assert calculate_amount_cents("gpt-image-2", resolution="2K") == 8
     assert calculate_amount_cents("gpt-image-2", resolution="4K") == 13
-    assert calculate_amount_cents("gemini-3-pro-image-preview-official", resolution="1K") == 75
-    assert calculate_amount_cents("gemini-3-pro-image-preview-official", resolution="2K") == 75
-    assert calculate_amount_cents("gemini-3-pro-image-preview-official", resolution="4K") == 134
-    assert calculate_amount_cents("gemini-3.1-flash-image-preview-official", resolution="0.5K") == 38
-    assert calculate_amount_cents("gemini-3.1-flash-image-preview-official", resolution="1K") == 38
-    assert calculate_amount_cents("gemini-3.1-flash-image-preview-official", resolution="2K") == 56
-    assert calculate_amount_cents("gemini-3.1-flash-image-preview-official", resolution="4K") == 84
+    assert calculate_amount_cents("gemini-3-pro-image-preview", resolution="1K") == 75
+    assert calculate_amount_cents("gemini-3-pro-image-preview", resolution="2K") == 75
+    assert calculate_amount_cents("gemini-3-pro-image-preview", resolution="4K") == 134
+    assert calculate_amount_cents("gemini-3.1-flash-image-preview", resolution="0.5K") == 38
+    assert calculate_amount_cents("gemini-3.1-flash-image-preview", resolution="1K") == 38
+    assert calculate_amount_cents("gemini-3.1-flash-image-preview", resolution="2K") == 56
+    assert calculate_amount_cents("gemini-3.1-flash-image-preview", resolution="4K") == 84
     assert calculate_amount_cents("kling-v2-6", resolution="720p", duration=5) == 130
     assert calculate_amount_cents("kling-v2-6", resolution="1080p_audio", duration=5) == 525
     assert calculate_amount_cents("kling-v3", resolution="720p", duration=5) == 235
@@ -160,7 +160,7 @@ async def test_provider_registry_endpoint_preserves_builtin_pricing_fields():
     image_entry = next(
         entry
         for entry in registry["builtin"]["models"]["text2image"]
-        if entry["model_name"] == "gemini-3-pro-image-preview-official"
+        if entry["model_name"] == "gemini-3-pro-image-preview"
     )
     video_entry = next(
         entry
@@ -228,8 +228,8 @@ async def test_provider_registry_endpoint_exposes_deepseek_v4_pro_builtin_fields
 
     assert deepseek_entry["config"]["pricing_mode"] == "per_token"
     assert deepseek_entry["config"]["pricing_cents"] == {"input": 960, "output": 1920}
-    assert deepseek_entry["config"]["max_input_tokens"] == 1_000_000
-    assert deepseek_entry["config"]["max_output_tokens"] == 384_000
+    assert deepseek_entry["config"]["max_input_tokens"] == 1_048_576
+    assert deepseek_entry["config"]["max_output_tokens"] == 128_000
     assert deepseek_entry["config"]["supports_fast_mode"] is True
     assert deepseek_entry["config"]["supports_thinking_mode"] is False
 

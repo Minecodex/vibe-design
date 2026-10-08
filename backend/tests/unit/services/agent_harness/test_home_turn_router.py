@@ -11,6 +11,16 @@ from app.services.agent_harness.workspace.conversation.home_turn_router import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _planning_user_key(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.prompt_runtime.side_classifier.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
+
+
 @pytest.mark.asyncio
 async def test_home_text_classifier_informational_skips_plan_gate():
     calls = []

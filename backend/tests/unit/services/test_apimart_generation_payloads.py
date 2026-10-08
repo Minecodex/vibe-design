@@ -43,9 +43,8 @@ def _configure_fake_tos(monkeypatch, *, prefix: str = "generation-refs/"):
 
 
 def test_apimart_auth_headers_reject_blank_api_key_before_httpx():
-    client = ApimartClient("   ")
-
-    with pytest.raises(ValueError, match="BUILTIN_PROVIDER_API_KEY is required"):
+    with pytest.raises(ValueError, match="APIMart API key.*required"):
+        client = ApimartClient("   ")
         client._auth_headers()
 
 

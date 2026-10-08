@@ -738,8 +738,10 @@ LINGYAAI_BUILTIN_MODELS: dict[str, list[dict]] = {
 BUILTIN_PROVIDER_MODEL_NAME_ALIASES: dict[str, dict[str, dict[str, str]]] = {
     "apimart": {
         "text2image": {
-            "nano-banana-2": "gemini-3.1-flash-image-preview-official",
-            "nano-banana-pro": "gemini-3-pro-image-preview-official",
+            "nano-banana-2": "gemini-3.1-flash-image-preview",
+            "nano-banana-pro": "gemini-3-pro-image-preview",
+            "gemini-3.1-flash-image-preview-official": "gemini-3.1-flash-image-preview",
+            "gemini-3-pro-image-preview-official": "gemini-3-pro-image-preview",
             "doubao-seedream-4-5-251128": "doubao-seedream-4-5",
             "doubao-seedream-5-0-260128": "doubao-seedream-5-0-lite",
         },
@@ -757,6 +759,8 @@ BUILTIN_PROVIDER_MODEL_NAME_ALIASES: dict[str, dict[str, dict[str, str]]] = {
         "text2image": {
             "gemini-3.1-flash-image-preview-official": "nano-banana-2",
             "gemini-3-pro-image-preview-official": "nano-banana-pro",
+            "gemini-3.1-flash-image-preview": "nano-banana-2",
+            "gemini-3-pro-image-preview": "nano-banana-pro",
             "doubao-seedream-4-5": "doubao-seedream-4-5-251128",
             "doubao-seedream-5-0-lite": "doubao-seedream-5-0-260128",
         },

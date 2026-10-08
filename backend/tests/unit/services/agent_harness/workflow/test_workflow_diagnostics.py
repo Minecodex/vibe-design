@@ -14,7 +14,7 @@ def test_workflow_diagnostics_default_off(monkeypatch, caplog):
     monkeypatch.setattr(settings, "HARNESS_WORKFLOW_STEP_WARNING_SECONDS", 0.001)
     monkeypatch.setattr(settings, "HARNESS_ACTIVITY_WARNING_SECONDS", 0.001)
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.INFO, logger=diagnostics.logger.name):
         with diagnostics.workflow_step_timer(step_type="model_turn", step_id="step-1", run_id="run-1", attempt=1):
             pass
         diagnostics.log_activity_slow(
@@ -34,7 +34,7 @@ def test_workflow_diagnostics_enabled_redacted_shape(monkeypatch, caplog):
     monkeypatch.setattr(settings, "HARNESS_WORKFLOW_STEP_WARNING_SECONDS", 0.0)
     monkeypatch.setattr(settings, "HARNESS_ACTIVITY_WARNING_SECONDS", 0.0)
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.INFO, logger=diagnostics.logger.name):
         with diagnostics.workflow_step_timer(step_type="model_turn", step_id="step-1", run_id="run-1", attempt=2):
             time.sleep(0.11)
         diagnostics.log_activity_slow(

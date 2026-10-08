@@ -38,6 +38,11 @@ async def _use_test_generation_db(db_session):
     app.state.db_session_factory = AsyncSessionLocal
 
 
+@pytest_asyncio.fixture(autouse=True)
+async def _generation_provider_credential(apimart_user):
+    return apimart_user
+
+
 @pytest.fixture(autouse=True)
 def _route_builtin_provider_to_patched_apimart(monkeypatch):
     class DynamicApimartClient:
@@ -226,7 +231,7 @@ async def test_generate_image_submits_task_and_returns_processing_without_pollin
         conversation_id="conv-image",
         run_id="run-image",
         workspace_root=tmp_path,
-        image_model="gemini-3.1-flash-image-preview-official",
+        image_model="gemini-3.1-flash-image-preview",
         image_provider="builtin",
     )
     ctx.ensure_dirs()
@@ -699,7 +704,7 @@ async def test_generate_image_returns_split_retry_metadata(monkeypatch, tmp_path
         conversation_id="conv-image-retry-metadata",
         run_id="run-image",
         workspace_root=tmp_path,
-        image_model="gemini-3.1-flash-image-preview-official",
+        image_model="gemini-3.1-flash-image-preview",
         image_provider="builtin",
     )
     ctx.ensure_dirs()
@@ -741,7 +746,7 @@ async def test_generate_image_persists_tool_call_id_on_generation_task(monkeypat
         conversation_id="conv-image-tool-call",
         run_id="run-image",
         workspace_root=tmp_path,
-        image_model="gemini-3.1-flash-image-preview-official",
+        image_model="gemini-3.1-flash-image-preview",
         image_provider="builtin",
     )
     ctx.ensure_dirs()

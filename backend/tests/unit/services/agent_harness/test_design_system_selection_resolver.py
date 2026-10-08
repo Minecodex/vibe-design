@@ -8,6 +8,16 @@ from app.services.agent_harness.catalog import DesignSystemSummary
 from app.services.agent_harness.authoring.planning import design_system_selection_resolver as resolver
 
 
+@pytest.fixture(autouse=True)
+def _planning_user_key(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.authoring.planning.design_system_selection_resolver.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
+
+
 def _fake_design_system(index: int) -> DesignSystemSummary:
     return DesignSystemSummary(
         id=f"system-{index:02d}",
@@ -78,6 +88,7 @@ async def test_call_design_system_selection_model_uses_configured_model_max_toke
         system_prompt="Pick candidates.",
         user_prompt="{}",
         model_name="configured-model",
+                       api_key="test-key",
     )
 
     assert captured["max_tokens"] == 4096
@@ -118,6 +129,7 @@ async def test_call_design_system_selection_model_accepts_openai_function_tool_c
         system_prompt="Pick candidates.",
         user_prompt="{}",
         model_name="configured-model",
+                       api_key="test-key",
     )
 
     assert result.decision is not None
@@ -133,7 +145,7 @@ async def test_resolve_design_system_selection_sends_thirty_candidates_and_retur
 
     monkeypatch.setattr(resolver, "read_design_system_summaries", _read_design_system_summaries)
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         payload = json.loads(user_prompt)
         candidate_ids = [item["id"] for item in payload["design_system_candidates"]]
 
@@ -204,7 +216,7 @@ async def test_resolve_design_system_selection_persists_prompt_bundle_trace(monk
         ),
     )
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         return resolver._ResolverModelResult(  # noqa: SLF001
             decision=resolver._RecommendationToolInput.model_validate({"recommendations": []}),  # noqa: SLF001
             usage={"input_tokens": 8, "output_tokens": 2},

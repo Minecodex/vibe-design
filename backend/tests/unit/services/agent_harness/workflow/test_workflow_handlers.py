@@ -3,8 +3,22 @@ from __future__ import annotations
 import asyncio
 import json
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _workflow_provider_credential(monkeypatch):
+    """Handler unit tests isolate the credential repository boundary."""
+    monkeypatch.setattr(
+        "app.services.agent_harness.workflow.handlers.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
+    monkeypatch.setattr(
+        "app.services.agent_harness.workflow.tool_execution.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
 
 from app.services.agent_harness.workflow.contracts import BillingSpec, BlobSpec, EventSpec, MessageSpec
 from app.services.agent_harness.runtime.open_design.contracts import ArtifactCaptureResult
@@ -2255,7 +2269,7 @@ async def test_render_context_restores_session_and_latest_checkpoint(monkeypatch
     result = await _render_context(step, gateway)  # type: ignore[arg-type]
 
     assert seen["context_session"] == session
-    assert provider_calls == [{"multimodal_provider": "builtin"}]
+    assert provider_calls == [{"api_key": "test-key", "multimodal_provider": "builtin"}]
     assert seen["previous_checkpoint"]["message_seq_end"] == 10
     assert seen["include_runtime_time"] is False
     assert gateway.checkpoints[0]["patch"]["message_seq_end"] == 12
@@ -3671,7 +3685,7 @@ async def test_model_turn_records_multimodal_billing_without_agent_runtime_usage
     result = await _model_turn(step, gateway)  # type: ignore[arg-type]
 
     assert result.next_steps[0].step_type == STEP_FINALIZE
-    assert provider_calls == [{"multimodal_provider": "builtin"}]
+    assert provider_calls == [{"api_key": "test-key", "multimodal_provider": "builtin"}]
     assert gateway.activities[0]["activity_type"] == "model_turn"
     assert gateway.billings == []
     assert len(billing_calls) == 1

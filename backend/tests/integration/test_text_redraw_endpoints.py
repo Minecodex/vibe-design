@@ -207,14 +207,14 @@ async def test_text_redraw_submit_returns_generation_task(client: AsyncClient, d
         assert kwargs["user_id"] == user.id
         assert kwargs["project_id"] == project.id
         assert kwargs["image_urls"] == ["/api/v1/uploads/canvas/demo.png"]
-        assert kwargs["model_name"] == "gemini-3.1-flash-image-preview-official"
+        assert kwargs["model_name"] == "gemini-3.1-flash-image-preview"
         assert '"MARSHALL" -> "NEW BRAND"' in kwargs["prompt"]
         return SimpleNamespace(
             id=123,
             project_id=project.id,
             task_type="text2image",
             provider_code="builtin",
-            model_name="gemini-3.1-flash-image-preview-official",
+            model_name="gemini-3.1-flash-image-preview",
             model_label="NanoBanana2",
             prompt=kwargs["prompt"],
             status="processing",
@@ -233,7 +233,7 @@ async def test_text_redraw_submit_returns_generation_task(client: AsyncClient, d
 
     async def fake_reserve_builtin_billing(self, *, user_id, model_name, task_type, resolution, duration, params):
         assert user_id == user.id
-        assert model_name == "gemini-3.1-flash-image-preview-official"
+        assert model_name == "gemini-3.1-flash-image-preview"
         assert task_type == "text_redraw"
         return 7
 
@@ -259,7 +259,7 @@ async def test_text_redraw_submit_returns_generation_task(client: AsyncClient, d
     )
     monkeypatch.setattr(
         "app.api.v1.endpoints.generation.get_feature_image_model",
-        lambda feature_name: "gemini-3.1-flash-image-preview-official" if feature_name == "text_redraw" else f"unexpected-{feature_name}",
+        lambda feature_name: "gemini-3.1-flash-image-preview" if feature_name == "text_redraw" else f"unexpected-{feature_name}",
     )
     monkeypatch.setattr(
         "app.services.generation_intake_service.task_poller.enqueue_task",
@@ -282,9 +282,10 @@ async def test_text_redraw_submit_returns_generation_task(client: AsyncClient, d
         {
             "user_id": user.id,
             "task_id": 123,
-            "model_name": "gemini-3.1-flash-image-preview-official",
+            "model_name": "gemini-3.1-flash-image-preview",
             "task_type": "text_redraw",
             "amount_cents": 7,
+            "parent_id": None,
             "params": {"resolution": "1K", "aspect_ratio": "1:1"},
             "task_status": "pending",
             "billing_label": "billing.labels.text_redraw",

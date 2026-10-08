@@ -2,8 +2,8 @@ from app.core.providers import PROVIDER_REGISTRY, build_provider_registry
 
 
 EXPECTED_BUILTIN_IMAGE_MODELS = {
-    "gemini-3.1-flash-image-preview-official",
-    "gemini-3-pro-image-preview-official",
+    "gemini-3.1-flash-image-preview",
+    "gemini-3-pro-image-preview",
     "imagen-4.0-apimart",
     "gpt-image-2",
     "doubao-seedream-4-5",
@@ -99,7 +99,7 @@ def test_builtin_multimodal_registry_marks_glm_and_kimi_as_fast_only():
         for entry in PROVIDER_REGISTRY["builtin"]["models"]["multimodal"]
     }
 
-    assert by_model["glm-5.1"]["max_input_tokens"] == 200000
+    assert by_model["glm-5.1"]["max_input_tokens"] == 204800
     assert by_model["glm-5.1"]["max_output_tokens"] == 128000
     assert by_model["glm-5.1"]["supports_fast_mode"] is True
     assert by_model["glm-5.1"]["supports_thinking_mode"] is False
@@ -116,8 +116,8 @@ def test_builtin_multimodal_registry_marks_deepseek_v4_pro_as_fast_only():
         for entry in PROVIDER_REGISTRY["builtin"]["models"]["multimodal"]
     }
 
-    assert by_model["deepseek-v4-pro"]["max_input_tokens"] == 1_000_000
-    assert by_model["deepseek-v4-pro"]["max_output_tokens"] == 384_000
+    assert by_model["deepseek-v4-pro"]["max_input_tokens"] == 1_048_576
+    assert by_model["deepseek-v4-pro"]["max_output_tokens"] == 128_000
     assert by_model["deepseek-v4-pro"]["supports_fast_mode"] is True
     assert by_model["deepseek-v4-pro"]["supports_thinking_mode"] is False
     assert "thinking_variant_of" not in by_model["deepseek-v4-pro"]
@@ -186,13 +186,10 @@ def test_builtin_registry_hides_requested_models():
     assert hidden_models.isdisjoint(builtin_models)
 
 
-def test_provider_registry_projects_lingyaai_builtin_models(monkeypatch):
+def test_legacy_lingyaai_registry_keeps_native_model_contracts():
     from app.core import providers
 
-    monkeypatch.setattr(providers.settings, "BUILTIN_PROVIDER_CODE", "lingyaai", raising=False)
-
-    registry = build_provider_registry()
-    builtin = registry["builtin"]["models"]
+    builtin = providers.LINGYAAI_BUILTIN_MODELS
 
     assert {
         entry["model_name"] for entry in builtin["text2image"]
@@ -237,15 +234,12 @@ def test_provider_registry_projects_lingyaai_builtin_models(monkeypatch):
     )
 
 
-def test_lingyaai_chat_registry_marks_models_that_must_omit_temperature(monkeypatch):
+def test_legacy_lingyaai_chat_registry_marks_models_that_must_omit_temperature():
     from app.core import providers
 
-    monkeypatch.setattr(providers.settings, "BUILTIN_PROVIDER_CODE", "lingyaai", raising=False)
-
-    registry = build_provider_registry()
     by_model = {
         entry["model_name"]: entry["config"]
-        for entry in registry["builtin"]["models"]["multimodal"]
+        for entry in providers.LINGYAAI_BUILTIN_MODELS["multimodal"]
     }
 
     assert by_model["gemini-3.1-pro-preview"]["omit_temperature"] is True

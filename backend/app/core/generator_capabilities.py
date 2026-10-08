@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from app.core.providers import PROVIDER_REGISTRY, build_provider_registry
+from app.core.providers import (
+    PROVIDER_REGISTRY,
+    build_provider_registry,
+    resolve_builtin_model_name_for_provider,
+)
 
 
 def _parse_duration_value(value: str | int) -> int:
@@ -71,12 +75,14 @@ VIDEO_MODEL_CAPABILITIES: dict[str, dict[str, Any]] = _build_video_model_capabil
 
 def get_image_model_capability(model_name: str, provider_code: str | None = None) -> dict[str, Any]:
     if provider_code == "builtin":
+        model_name = resolve_builtin_model_name_for_provider("text2image", model_name)
         return _build_image_model_capabilities(build_provider_registry()).get(model_name, {})
     return IMAGE_MODEL_CAPABILITIES.get(model_name, {})
 
 
 def get_video_model_capability(model_name: str, provider_code: str | None = None) -> dict[str, Any]:
     if provider_code == "builtin":
+        model_name = resolve_builtin_model_name_for_provider("text2video", model_name)
         return _build_video_model_capabilities(build_provider_registry()).get(model_name, {})
     return VIDEO_MODEL_CAPABILITIES.get(model_name, {})
 

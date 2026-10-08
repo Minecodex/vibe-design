@@ -68,8 +68,8 @@ async def test_provider_registry_endpoint_marks_models_without_exact_tables_as_e
 
     for model_name in [
         "doubao-seedream-4-5",
-        "gemini-3.1-flash-image-preview-official",
-        "gemini-3-pro-image-preview-official",
+        "gemini-3.1-flash-image-preview",
+        "gemini-3-pro-image-preview",
         "imagen-4.0-apimart",
     ]:
         assert image_configs[model_name]["dimension_source"] == "estimated"
