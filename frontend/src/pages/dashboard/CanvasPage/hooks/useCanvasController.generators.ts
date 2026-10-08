@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment, react-hooks/exhaustive-deps */
 // @ts-nocheck
 import { useCallback, useEffect, useRef } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
 import { toast } from 'sonner'
 
 import { agentApi } from '@/api/endpoints/agent'
@@ -631,7 +632,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
   }, [])
 
-  const imageAnchoredImageDraftItem = buildImageAnchoredImageDraftItem(imageAnchoredImageDraft)
+  const imageAnchoredImageDraftItem: CanvasItem | null = buildImageAnchoredImageDraftItem(imageAnchoredImageDraft)
   const imageAnchoredImageSourceItem = imageAnchoredImageDraft
     ? canvasItems.find((item: any) => item.id === imageAnchoredImageDraft.sourceImageItemId) || null
     : null
@@ -946,7 +947,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
   }, [])
 
-  const imageAnchoredVideoDraftItem = buildImageAnchoredVideoDraftItem(imageAnchoredVideoDraft)
+  const imageAnchoredVideoDraftItem: CanvasItem | null = buildImageAnchoredVideoDraftItem(imageAnchoredVideoDraft)
   const imageAnchoredVideoSourceItem = imageAnchoredVideoDraft
     ? canvasItems.find((item: any) => item.id === imageAnchoredVideoDraft.sourceImageItemId) || null
     : null

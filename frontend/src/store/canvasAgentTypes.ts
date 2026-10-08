@@ -8,12 +8,12 @@ export interface ChatMessage {
     id: number | string
     role: 'user' | 'assistant' | 'tool'
     content: string | null
-    attachments?: Record<string, any>[]
+    attachments?: Record<string, unknown>[]
     toolCalls?: ToolCallInfo[]
     blocks?: MessageBlock[]
     skillId?: string | null
     isHistoryLoaded?: boolean
-    metadata?: Record<string, any> | null
+    metadata?: Record<string, unknown> | null
     createdAt: string
 }
 
@@ -22,8 +22,8 @@ export interface HarnessMessageLike {
     role: string
     content?: string | null
     blocks?: Record<string, unknown>[] | null
-    attachments?: Record<string, any>[] | null
-    metadata?: Record<string, any> | null
+    attachments?: Record<string, unknown>[] | null
+    metadata?: Record<string, unknown> | null
     created_at?: string | null
     tool_call_id?: string | null
     tool_name?: string | null
@@ -51,7 +51,7 @@ export interface MessageBlock {
 export interface ToolCallInfo {
     callId: string
     name: string
-    args: Record<string, any>
+    args: Record<string, unknown>
     result?: Record<string, any>
     error?: string
     status: 'pending' | 'running' | 'completed' | 'failed'
@@ -140,7 +140,7 @@ export function resolveCanvasRequestSkillId(
 }
 
 export function shouldOmitCanvasReplayMessage(message: HarnessMessageLike): boolean {
-    const metadata = (message.metadata || {}) as Record<string, any>
+    const metadata = (message.metadata || {}) as Record<string, unknown>
     const messageKind = String(metadata.message_kind || '').trim()
     const renderKind = String(metadata.render_kind || '').trim()
     const isPresentationSnapshot = renderKind === 'presentation_v2'

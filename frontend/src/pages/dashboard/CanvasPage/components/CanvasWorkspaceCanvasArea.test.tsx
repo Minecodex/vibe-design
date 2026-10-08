@@ -1,4 +1,7 @@
 import React from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import { canvasRenderFixture } from '@/store/testing/canvasRenderFixture'
+import type { CanvasWorkspaceCanvasAreaProps } from './CanvasWorkspaceCanvasArea'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -73,7 +76,7 @@ vi.mock('../generationTaskSnapshot', () => ({
   fetchCanvasGenerationTaskSnapshot: vi.fn(),
 }))
 
-function createBaseProps(overrides: Record<string, any> = {}) {
+function createBaseProps(overrides: Partial<CanvasWorkspaceCanvasAreaProps> = {}): CanvasWorkspaceCanvasAreaProps {
   const canvasRef = React.createRef<HTMLDivElement>()
   const canvasContentRef = React.createRef<HTMLDivElement>()
   const WebGLStageTestDouble = ({
@@ -103,6 +106,22 @@ function createBaseProps(overrides: Record<string, any> = {}) {
   }
 
   return {
+    ...canvasRenderFixture({ id: 'img-1', type: 'image', url: '', x: 20, y: 30 }),
+    interactionPreview: undefined,
+    imageDetailData: null, imageDetailPanelPosition: null,
+    handleCloseImageDetails: vi.fn(), textRedrawState: null, textRedrawPanelPosition: null,
+    TEXT_REDRAW_PANEL_TOKENS: { panelRadius: 24, panelPadding: 20 },
+    handleChangeTextRedrawSegment: vi.fn(), handleCancelTextRedraw: vi.fn(), handleSubmitTextRedraw: vi.fn(),
+    selectedSingleItem: null, selectedSingleItemRect: null, selectedSingleItemCanvasRect: null,
+    shouldShowImageToolbar: () => false, openImageAnchoredImageDraft: vi.fn(), openImageAnchoredVideoDraft: vi.fn(),
+    handleOpenHDUpscale: vi.fn(), handleOpenCutout: vi.fn(), handleOpenImageErase: vi.fn(), handleOpenTextRedraw: vi.fn(),
+    handleOpenSpatialAngle: vi.fn(), handleOpenCropPanel: vi.fn(), handleDeleteCanvasImage: vi.fn(), handleOpenImageDetails: vi.fn(),
+    handleRetryFailedGeneration: vi.fn(), shouldRenderSelectedMeta: false, selectedSingleItemViewportWidth: 0,
+    selectedIsImageGroup: false, editingNameId: null, setEditingNameId: vi.fn(), selectedIsGenerator: false,
+    formatDimensionLabel: () => '', selectedSingleItemWidth: 0, selectedSingleItemHeight: 0, projectedGuides: [], selectionBox: null,
+    setResizingGroupId: vi.fn(), handleUngroup: vi.fn(), setMultiSelectToolsOpen: vi.fn(), multiSelectToolsOpen: null,
+    setGroupBackgroundColor: vi.fn(), handleCreateGroup: vi.fn(), handleMergeLayers: vi.fn(), handleAlign: vi.fn(),
+    handleAutoArrange: vi.fn(), handleSpacing: vi.fn(), handleContextMenuAction: vi.fn(),
     canvasRef,
     canvasContentRef,
     canvasItems: [
@@ -122,8 +141,6 @@ function createBaseProps(overrides: Record<string, any> = {}) {
     ],
     imageDetailItemId: null,
     imageDetailItem: null,
-    projectAssets: {},
-    loadProjectAssets: vi.fn(),
     updateItem: vi.fn(),
     handleMouseDown: vi.fn(),
     handleMouseMove: vi.fn(),
@@ -144,9 +161,7 @@ function createBaseProps(overrides: Record<string, any> = {}) {
     cropState: null,
     textRedrawExtractingItemIds: new Set<string>(),
     isDark: false,
-    getItemDims: vi.fn((item: any) => ({ width: item.width, height: item.height })),
-    user: { nickname: 'Alice', avatar_url: null },
-    mediaResizeState: null,
+    getItemDims: vi.fn((item: CanvasItem) => ({ width: item.width ?? 0, height: item.height ?? 0 })),
     webGLStageComponent: WebGLStageTestDouble,
     ...overrides,
   }
@@ -269,7 +284,7 @@ describe('CanvasWorkspaceCanvasArea', () => {
   })
 
   it('keeps large stable image sets in WebGL and limits the DOM overlay to active items', () => {
-    const canvasItems = Array.from({ length: 1000 }, (_, index) => ({
+    const canvasItems: CanvasItem[] = Array.from({ length: 1000 }, (_, index) => ({
       id: `image-${index}`,
       type: 'image',
       url: `https://example.com/image-${index}.png`,
@@ -373,7 +388,7 @@ describe('CanvasWorkspaceCanvasArea', () => {
         },
       ],
       selectedItems: ['source-image'],
-      imageAnchoredImageDraft: { sourceImageItemId: 'source-image' },
+      imageAnchoredImageDraft: { sourceImageUrl: '', prompt: '', model_name: '', provider_code: '', aspect_ratio: '1:1', resolution: '1K', reference_images: [],  sourceImageItemId: 'source-image' },
     })
 
     render(<CanvasWorkspaceCanvasArea {...props} />)
@@ -447,7 +462,7 @@ describe('CanvasWorkspaceCanvasArea', () => {
       handleMouseDown,
       handleItemMouseDown,
       canvasItems: [
-        {
+        { url: '', 
           id: 'group-1',
           type: 'group',
           x: 0,
@@ -544,7 +559,7 @@ describe('CanvasWorkspaceCanvasArea', () => {
     const props = createBaseProps({
       handleCanvasPaste,
       handleContextMenuAction,
-      clipboardItems: [{ id: 'copied-image', type: 'image', x: 10, y: 20 }],
+      clipboardItems: [{ url: '',  id: 'copied-image', type: 'image', x: 10, y: 20 }],
       clipboardSource: 'internal',
     })
     const view = render(<CanvasWorkspaceCanvasArea {...props} />)
@@ -655,7 +670,7 @@ describe('CanvasWorkspaceCanvasArea', () => {
     const props = createBaseProps({
       handleCanvasPaste,
       handleContextMenuAction,
-      clipboardItems: [{ id: 'group-1', type: 'group', x: 10, y: 20 }],
+      clipboardItems: [{ url: '',  id: 'group-1', type: 'group', x: 10, y: 20 }],
       clipboardSource: 'internal',
     })
     const view = render(<CanvasWorkspaceCanvasArea {...props} />)
@@ -717,9 +732,9 @@ describe('CanvasWorkspaceCanvasArea', () => {
       handleCanvasPaste,
       handleContextMenuAction,
       selectedItems: ['img-1'],
-      clipboardItems: [{ id: 'img-1', type: 'image', x: 20, y: 30 }],
+      clipboardItems: [{ url: '',  id: 'img-1', type: 'image', x: 20, y: 30 }],
       clipboardSource: 'internal',
-      imageAnchoredImageDraft: { sourceImageItemId: 'img-1' },
+      imageAnchoredImageDraft: { sourceImageUrl: '', prompt: '', model_name: '', provider_code: '', aspect_ratio: '1:1', resolution: '1K', reference_images: [],  sourceImageItemId: 'img-1' },
     })
     render(<CanvasWorkspaceCanvasArea {...props} />)
 

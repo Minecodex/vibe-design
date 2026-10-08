@@ -11,7 +11,7 @@ const ERROR_RETRY_INTERVAL_MS = 5000
 
 export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
   conversation_id?: string | null
-  params?: Record<string, any> | null
+  params?: Record<string, unknown> | null
   kind?: string | null
   media_type?: string | null
   provider_code?: string | null
@@ -21,12 +21,12 @@ export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
   duration?: string | number | null
   quality?: string | null
   result_urls?: string[] | null
-  canvas_item?: Record<string, any> | null
+  canvas_item?: Record<string, unknown> | null
   canvas_item_deleted?: boolean | null
   canvas_revision?: number | null
   suppress_standard_media_card?: boolean | null
   presentation_surface?: string | null
-  presentation_scope?: Record<string, any> | null
+  presentation_scope?: Record<string, unknown> | null
   presentation_message_key?: string | null
   presentation_parent_block_key?: string | null
   presentation_order?: number | null
@@ -35,13 +35,13 @@ export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
 export type CanvasGenerationRuntimeState = {
   conversationId: string | number | null
   engineVersion?: 'harness' | string
-  onCanvasUpdate?: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null
+  onCanvasUpdate?: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null
 }
 
 export type CanvasGenerationRuntimeAdapter = {
   getState: () => CanvasGenerationRuntimeState
   updateToolCallByGenerationTask: (conversationId: string, snapshot: CanvasGenerationTaskSnapshot) => void
-  updateCanvasItemByGenerationTask?: (conversationId: string, canvasItem: Record<string, any>) => void
+  updateCanvasItemByGenerationTask?: (conversationId: string, canvasItem: Record<string, unknown>) => void
   updateCanvasRevisionByAgentPatch?: (canvasRevision: number, options?: { canvasItemDeleted?: boolean }) => void
   saveCanvasItems?: (conversationId: string) => void
 }
@@ -470,9 +470,9 @@ function normalizeCanvasRevision(value: unknown): number | null {
   return Number.isFinite(numeric) && numeric >= 0 ? Math.trunc(numeric) : null
 }
 
-function presentationMessageIdFromSnapshot(snapshot: Record<string, any>): string | null {
+function presentationMessageIdFromSnapshot(snapshot: Record<string, unknown>): string | null {
   const scope = snapshot.presentation_scope && typeof snapshot.presentation_scope === 'object'
-    ? snapshot.presentation_scope as Record<string, any>
+    ? snapshot.presentation_scope as Record<string, unknown>
     : null
   const value = snapshot.presentation_message_key
     ?? snapshot.presentationMessageKey
@@ -482,7 +482,7 @@ function presentationMessageIdFromSnapshot(snapshot: Record<string, any>): strin
   return text || null
 }
 
-function agentGroupKeyFromSnapshot(snapshot: Record<string, any>): string | null {
+function agentGroupKeyFromSnapshot(snapshot: Record<string, unknown>): string | null {
   void snapshot
   return null
 }
@@ -502,7 +502,7 @@ function normalizeRuntimeStatus(status: unknown): string {
 }
 
 function shouldSuppressStandardMediaCard(snapshot: CanvasGenerationTaskSnapshot): boolean {
-  if ((snapshot as Record<string, any>).suppress_standard_media_card === true) {
+  if ((snapshot as Record<string, unknown>).suppress_standard_media_card === true) {
     return true
   }
   const params = (snapshot as Record<string, any>).params
@@ -514,7 +514,7 @@ function isTerminalStatus(status: unknown): boolean {
   return raw === 'completed' || raw === 'failed' || raw === 'cancelled'
 }
 
-function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<string, any> | null {
+function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<string, unknown> | null {
   const item = snapshot.canvas_item
   return item && typeof item === 'object' ? item : null
 }
@@ -522,7 +522,7 @@ function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<str
 function buildCanvasPlaceholderFromSnapshot(
   snapshot: CanvasGenerationTaskSnapshot,
   conversationId: string | number,
-): Record<string, any> | null {
+): Record<string, unknown> | null {
   const taskId = String(snapshot.task_id ?? snapshot.id ?? '').trim()
   const artifactRef = String(snapshot.artifact_ref ?? '').trim()
   if (!taskId && !artifactRef) {
@@ -554,7 +554,7 @@ function publishCanvasPlaceholderUpdate(
   adapter: CanvasGenerationRuntimeAdapter,
   conversationId: string,
   snapshot: CanvasGenerationTaskSnapshot,
-  canvasItem: Record<string, any>,
+  canvasItem: Record<string, unknown>,
 ): void {
   if (isTerminalStatus(snapshot.status)) {
     return
@@ -576,7 +576,7 @@ function publishCanvasTerminalUpdate(
   adapter: CanvasGenerationRuntimeAdapter,
   conversationId: string,
   snapshot: CanvasGenerationTaskSnapshot,
-  canvasItem: Record<string, any>,
+  canvasItem: Record<string, unknown>,
 ): void {
   const state = adapter.getState()
   if (state.conversationId == null || String(state.conversationId) !== String(conversationId)) {
@@ -695,7 +695,7 @@ function mergeToolCallSnapshot(toolCall: ToolCallInfo, snapshot: CanvasGeneratio
   }
 }
 
-function mergeResultSnapshot(result: Record<string, any>, snapshot: CanvasGenerationTaskSnapshot): Record<string, any> {
+function mergeResultSnapshot(result: Record<string, unknown>, snapshot: CanvasGenerationTaskSnapshot): Record<string, unknown> {
   const canvasItem = snapshot.canvas_item
     ? {
       ...(result.canvas_item || {}),

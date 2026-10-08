@@ -265,7 +265,7 @@ function markPlanBlockTerminal(
 ): MessageBlock {
   const terminalStepStatus = status
   const steps = Array.isArray(block.payload.steps)
-    ? block.payload.steps.map((step: Record<string, any>) => {
+    ? block.payload.steps.map((step: Record<string, unknown>) => {
       const stepStatus = String(step.status || '').toLowerCase()
       const isActive = stepStatus === 'in_progress' || stepStatus === 'running'
       if (isActive) {
@@ -587,7 +587,7 @@ function isGenerationTaskBlock(block: MessageBlock, taskId: string): boolean {
   return String(blockTaskId ?? '').trim() === taskId
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -598,8 +598,8 @@ function numberOrNull(value: unknown): number | null {
 
 function normalizeCritiqueProjectionEventData(
   eventType: string,
-  data: Record<string, any>,
-): Record<string, any> {
+  data: Record<string, unknown>,
+): Record<string, unknown> {
   if (eventType !== 'critique.round_completed') {
     return data
   }
@@ -611,7 +611,7 @@ function normalizeCritiqueProjectionEventData(
   }
 }
 
-function inferWorkspaceFileType(data: Record<string, any>): string {
+function inferWorkspaceFileType(data: Record<string, unknown>): string {
   const explicit = String(data.type ?? data.file_type ?? data.fileType ?? '').trim()
   if (explicit) {
     return explicit
@@ -637,7 +637,7 @@ function inferWorkspaceFileType(data: Record<string, any>): string {
   return 'other'
 }
 
-function normalizeWorkspaceFileSource(data: Record<string, any>): WorkspaceFileRead['source'] {
+function normalizeWorkspaceFileSource(data: Record<string, unknown>): WorkspaceFileRead['source'] {
   const explicit = String(data.source ?? '').trim()
   if (explicit === 'versioned_file' || explicit === 'input_asset' || explicit === 'reference_asset' || explicit === 'plan_asset') {
     return explicit
@@ -878,7 +878,7 @@ export function applyHomeHarnessEvent(
         const turnFailure = getTurnFailure(event)
         const runtimeSnapshot = (
           event.data.runtime_snapshot && typeof event.data.runtime_snapshot === 'object'
-            ? event.data.runtime_snapshot as Record<string, any>
+            ? event.data.runtime_snapshot as Record<string, unknown>
             : {}
         )
         const stateForTerminal = status === 'cancelled'

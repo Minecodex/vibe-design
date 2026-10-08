@@ -97,7 +97,7 @@ function normalizeOp(event: PresentationOpEvent) {
     status,
     content: typeof data.content === 'string' ? data.content : null,
     order: Number(data.order ?? data.block?.order ?? 0) || 0,
-    payload: data.payload && typeof data.payload === 'object' ? data.payload as Record<string, any> : {},
+    payload: data.payload && typeof data.payload === 'object' ? data.payload as Record<string, unknown> : {},
     block: normalizeBlock(data.block && typeof data.block === 'object' ? data.block : data, blockKey, sourceSequence, status),
     sourceSequence,
     revision: Number(data.revision ?? data.block?.revision ?? sourceSequence) || sourceSequence,
@@ -110,12 +110,12 @@ function normalizeRole(role: unknown): ProjectionChatMessage['role'] {
 }
 
 function normalizeBlock(source: Record<string, any>, blockKey: string, sourceSequence: number, status: string): ProjectionMessageBlock {
-  const payload = source.payload && typeof source.payload === 'object' ? source.payload as Record<string, any> : {}
+  const payload = source.payload && typeof source.payload === 'object' ? source.payload as Record<string, unknown> : {}
   const uiKind = String(source.uiKind || source.ui_kind || payload.uiKind || payload.ui_kind || 'text')
   const kind = normalizeBlockKind(source.kind, uiKind)
   const children = Array.isArray(source.children)
     ? source.children
-      .filter((child): child is Record<string, any> => !!child && typeof child === 'object')
+      .filter((child): child is Record<string, unknown> => !!child && typeof child === 'object')
       .map((child) => normalizeBlock(child, String(child.block_key || child.blockKey || child.id || ''), sourceSequence, String(child.status || status)))
     : []
   return {
@@ -170,7 +170,7 @@ function upsertMessage(messages: ProjectionChatMessage[], op: ReturnType<typeof 
   const existingIndex = messages.findIndex((message) => matchesProjectionMessageId(String(message.id), op.messageKey))
   const blocks = Array.isArray(op.payload.blocks)
     ? op.payload.blocks
-      .filter((block): block is Record<string, any> => !!block && typeof block === 'object')
+      .filter((block): block is Record<string, unknown> => !!block && typeof block === 'object')
       .map((block) => normalizeBlock(block, String(block.block_key || block.blockKey || block.id || ''), op.sourceSequence, String(block.status || op.status)))
     : undefined
   const attachments = normalizeAttachments(op.payload.attachments)
@@ -274,7 +274,7 @@ function normalizeAttachments(value: unknown): ProjectionChatMessage['attachment
   if (!Array.isArray(value)) {
     return undefined
   }
-  const attachments = value.filter((item): item is Record<string, any> => !!item && typeof item === 'object')
+  const attachments = value.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
   return attachments.length ? attachments.map((item) => ({ ...item })) : undefined
 }
 
@@ -650,9 +650,9 @@ function shouldProjectCurrentPlan(session: ProjectionSessionLike, incoming: User
   return true
 }
 
-function normalizePlainObject(value: unknown): Record<string, any> | null {
+function normalizePlainObject(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
-    ? { ...(value as Record<string, any>) }
+    ? { ...(value as Record<string, unknown>) }
     : null
 }
 
@@ -665,7 +665,7 @@ function normalizeStringArray(value: unknown): string[] {
 function normalizeOutlineItems(value: unknown): any[] {
   return Array.isArray(value)
     ? value
-      .filter((item): item is Record<string, any> => !!item && typeof item === 'object')
+      .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
       .map((item) => ({ ...item }))
     : []
 }

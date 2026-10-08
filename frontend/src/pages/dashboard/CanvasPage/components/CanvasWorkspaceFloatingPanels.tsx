@@ -38,7 +38,6 @@ import type { ImageDetailViewModel } from '../imageActions'
 import type { ProjectedGuide } from '../alignmentGuides'
 import type { CropPanelState } from '../types'
 import type { formatDimensionLabel } from '../generatorOptionLabels'
-import type { TEXT_REDRAW_PANEL_TOKENS } from '../textRedrawUi'
 
 type FloatingRect = { left: number; top: number; width: number; height: number }
 type RedrawProps = ComponentProps<typeof TextRedrawPanel>
@@ -64,7 +63,7 @@ export interface CanvasWorkspaceFloatingPanelsProps {
   handleCloseImageDetails: () => void
   textRedrawState: { itemId: string; status: 'extracting' | 'editing'; segments: RedrawProps['segments']; isSubmitting: boolean } | null
   textRedrawPanelPosition: FloatingRect | null
-  TEXT_REDRAW_PANEL_TOKENS: typeof TEXT_REDRAW_PANEL_TOKENS
+  TEXT_REDRAW_PANEL_TOKENS: { panelRadius: number; panelPadding: number }
   handleChangeTextRedrawSegment: RedrawProps['onChangeSegment']
   handleCancelTextRedraw: RedrawProps['onCancel']
   handleSubmitTextRedraw: RedrawProps['onSubmit']

@@ -803,6 +803,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             handleMouseMove={handleMouseMove}
             handleMouseUp={handleMouseUp}
             setContextMenu={setContextMenu}
+            handleContextMenuAction={handleContextMenuAction}
             setSelectedItems={setSelectedItems}
             setActiveContextMenuItem={setActiveContextMenuItem}
             handleCanvasClick={handleCanvasClick}
@@ -853,7 +854,9 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             availableImageModels={availableImageModels}
             availableVideoModels={availableVideoModels}
             imageModel={imageModel}
+            imageProvider={imageProvider}
             videoModel={videoModel}
+            videoProvider={videoProvider}
             imageRes={imageRes}
             imageRatio={imageRatio}
             videoAspect={videoAspect}
@@ -892,7 +895,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             shouldShowGeneratorControlPanel={shouldShowGeneratorControlPanel}
             getMediaDisplayInitializationUpdate={getMediaDisplayInitializationUpdate}
             normalizeReferenceImages={normalizeReferenceImages}
-            getImageGeneratorCapability={(modelName: string) =>
+            getImageGeneratorCapability={(modelName?: string) =>
               getResolvedImageModelCapability(availableImageModels, modelName)
             }
             withReferenceImages={withReferenceImages}

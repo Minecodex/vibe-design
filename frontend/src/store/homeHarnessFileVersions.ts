@@ -55,7 +55,7 @@ export function normalizeVersionedFile(raw: Record<string, any>): WorkspaceFileR
 
 export function upsertVersionedFile(
   files: WorkspaceFileRead[],
-  raw: Record<string, any>,
+  raw: Record<string, unknown>,
 ): WorkspaceFileRead[] {
   const next = normalizeVersionedFile(raw)
   if (!next.file_id && !next.path) {

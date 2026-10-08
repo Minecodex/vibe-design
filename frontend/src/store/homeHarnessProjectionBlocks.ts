@@ -46,7 +46,7 @@ export function camelizeBlockPayload(value: unknown): unknown {
 }
 
 export function normalizeBlock(raw: Record<string, any>): MessageBlock {
-  const payload = (camelizeBlockPayload(raw.payload || {}) as Record<string, any>) || {}
+  const payload = (camelizeBlockPayload(raw.payload || {}) as Record<string, unknown>) || {}
   return {
     id: String(raw.id),
     kind: raw.kind,
@@ -106,7 +106,7 @@ export function normalizeBlocks(rawBlocks: unknown): MessageBlock[] {
   }
   return filterHomepageBlocks(
     rawBlocks
-      .filter((block): block is Record<string, any> => !!block && typeof block === 'object')
+      .filter((block): block is Record<string, unknown> => !!block && typeof block === 'object')
       .map(normalizeBlock)
       .sort((a, b) => a.order - b.order),
   )
@@ -160,7 +160,7 @@ export function appendBlockDeltaWithPlaceholder(
   ]
 }
 
-export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -187,8 +187,8 @@ export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any
     .sort((a, b) => a.order - b.order)
 }
 
-export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, any>): MessageBlock[] {
-  const merge = (target: Record<string, any>, nextPatch: Record<string, any>): Record<string, any> => {
+export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, unknown>): MessageBlock[] {
+  const merge = (target: Record<string, unknown>, nextPatch: Record<string, unknown>): Record<string, unknown> => {
     const result = { ...target }
     for (const [key, value] of Object.entries(nextPatch)) {
       if (key === 'children' && Array.isArray(value)) {
@@ -203,7 +203,7 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
         && typeof result[key] === 'object'
         && !Array.isArray(result[key])
       ) {
-        result[key] = merge(result[key] as Record<string, any>, value as Record<string, any>)
+        result[key] = merge(result[key] as Record<string, unknown>, value as Record<string, unknown>)
       } else {
         result[key] = value
       }
@@ -217,13 +217,13 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
       return block
     }
     didUpdate = true
-    return merge(block as unknown as Record<string, any>, patch) as unknown as MessageBlock
+    return merge(block as unknown as Record<string, unknown>, patch) as unknown as MessageBlock
   })
 
   return didUpdate ? filterHomepageBlocks(nextBlocks) : blocks
 }
 
-export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -235,7 +235,7 @@ export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, any>
     .sort((a, b) => a.order - b.order)
 }
 
-export function replaceExistingBlockEnd(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function replaceExistingBlockEnd(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -504,10 +504,10 @@ function critiqueCardIdentity(child: MessageBlock, critiqueRunId: string): boole
 
 function buildSubagentDesignJuryBlock(
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
   existing?: MessageBlock,
 ): MessageBlock {
-  const normalizedPayload = (camelizeBlockPayload(critiquePayload) as Record<string, any>) || {}
+  const normalizedPayload = (camelizeBlockPayload(critiquePayload) as Record<string, unknown>) || {}
   const critiqueRunId = String(normalizedPayload.critiqueRunId || normalizedPayload.critique_run_id || 'active')
   const displayStatus = String(normalizedPayload.displayStatus || normalizedPayload.display_status || '').trim()
   const status = displayStatus === 'round_completed'
@@ -526,7 +526,7 @@ function buildSubagentDesignJuryBlock(
   }
 }
 
-function terminalSubagentStatusForCritique(critiquePayload: Record<string, any>): string | null {
+function terminalSubagentStatusForCritique(critiquePayload: Record<string, unknown>): string | null {
   const status = String(critiquePayload.status || critiquePayload.displayStatus || critiquePayload.display_status || '').trim().toLowerCase()
   if (status === 'shipped' || status === 'below_threshold' || status === 'completed') {
     return 'completed'
@@ -543,7 +543,7 @@ function terminalSubagentStatusForCritique(critiquePayload: Record<string, any>)
 function upsertSubagentDesignJuryCardInBlocks(
   blocks: MessageBlock[],
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
 ): { blocks: MessageBlock[]; updated: boolean } {
   let didUpdate = false
   const normalizedTaskId = String(subagentTaskId || '').trim()
@@ -604,7 +604,7 @@ function upsertSubagentDesignJuryCardInBlocks(
 export function upsertSubagentDesignJuryCard(
   blocks: MessageBlock[],
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
 ): MessageBlock[] {
   const normalizedTaskId = String(subagentTaskId || '').trim()
   if (!normalizedTaskId) {

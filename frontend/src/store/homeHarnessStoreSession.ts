@@ -66,8 +66,8 @@ interface HarnessMessageLike {
     content?: string | null
     blocks?: Record<string, unknown>[] | null
     tool_calls?: Record<string, unknown>[] | null
-    attachments?: Record<string, any>[] | null
-    metadata?: Record<string, any> | null
+    attachments?: Record<string, unknown>[] | null
+    metadata?: Record<string, unknown> | null
     created_at?: string | null
 }
 
@@ -94,8 +94,8 @@ export interface MessageBlock {
 export interface ToolCallInfo {
     callId: string
     name: string
-    args: Record<string, any>
-    result?: Record<string, any>
+    args: Record<string, unknown>
+    result?: Record<string, unknown>
     error?: string
     status: 'pending' | 'running' | 'completed' | 'failed'
     /** Incremental streaming text for tools that support streaming (e.g., image analysis) */
@@ -267,7 +267,7 @@ export interface ChatActions {
         answer: string,
         displayLabel?: string,
         approved?: boolean,
-        answers?: Record<string, any> | null,
+        answers?: Record<string, unknown> | null,
     ) => Promise<void>
     startExecution: () => Promise<void>
     revisePlan: (instruction: string) => Promise<void>
@@ -307,8 +307,8 @@ export interface ChatActions {
     reset: () => void
 
     // Canvas item handler (set by CanvasPage)
-    onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null
-    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, any>) => void) | null) => void
+    onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null
+    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, unknown>) => void) | null) => void
 
     // Task & Tool update
     updateToolCall: (messageId: string | number, callId: string, updates: Partial<ToolCallInfo>) => void
@@ -650,7 +650,7 @@ export function buildHarnessUiMessages(rawMessages: HarnessMessageLike[]): ChatM
     }
 
     rawMessages.forEach((message, index) => {
-        const metadata = (message.metadata || {}) as Record<string, any>
+        const metadata = (message.metadata || {}) as Record<string, unknown>
         const renderBlocks = normalizeBlocks((message as Record<string, any>).blocks)
         const isRenderOnly = Boolean(metadata.render_only)
         const isExcludedFromHistory = Boolean(metadata.exclude_from_history)
@@ -782,7 +782,7 @@ function applySubmittedInteractionMetadataToUiMessages(
             return
         }
 
-        const metadata = message.metadata as Record<string, any>
+        const metadata = message.metadata as Record<string, unknown>
         const requestId = String(metadata.request_id || metadata.requestId || '').trim()
         if (!requestId) {
             return
@@ -796,7 +796,7 @@ function applySubmittedInteractionMetadataToUiMessages(
         ).trim()
         const submittedAnswer = String(metadata.answer || '').trim()
         const answers = metadata.answers && typeof metadata.answers === 'object' && !Array.isArray(metadata.answers)
-            ? metadata.answers as Record<string, any>
+            ? metadata.answers as Record<string, unknown>
             : null
 
         let didUpdate = false
@@ -1066,7 +1066,7 @@ export function buildSnapshotProjectionFromDetail(
         activeUserPlan: detail.user_plan ?? null,
         outlineRuntime: detail.outline_runtime ?? null,
         runtimeState: detail.runtime_state ?? null,
-        critique: hydrateHomeHarnessCritique(detail.runtime_state as Record<string, any> | null),
+        critique: hydrateHomeHarnessCritique(detail.runtime_state as Record<string, unknown> | null),
         userProgress: detail.user_progress ?? null,
         userInteraction: runtimeUserInteraction ?? null,
         workspaceFiles: Array.isArray(detail.workspace_files) ? detail.workspace_files : [],
@@ -1093,7 +1093,7 @@ export function buildHarnessConversationMeta(detail: HarnessConversationRead): H
         detail.runtime_state?.runtime_contract
         && typeof detail.runtime_state.runtime_contract === 'object'
         && !Array.isArray(detail.runtime_state.runtime_contract)
-    ) ? detail.runtime_state.runtime_contract as Record<string, any> : null
+    ) ? detail.runtime_state.runtime_contract as Record<string, unknown> : null
     const designSystemId = String(
         detail.design_system_id
         ?? runtimeContract?.design_system_id
@@ -1154,8 +1154,8 @@ const LIVE_PROGRESS_RUN_STATES = new Set([
 
 function buildConversationPlanState(
     activePlan: PlanRead | null,
-    previousPlanState?: Record<string, any> | null,
-): Record<string, any> | null {
+    previousPlanState?: Record<string, unknown> | null,
+): Record<string, unknown> | null {
     if (!activePlan) {
         return previousPlanState ?? null
     }
@@ -1315,20 +1315,20 @@ export function buildConversationMetaOverridesFromEvent(
                 : 'executing'
         overrides.activity = activity
         overrides.turn_route = event.data.turn_route && typeof event.data.turn_route === 'object'
-            ? event.data.turn_route as Record<string, any>
+            ? event.data.turn_route as Record<string, unknown>
             : existing?.turn_route ?? null
         overrides.display_status = activity === 'planning_outline' ? '规划中' : '进行中'
     } else if (eventType === 'run_started') {
         overrides.turn_route = event.data.turn_route && typeof event.data.turn_route === 'object'
-            ? event.data.turn_route as Record<string, any>
+            ? event.data.turn_route as Record<string, unknown>
             : existing?.turn_route ?? null
     } else if (eventType === 'turn_completed') {
         const status = String(event.data.status || 'completed') as HarnessConversationRead['runtime_status']
         const error = event.data.error && typeof event.data.error === 'object'
-            ? event.data.error as Record<string, any>
+            ? event.data.error as Record<string, unknown>
             : null
         const runtimeSnapshot = event.data.runtime_snapshot && typeof event.data.runtime_snapshot === 'object'
-            ? event.data.runtime_snapshot as Record<string, any>
+            ? event.data.runtime_snapshot as Record<string, unknown>
             : {}
         overrides.runtime_status = status
         overrides.display_status = status === 'failed'

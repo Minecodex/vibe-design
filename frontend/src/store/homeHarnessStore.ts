@@ -204,7 +204,7 @@ function preserveSubmittedInteractionAfterSnapshot(
 function resolveDesignSystemIdFromInteractionAnswer(
     kind: string | null | undefined,
     answer: string,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
 ): string | null {
     const normalizedKind = String(kind || '').trim()
     if (normalizedKind !== 'design_system_picker') {
@@ -216,7 +216,7 @@ function resolveDesignSystemIdFromInteractionAnswer(
         try {
             const parsed = JSON.parse(String(answer || ''))
             payload = parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-                ? parsed as Record<string, any>
+                ? parsed as Record<string, unknown>
                 : null
         } catch {
             payload = null
@@ -908,7 +908,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 const effectiveSkillDecisionConfidence = latestState.skillDecisionConfidence
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     // Strip _localFile from attachments before sending to API
                     const cleanAttachments = attachments?.map(stripTransientAttachmentFields)
@@ -1154,7 +1154,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 set({ engineVersion: 'harness' })
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const respondStream = withHarnessActiveRunRetry(
                         targetConversationId as string,
@@ -1267,7 +1267,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                     },
                 } as AgentEvent, set, get, targetConversationId)
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const stream = withHarnessActiveRunRetry(
                         targetConversationId,
@@ -1337,7 +1337,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                     runStatus: 'running',
                 })))
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const stream = withHarnessActiveRunRetry(
                         targetConversationId,
@@ -1884,7 +1884,7 @@ function shouldReplaySameSequenceTurnCompleted(
 function terminalFailureSummary(event: AgentEvent): string {
     const error = event.data?.error
     if (error && typeof error === 'object') {
-        return String((error as Record<string, any>).summary || '').trim()
+        return String((error as Record<string, unknown>).summary || '').trim()
     }
     return String(event.data?.summary || event.data?.message || '').trim()
 }

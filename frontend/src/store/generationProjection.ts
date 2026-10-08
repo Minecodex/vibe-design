@@ -31,9 +31,9 @@ export type GenerationTaskSnapshotLike = {
   error_message?: string | null
   errorMessage?: string | null
   error?: string | null
-  artifact?: Record<string, any> | null
-  canvas_item?: Record<string, any> | null
-  canvasItem?: Record<string, any> | null
+  artifact?: Record<string, unknown> | null
+  canvas_item?: Record<string, unknown> | null
+  canvasItem?: Record<string, unknown> | null
 }
 
 export type GenerationViewModel = {
@@ -234,11 +234,11 @@ export function isTerminalGenerationProjectionStatus(status: GenerationProjectio
   return status === 'completed' || status === 'failed'
 }
 
-function pickFirst(...values: any[]): any {
+function pickFirst(...values: unknown[]): any {
   return values.find((value) => value != null && value !== '')
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -248,7 +248,7 @@ function stringOrNull(value: unknown): string | null {
   return normalized || null
 }
 
-function resolveArtifactResultUrl(artifact: Record<string, any> | null): string | null {
+function resolveArtifactResultUrl(artifact: Record<string, unknown> | null): string | null {
   if (!artifact) return null
   const baseDir = String(artifact.base_dir || artifact.baseDir || '').trim()
   const relativePath = String(artifact.relative_path || artifact.relativePath || '').trim()

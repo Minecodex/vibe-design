@@ -22,7 +22,7 @@ interface CanvasWorkspaceMultiSelectToolbarProps extends CanvasSelectionProps {
   handleAutoArrange: () => void
   handleSpacing: (key: string) => void
   handleContextMenuAction: (action: string) => void
-  handleBulkExport?: () => void
+  handleBulkExport?: (itemIds: string[], format?: string) => void
 }
 
 export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorkspaceMultiSelectToolbar(props: CanvasWorkspaceMultiSelectToolbarProps) {

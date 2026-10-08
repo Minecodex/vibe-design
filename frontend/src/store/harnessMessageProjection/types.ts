@@ -10,8 +10,8 @@ export interface PresentationOpEvent {
   source_sequence?: number
   op_id?: string
   run_id?: string | null
-  data?: Record<string, any>
-  payload?: Record<string, any>
+  data?: Record<string, unknown>
+  payload?: Record<string, unknown>
 }
 
 export interface ProjectionSessionLike {

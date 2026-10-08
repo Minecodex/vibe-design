@@ -13,6 +13,7 @@ type BrushToolbarProps = ComponentProps<typeof CanvasBrushToolbar>
 type BrushPanelProps = ComponentProps<typeof CanvasBrushToolPanel>
 type CanvasWorkspaceProps = ComponentProps<typeof CanvasLeftToolbar>
   & ComponentProps<typeof CanvasWorkspaceBottomBar>
+  & ComponentProps<typeof CanvasWorkspaceCanvasArea>
   & Record<string, unknown>
   & {
     t: TFunction

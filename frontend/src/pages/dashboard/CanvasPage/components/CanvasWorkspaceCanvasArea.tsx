@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import React from 'react'
 import { CanvasBrushDraftPreview } from './CanvasBrushDraftPreview'
@@ -13,6 +12,36 @@ import {
 } from '../canvasRenderModel'
 import { clipboardDataHasCanvasClipboardMarker } from '../canvasClipboard'
 import { getClipboardImageFile } from '../clipboardImage'
+
+import type { ComponentProps, ComponentType, MouseEventHandler, RefObject } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { CanvasWebGLStage as CanvasWebGLStageView } from './CanvasWebGLStage'
+import type { BrushDraftState } from '../types'
+
+type StageProps = ComponentProps<typeof CanvasWebGLStageView>
+export type CanvasWorkspaceCanvasAreaProps = ComponentProps<typeof CanvasWorkspaceItemLayer>
+  & Omit<ComponentProps<typeof CanvasWorkspaceGroupLayer>, 'canvasRef'>
+  & ComponentProps<typeof CanvasWorkspaceFloatingPanels>
+  & Omit<ComponentProps<typeof CanvasWorkspaceMultiSelectToolbar>, 'canvasRef'>
+  & {
+    canvasContentRef: RefObject<HTMLDivElement>
+    handleMouseDown: MouseEventHandler<HTMLDivElement>
+    handleMouseMove: MouseEventHandler<HTMLDivElement>
+    handleMouseUp: MouseEventHandler<HTMLDivElement>
+    handleCanvasClick: MouseEventHandler<HTMLDivElement>
+    handleCanvasPaste?: (file: File) => void
+    handlePlaceTextAtPoint?: (point: { x: number; y: number }) => void
+    isPanning?: boolean
+    isWheeling?: boolean
+    isCanvasStale?: boolean
+    brushDraft: BrushDraftState | null
+    clipboardItems?: CanvasItem[]
+    clipboardSource?: 'internal' | 'external' | null
+    canvasCamera?: StageProps['canvasCamera']
+    interactionPreview?: StageProps['interactionPreview']
+    webGLStageComponent?: ComponentType<StageProps>
+    projectId?: number | null
+  }
 
 const CanvasWebGLStage = React.lazy(() => import('./CanvasWebGLStage').then((module) => ({
   default: module.CanvasWebGLStage,
@@ -70,7 +99,7 @@ function getCanvasDomItemId(target: EventTarget | null) {
   return target.closest('[data-canvas-item-id]')?.getAttribute('data-canvas-item-id') ?? null
 }
 
-export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanvasArea(props: any) {
+export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanvasArea(props: CanvasWorkspaceCanvasAreaProps) {
   const [isSceneReady, setIsSceneReady] = React.useState(false)
   const [webglFallback, setWebglFallback] = React.useState(false)
   const [hoverDomItemId, setHoverDomItemId] = React.useState<string | null>(null)
@@ -167,7 +196,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     if (node.overlayKind !== 'none' && node.type !== 'group') return null
     return node
   }, [canvasContentRef, getCanvasPointFromClient, props.canvasRef, renderSnapshot, useWebGLRenderer])
-  const routeWebGLItemClick = React.useCallback((event: React.MouseEvent) => {
+  const routeWebGLItemClick = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const node = getWebGLHitNode(event)
     if (!node) return false
     const item = node.item
@@ -189,7 +218,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     }
     return false
   }, [getWebGLHitNode, props])
-  const routeWebGLItemMouseDown = React.useCallback((event: React.MouseEvent) => {
+  const routeWebGLItemMouseDown = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const node = getWebGLHitNode(event)
     if (!node) return false
     if (props.activeTool === 'hand') return false
@@ -206,7 +235,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     }
     return true
   }, [getWebGLHitNode, props])
-  const routeWebGLItemContextMenu = React.useCallback((event: React.MouseEvent) => {
+  const routeWebGLItemContextMenu = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const node = getWebGLHitNode(event)
     if (!node) return false
     event.preventDefault()
@@ -218,7 +247,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     props.setActiveContextMenuItem(null)
     return true
   }, [getWebGLHitNode, props])
-  const routeWebGLItemDoubleClick = React.useCallback((event: React.MouseEvent) => {
+  const routeWebGLItemDoubleClick = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const node = getWebGLHitNode(event)
     if (!node) return false
     if (node.type !== 'image' || !node.item.url) return false
@@ -226,7 +255,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     props.handleAppendImageMentionToChat?.(node.id)
     return true
   }, [getWebGLHitNode, props])
-  const handleCanvasMouseMove = React.useCallback((event: React.MouseEvent) => {
+  const handleCanvasMouseMove = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const hoveredDomItemId = getCanvasDomItemId(event.target)
     if (hoverDomItemId && hoveredDomItemId === hoverDomItemId) {
       handleMouseMove(event)
@@ -240,7 +269,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     setHoverDomItemId((current) => current === nextHoverDomItemId ? current : nextHoverDomItemId)
     handleMouseMove(event)
   }, [getWebGLHitNode, handleMouseMove, hoverDomItemId])
-  const handleCanvasMouseLeave = React.useCallback((event: React.MouseEvent) => {
+  const handleCanvasMouseLeave = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     setHoverDomItemId(null)
     handleMouseUp(event)
   }, [handleMouseUp])
