@@ -23,8 +23,8 @@ import {
     EcommerceInteractionCard,
     type EcommerceReferenceImageRequestOptions,
     type EcommerceReferenceImageSource,
-    isEcommerceInteractionKind,
 } from '@/components/agent/EcommerceInteractionCard'
+import { isEcommerceInteractionKind } from '@/components/agent/ecommerceInteractionKinds'
 import {
   dedupeEcommerceInteractionBlocks,
   dedupeEcommerceInteractionMessages,

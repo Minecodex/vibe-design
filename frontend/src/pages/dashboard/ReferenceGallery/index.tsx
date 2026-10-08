@@ -1,3 +1,4 @@
+import { apiErrorMessage, imageLabels } from './referenceGalleryUtils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pencil, Plus, RotateCcw, Trash2, Upload } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -17,9 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAuthStore } from '@/store/authStore'
 
 import {
-  apiErrorMessage,
   EditReferenceImageDialog,
-  imageLabels,
   TaxonomyManager,
   TaxonomySelect,
   UploadReferenceDialog,

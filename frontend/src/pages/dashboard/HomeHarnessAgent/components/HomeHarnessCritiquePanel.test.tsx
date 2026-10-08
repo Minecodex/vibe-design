@@ -1,3 +1,4 @@
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
@@ -8,76 +9,35 @@ import {
   resolveDesignJuryDimensionLabel,
 } from './HomeHarnessCritiquePanel'
 
-const t = (key: string, fallback = '', options?: any) => {
-  if (key === 'home.chat.design_jury.warnings.screenshot_unavailable') {
-    return 'No rendered screenshot was captured; model-led quality review continued.'
-  }
-  if (key === 'home.chat.design_jury.warnings.artifact_not_critiqueable') {
-    return 'The current artifact is not an HTML visual deliverable; Design Jury was skipped and publishing is allowed.'
-  }
-  if (key === 'home.chat.design_jury.warnings.score_clamped') {
-    return 'A critique score exceeded the configured scale and was clamped.'
-  }
-  if (key === 'home.chat.design_jury.dimensions.visual-quality') {
-    return 'Visual quality'
-  }
-  if (key === 'home.chat.design_jury.dimension_aliases.clarity-of-value-proposition') {
-    return 'value-proposition-clarity'
-  }
-  if (key === 'home.chat.design_jury.dimensions.visual-hierarchy') {
-    return 'Visual hierarchy'
-  }
-  if (key === 'home.chat.design_jury.dimensions.cta-clarity') {
-    return 'CTA clarity'
-  }
-  if (key === 'home.chat.design_jury.dimensions.value-proposition-clarity') {
-    return 'Value proposition clarity'
-  }
-  if (key === 'home.chat.design_jury.dimensions.spacing-and-readability') {
-    return 'Spacing and readability'
-  }
-  if (key === 'home.chat.design_jury.dimensions.message-offer-fit') {
-    return 'Message-offer fit'
-  }
-  if (key === 'home.chat.design_jury.dimensions.form-interaction-clarity') {
-    return 'Form and interaction clarity'
-  }
-  if (key === 'home.chat.design_jury.dimensions.trust-and-proof') {
-    return 'Trust and proof'
-  }
-  if (key === 'home.chat.design_jury.dimensions.responsive-adaptation') {
-    return 'Responsive adaptation'
-  }
-  if (key === 'home.chat.design_jury.dimensions.typography-readability') {
-    return 'Typography readability'
-  }
-  if (key === 'home.chat.design_jury.dimensions.color-and-brand-fit') {
-    return 'Color and brand fit'
-  }
-  if (key === 'home.chat.design_jury.dimensions.content-clarity') {
-    return 'Content clarity'
-  }
-  if (key === 'home.chat.design_jury.round_completed') {
-    return 'This quality-check round is complete'
-  }
-  if (key === 'home.chat.design_jury.round') {
-    return `Round ${options.round}`
-  }
-  if (key === 'home.chat.design_jury.round_limit') {
-    return `Up to ${options.maxRounds} rounds`
-  }
-  if (key === 'home.chat.design_jury.selected_best_published') {
-    return `Published round ${options.round} as the best version, score ${options.score}`
-  }
-  return fallback
-}
+const t = createTranslationFixture({
+  "home.chat.design_jury.warnings.screenshot_unavailable": "No rendered screenshot was captured; model-led quality review continued.",
+  "home.chat.design_jury.warnings.artifact_not_critiqueable": "The current artifact is not an HTML visual deliverable; Design Jury was skipped and publishing is allowed.",
+  "home.chat.design_jury.warnings.score_clamped": "A critique score exceeded the configured scale and was clamped.",
+  "home.chat.design_jury.dimensions.visual-quality": "Visual quality",
+  "home.chat.design_jury.dimension_aliases.clarity-of-value-proposition": "value-proposition-clarity",
+  "home.chat.design_jury.dimensions.visual-hierarchy": "Visual hierarchy",
+  "home.chat.design_jury.dimensions.cta-clarity": "CTA clarity",
+  "home.chat.design_jury.dimensions.value-proposition-clarity": "Value proposition clarity",
+  "home.chat.design_jury.dimensions.spacing-and-readability": "Spacing and readability",
+  "home.chat.design_jury.dimensions.message-offer-fit": "Message-offer fit",
+  "home.chat.design_jury.dimensions.form-interaction-clarity": "Form and interaction clarity",
+  "home.chat.design_jury.dimensions.trust-and-proof": "Trust and proof",
+  "home.chat.design_jury.dimensions.responsive-adaptation": "Responsive adaptation",
+  "home.chat.design_jury.dimensions.typography-readability": "Typography readability",
+  "home.chat.design_jury.dimensions.color-and-brand-fit": "Color and brand fit",
+  "home.chat.design_jury.dimensions.content-clarity": "Content clarity",
+  "home.chat.design_jury.round_completed": "This quality-check round is complete",
+  "home.chat.design_jury.round": "Round {{round}}",
+  "home.chat.design_jury.round_limit": "Up to {{maxRounds}} rounds",
+  "home.chat.design_jury.selected_best_published": "Published round {{round}} as the best version, score {{score}}"
+})
 
 describe('HomeHarnessCritiquePanel', () => {
   it('shows the best-version notice and remaining findings below threshold', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'below_threshold',
@@ -129,7 +89,7 @@ describe('HomeHarnessCritiquePanel', () => {
     expect(isCritiqueVisible({ ...armed, status: 'failed' })).toBe(true)
 
     const { container } = render(
-      <HomeHarnessCritiquePanel isDark={false} t={t as any} critique={armed} />,
+      <HomeHarnessCritiquePanel isDark={false} t={t} critique={armed} />,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -138,7 +98,7 @@ describe('HomeHarnessCritiquePanel', () => {
     const { rerender } = render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'running',
@@ -166,7 +126,7 @@ describe('HomeHarnessCritiquePanel', () => {
     rerender(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'failed',
@@ -194,7 +154,7 @@ describe('HomeHarnessCritiquePanel', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'shipped',
@@ -224,7 +184,7 @@ describe('HomeHarnessCritiquePanel', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'running',
@@ -253,7 +213,7 @@ describe('HomeHarnessCritiquePanel', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'shipped',
@@ -283,25 +243,25 @@ describe('HomeHarnessCritiquePanel', () => {
     expect(normalizeDesignJuryDimensionKey('CTA clarity')).toBe('cta-clarity')
     expect(normalizeDesignJuryDimensionKey('Tone & personality')).toBe('tone-and-personality')
 
-    expect(resolveDesignJuryDimensionLabel('visual hierarchy', t as any)).toBe('Visual hierarchy')
-    expect(resolveDesignJuryDimensionLabel('CTA clarity', t as any)).toBe('CTA clarity')
-    expect(resolveDesignJuryDimensionLabel('clarity of value proposition', t as any)).toBe('Value proposition clarity')
-    expect(resolveDesignJuryDimensionLabel('spacing and readability', t as any)).toBe('Spacing and readability')
-    expect(resolveDesignJuryDimensionLabel('message-offer fit', t as any)).toBe('Message-offer fit')
-    expect(resolveDesignJuryDimensionLabel('form/interaction clarity', t as any)).toBe('Form and interaction clarity')
-    expect(resolveDesignJuryDimensionLabel('trust and proof', t as any)).toBe('Trust and proof')
-    expect(resolveDesignJuryDimensionLabel('responsive adaptation', t as any)).toBe('Responsive adaptation')
-    expect(resolveDesignJuryDimensionLabel('typography readability', t as any)).toBe('Typography readability')
-    expect(resolveDesignJuryDimensionLabel('color and brand fit', t as any)).toBe('Color and brand fit')
-    expect(resolveDesignJuryDimensionLabel('content clarity', t as any)).toBe('Content clarity')
-    expect(resolveDesignJuryDimensionLabel('unknown dimension', t as any)).toBe('unknown dimension')
+    expect(resolveDesignJuryDimensionLabel('visual hierarchy', t)).toBe('Visual hierarchy')
+    expect(resolveDesignJuryDimensionLabel('CTA clarity', t)).toBe('CTA clarity')
+    expect(resolveDesignJuryDimensionLabel('clarity of value proposition', t)).toBe('Value proposition clarity')
+    expect(resolveDesignJuryDimensionLabel('spacing and readability', t)).toBe('Spacing and readability')
+    expect(resolveDesignJuryDimensionLabel('message-offer fit', t)).toBe('Message-offer fit')
+    expect(resolveDesignJuryDimensionLabel('form/interaction clarity', t)).toBe('Form and interaction clarity')
+    expect(resolveDesignJuryDimensionLabel('trust and proof', t)).toBe('Trust and proof')
+    expect(resolveDesignJuryDimensionLabel('responsive adaptation', t)).toBe('Responsive adaptation')
+    expect(resolveDesignJuryDimensionLabel('typography readability', t)).toBe('Typography readability')
+    expect(resolveDesignJuryDimensionLabel('color and brand fit', t)).toBe('Color and brand fit')
+    expect(resolveDesignJuryDimensionLabel('content clarity', t)).toBe('Content clarity')
+    expect(resolveDesignJuryDimensionLabel('unknown dimension', t)).toBe('unknown dimension')
   })
 
   it('renders round completed as a completed quality-check state', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'running',
@@ -331,7 +291,7 @@ describe('HomeHarnessCritiquePanel', () => {
     render(
       <HomeHarnessCritiquePanel
         isDark={false}
-        t={t as any}
+        t={t}
         critique={{
           critiqueRunId: 'critique-1',
           status: 'failed',

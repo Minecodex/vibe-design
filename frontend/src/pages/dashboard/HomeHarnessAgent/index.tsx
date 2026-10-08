@@ -1,3 +1,4 @@
+import { DesignSystemSwatch } from './components/DesignSystemSwatch'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Suspense, lazy } from 'react'
@@ -124,7 +125,6 @@ import type {
 import { HomeDesignSystemPreviewDialog } from './components/HomeDesignSystemPreviewDialog'
 import { HomeSkillExamplePreviewDialog } from './components/HomeSkillExamplePreviewDialog'
 import {
-  DesignSystemSwatch,
   getDesignSystemDisplayDescription,
   getDesignSystemDisplayTitle,
 } from './components/homeDesignSystemPreviewUtils'

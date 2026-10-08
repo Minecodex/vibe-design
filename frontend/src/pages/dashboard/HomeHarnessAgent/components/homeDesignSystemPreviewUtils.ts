@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+
 import type { HarnessDesignSystemRead } from '@/api/endpoints/agent'
 
 const DESIGN_SYSTEM_FALLBACK_PALETTE = ['#F8FAFC', '#E2E8F0', '#94A3B8', '#0F172A']
@@ -46,27 +46,4 @@ export function disableOpenDesignPreviewNavigation(html: string): string {
   return `${guardStyle}${disabledHtml}`
 }
 
-export function DesignSystemSwatch({
-  designSystem,
-  className,
-}: {
-  designSystem: Pick<HarnessDesignSystemRead, 'id' | 'palette'> | null | undefined
-  isDark: boolean
-  className?: string
-}) {
-  const palette = getDesignSystemPalette(designSystem)
-  return (
-    <div
-      data-testid={designSystem?.id ? `home-design-system-swatch-${designSystem.id}` : 'home-design-system-swatch-auto'}
-      className={cn(
-        'grid h-10 w-10 shrink-0 grid-cols-2 overflow-hidden rounded-xl border shadow-sm',
-        'app-card',
-        className,
-      )}
-    >
-      {palette.map((color, index) => (
-        <span key={`${color}-${index}`} style={{ backgroundColor: color }} />
-      ))}
-    </div>
-  )
-}
+

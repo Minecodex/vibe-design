@@ -1,3 +1,4 @@
+
 import * as React from 'react'
 import { Check, Image as ImageIcon, Images, Loader2, PackageCheck, Plus, Trash2, Upload, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -32,11 +33,9 @@ import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { getImageUrl } from '@/utils/imageUrl'
 
-const ECOMMERCE_GENERATION_OPTIONS_KIND = 'ecommerce_generation_options'
+import { isEcommerceInteractionKind } from './ecommerceInteractionKinds'
 
-export const ECOMMERCE_INTERACTION_KINDS = new Set([
-  ECOMMERCE_GENERATION_OPTIONS_KIND,
-])
+
 
 export type EcommerceReferenceImageSource = 'asset_library' | 'reference_gallery'
 export type EcommerceReferenceImageRequestOptions = { maxSelection?: number }
@@ -711,9 +710,7 @@ function ReferenceImageSection({
   )
 }
 
-export function isEcommerceInteractionKind(kind?: string | null): boolean {
-  return ECOMMERCE_INTERACTION_KINDS.has(String(kind || '').trim())
-}
+
 
 export function EcommerceInteractionCard({
   interaction,

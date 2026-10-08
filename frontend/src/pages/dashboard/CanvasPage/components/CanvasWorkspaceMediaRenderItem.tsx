@@ -819,7 +819,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
                             key={getGeneratorModelOptionKey(m, index)}
                             onClick={(e) => {
                               e.stopPropagation()
-                              const updates: any = { model_name: m.value, provider_code: m.provider }
+                              const updates = { model_name: m.value, provider_code: m.provider }
                               const newConfig = m.config
                               const nextReferenceImages = normalizeReferenceImages(item)
                               if (newConfig) {

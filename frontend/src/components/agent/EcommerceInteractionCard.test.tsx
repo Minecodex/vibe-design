@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PendingInteraction } from '@/api/endpoints/agent'
 
-import { EcommerceInteractionCard, isEcommerceInteractionKind } from './EcommerceInteractionCard'
+import { EcommerceInteractionCard } from './EcommerceInteractionCard'
+import { isEcommerceInteractionKind } from './ecommerceInteractionKinds'
 
 const createWorkspacePreviewTokenMock = vi.fn()
 const getHarnessGenerationArtifactTaskMock = vi.fn()

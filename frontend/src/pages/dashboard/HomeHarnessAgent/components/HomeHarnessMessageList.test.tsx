@@ -1,3 +1,5 @@
+import type { WorkspaceFileRead } from '@/api/endpoints/agent'
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -69,20 +71,7 @@ vi.mock('@/api/endpoints/referenceGallery', () => ({
 
 import { HomeHarnessMessageList } from '../index'
 
-const t = (key: string, fallback?: string | Record<string, any>) => {
-  if (key === 'subagent.purposeLabels.qualityReview') {
-    return '质量评审'
-  }
-  if (typeof fallback === 'string') {
-    return fallback
-  }
-  if (fallback && typeof fallback.defaultValue === 'string') {
-    return fallback.defaultValue
-      .replace('{{count}}', String(fallback.count ?? ''))
-      .replace('{{name}}', String(fallback.name ?? ''))
-  }
-  return key
-}
+const t = createTranslationFixture({ 'subagent.purposeLabels.qualityReview': '质量评审' })
 
 const reportFile = {
   file_id: 'file-report',
@@ -95,7 +84,7 @@ const reportFile = {
   current_version_id: '',
   versions: [],
   source: 'reference_asset',
-} as any
+} satisfies WorkspaceFileRead
 
 beforeEach(() => {
   window.HTMLElement.prototype.scrollIntoView = vi.fn()
@@ -154,7 +143,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -205,7 +194,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -267,7 +256,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -329,7 +318,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -367,7 +356,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -408,7 +397,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
         hiddenToolCalls={[]}
@@ -494,7 +483,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={runtimeBlocks}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -514,7 +503,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -550,7 +539,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -598,7 +587,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -639,7 +628,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -688,7 +677,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -755,7 +744,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -797,7 +786,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -842,7 +831,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -888,7 +877,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -939,7 +928,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -977,7 +966,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -999,7 +988,7 @@ describe('HomeHarnessMessageList', () => {
         isStreaming
         runStatus="idle"
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1051,7 +1040,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         conversationLastActivityAt="2026-04-27T10:32:18+08:00"
       userInteraction={null}
@@ -1093,7 +1082,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1142,7 +1131,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         outlineRuntime={null}
         userProgress={{
@@ -1199,7 +1188,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         conversationPhase="planning_ready"
         outlineRuntime={{
@@ -1274,7 +1263,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         conversationPhase="planning_ready"
         outlineRuntime={{
@@ -1361,7 +1350,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1411,7 +1400,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={respondToAgent}
@@ -1464,7 +1453,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark
-        t={t as any}
+        t={t}
         language="zh-CN"
         conversationId="conv-1"
         userInteraction={null}
@@ -1516,7 +1505,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1559,7 +1548,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1612,7 +1601,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1657,7 +1646,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1702,7 +1691,7 @@ describe('HomeHarnessMessageList', () => {
         isStreaming={false}
         runStatus="completed"
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1745,7 +1734,7 @@ describe('HomeHarnessMessageList', () => {
         isStreaming={false}
         runStatus="completed"
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1785,7 +1774,7 @@ describe('HomeHarnessMessageList', () => {
         isStreaming={false}
         runStatus="running"
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1817,7 +1806,7 @@ describe('HomeHarnessMessageList', () => {
         ]}
         isStreaming
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1875,7 +1864,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1928,7 +1917,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -1991,7 +1980,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -2038,7 +2027,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -2100,7 +2089,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         language="en-US"
         conversationId="conv-1"
         userInteraction={null}
@@ -2139,7 +2128,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         language="en-US"
         conversationId="conv-1"
         userInteraction={null}
@@ -2208,7 +2197,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         language="en-US"
         conversationId="conv-1"
         userInteraction={null}
@@ -2244,7 +2233,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
       userInteraction={null}
         respondToAgent={vi.fn(async () => {})}
@@ -2263,7 +2252,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={{
           request_id: 'interaction-standalone',
@@ -2308,7 +2297,7 @@ describe('HomeHarnessMessageList', () => {
         streamingBlocks={[]}
         isStreaming={false}
         isDark={false}
-        t={t as any}
+        t={t}
         conversationId="conv-1"
         userInteraction={null}
         respondToAgent={vi.fn(async () => {})}

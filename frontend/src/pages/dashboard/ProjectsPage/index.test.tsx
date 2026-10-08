@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { ProjectsPage, applyProjectUsersUpdate, getNextRenderedProjectCount } from './index'
+import { ProjectsPage } from './index'
+import { applyProjectUsersUpdate, getNextRenderedProjectCount } from './projectListUtils'
 import { resetProjectListStore } from '@/store/projectListStore'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
