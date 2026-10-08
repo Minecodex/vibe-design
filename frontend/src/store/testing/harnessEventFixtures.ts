@@ -1,6 +1,6 @@
 import type { AgentEvent } from '@/api/endpoints/agent'
 
-interface TurnCompletionOverrides {
+export interface TurnCompletionOverrides {
   conversation_id?: string
   run_id?: string
   summary?: string
@@ -13,7 +13,7 @@ interface TurnCompletionOverrides {
   runtime_snapshot?: Record<string, unknown>
 }
 
-interface PresentationOverrides {
+export interface PresentationOverrides {
   run_id?: string
   message_key?: string
   parent_block_key?: string | null
@@ -23,6 +23,11 @@ interface PresentationOverrides {
   kind?: string
   order?: number
   status?: string
+  task_id?: string | number | null
+  taskId?: string | number | null
+  label?: string | null
+  summary?: string | null
+  children?: Record<string, unknown>[]
 }
 
 export function turnCompleted(

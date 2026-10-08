@@ -154,7 +154,7 @@ describe('agentGeneratedMedia', () => {
 
     const first = planAgentGeneratedMediaInsertion({
       currentState: state,
-      conversationId: 'conv-1' as any,
+      conversationId: 'conv-1',
       messageId: 'message-master',
       groupKey: 'ecommerce_white_background',
       incomingId: 'master-white',
@@ -165,7 +165,7 @@ describe('agentGeneratedMedia', () => {
 
     const second = planAgentGeneratedMediaInsertion({
       currentState: state,
-      conversationId: 'conv-1' as any,
+      conversationId: 'conv-1',
       messageId: 'message-views',
       groupKey: 'ecommerce_white_background',
       incomingId: 'left-white',
@@ -213,7 +213,7 @@ describe('agentGeneratedMedia', () => {
 
     const result = planAgentGeneratedMediaInsertion({
       currentState: hydrated,
-      conversationId: 'conv-1' as any,
+      conversationId: 'conv-1',
       messageId: 'message-views-2',
       groupKey: 'ecommerce_white_background',
       incomingId: 'right-white',
@@ -479,7 +479,7 @@ describe('agentGeneratedMedia', () => {
 
     const result = planAgentGeneratedMediaInsertion({
       currentState: hydrated,
-      conversationId: 'conv-canvas-1' as any,
+      conversationId: 'conv-canvas-1',
       messageId: 'message-canvas-2',
       incomingId: 'img-string-3',
       incomingName: 'Third image',

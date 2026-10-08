@@ -38,7 +38,7 @@ describe('chat skills i18n', () => {
             default_for: [],
             preview_type: 'none',
             capabilities: { canvas_explicit: true },
-          } as any,
+          },
         ],
       },
       'zh-CN',

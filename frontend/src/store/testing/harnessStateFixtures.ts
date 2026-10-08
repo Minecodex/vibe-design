@@ -1,5 +1,5 @@
 import { AxiosHeaders, type AxiosResponse } from 'axios'
-import { agentApi, type HarnessConversationDetailRead, type HarnessRuntimeStateRead } from '@/api/endpoints/agent'
+import { agentApi, type HarnessConversationDetailRead, type HarnessRuntimeStateRead, type WorkspaceFileRead } from '@/api/endpoints/agent'
 import { createEmptyConversationSession, type ConversationSessionState } from '../canvasAgentSession'
 
 export function httpResponse<T>(value: { data: T }): AxiosResponse<T, unknown> {
@@ -26,4 +26,9 @@ export function conversationSession(overrides: Partial<ConversationSessionState>
 type ArtifactTask = Awaited<ReturnType<typeof agentApi.getHarnessGenerationArtifactTask>>['data']
 export function artifactTask(overrides: Partial<ArtifactTask>): ArtifactTask {
   return { task_id: 'fixture-task', status: 'processing', result_url: null, error_message: null, ...overrides }
+}
+
+export function workspaceFile(overrides: Partial<WorkspaceFileRead>): WorkspaceFileRead {
+  return { file_id: 'fixture-file', name: 'Fixture', path: 'references/inputs/fixture/file.txt',
+    type: 'file', size: 0, created_at: '2026-05-01T00:00:00.000Z', ...overrides }
 }

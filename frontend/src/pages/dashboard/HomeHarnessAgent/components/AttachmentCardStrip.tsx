@@ -254,7 +254,7 @@ function AttachmentPreviewImage({
   }, [conversationId, effectivePreviewSource, shouldLoad, src])
 
   return (
-    <span ref={viewportRef as any} className="block h-full w-full">
+    <span ref={viewportRef} className="block h-full w-full">
       <AgentLazyMedia
         src={displayUrl}
         alt={alt}

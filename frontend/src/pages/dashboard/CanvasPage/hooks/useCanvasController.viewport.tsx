@@ -375,7 +375,7 @@ export function useCanvasControllerViewport(args: any) {
     groupHitCandidatesRef.current = []
     const previewItems = interactionPreviewRef.current.getLatestItems()
     if (previewItems?.length) {
-      const previewById = new Map(previewItems.map((item: any) => [item.id, item]))
+      const previewById = new Map(previewItems.map((item) => [item.id, item]))
       updateCanvasItems((prev: any[]) => prev.map((item) => previewById.get(item.id) || item))
     }
     interactionPreviewRef.current.clear({ restore: !previewItems?.length })

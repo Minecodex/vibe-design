@@ -109,8 +109,8 @@ export function handleAgentEventV2(
         ? getConversationSession(_get(), scopedConversationId)
         : null
     syncCanvasRevisionForActiveConversation(_get, scopedConversationId, event)
-    if (isPresentationOpEvent(event as any)) {
-        const conversationPatch = extractPresentationConversationPatch(event as any)
+    if (isPresentationOpEvent(event)) {
+        const conversationPatch = extractPresentationConversationPatch(event)
         if (!scopedConversationId) {
             set((s) => {
                 const nextSession = applyPresentationOpToSession({
@@ -118,7 +118,7 @@ export function handleAgentEventV2(
                     streamingBlocks: s.streamingBlocks,
                     lastSequence: 0,
                     appliedPresentationOps: [],
-                }, event as any)
+                }, event)
                 return {
                     messages: nextSession.messages,
                     streamingBlocks: nextSession.streamingBlocks,
@@ -137,7 +137,7 @@ export function handleAgentEventV2(
                 }
                 : {}
             const sessionPatch = applyConversationSessionUpdate(s, scopedConversationId, (session) => (
-                    applyPresentationOpToSession(session, event as any)
+                    applyPresentationOpToSession(session, event)
             ))
             const conversationsPatch = conversationPatch
                 ? {

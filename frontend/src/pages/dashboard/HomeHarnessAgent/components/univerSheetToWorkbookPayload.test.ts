@@ -60,7 +60,7 @@ describe('univerSheetToWorkbookPayload', () => {
       }),
     }
 
-    expect(univerSheetToWorkbookPayload(workbook as any)).toEqual({
+    expect(univerSheetToWorkbookPayload(workbook)).toEqual({
       kind: 'sheet',
       sheetOrder: ['sheet-1', 'sheet-2'],
       activeSheetId: 'sheet-2',

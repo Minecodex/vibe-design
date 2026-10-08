@@ -36,7 +36,7 @@ function adapter(overrides: Partial<CanvasGenerationRuntimeAdapter> = {}): Canva
       conversationId: 'conv-1',
       engineVersion: 'harness',
       onCanvasUpdate: vi.fn(),
-    } as any),
+    }),
     updateToolCallByGenerationTask: vi.fn(),
     updateCanvasItemByGenerationTask: vi.fn(),
     saveCanvasItems: vi.fn(),
@@ -107,7 +107,7 @@ describe('canvasGenerationTaskRuntime', () => {
         conversationId: 'conv-1',
         engineVersion: 'harness',
         onCanvasUpdate,
-      } as any),
+      }),
       updateCanvasItemByGenerationTask,
     })
 
@@ -147,7 +147,7 @@ describe('canvasGenerationTaskRuntime', () => {
         conversationId: 'conv-1',
         engineVersion: 'harness',
         onCanvasUpdate,
-      } as any),
+      }),
       updateCanvasItemByGenerationTask,
     })
 
@@ -192,7 +192,7 @@ describe('canvasGenerationTaskRuntime', () => {
         conversationId: 'conv-1',
         engineVersion: 'harness',
         onCanvasUpdate,
-      } as any),
+      }),
       updateCanvasItemByGenerationTask,
     })
 
@@ -273,7 +273,7 @@ describe('canvasGenerationTaskRuntime', () => {
         conversationId: 'conv-1',
         engineVersion: 'harness',
         onCanvasUpdate,
-      } as any),
+      }),
       updateToolCallByGenerationTask,
       updateCanvasItemByGenerationTask,
       updateCanvasRevisionByAgentPatch,
@@ -312,7 +312,7 @@ describe('canvasGenerationTaskRuntime', () => {
     const updateCanvasItemByGenerationTask = vi.fn()
     const onCanvasUpdate = vi.fn()
     const runtimeAdapter = adapter({
-      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate } as any),
+      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate }),
       updateToolCallByGenerationTask,
       updateCanvasItemByGenerationTask,
     })
@@ -442,7 +442,7 @@ describe('canvasGenerationTaskRuntime', () => {
     const updateCanvasRevisionByAgentPatch = vi.fn()
     const onCanvasUpdate = vi.fn()
     const runtimeAdapter = adapter({
-      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate } as any),
+      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate }),
       updateToolCallByGenerationTask,
       updateCanvasItemByGenerationTask,
       updateCanvasRevisionByAgentPatch,
@@ -493,7 +493,7 @@ describe('canvasGenerationTaskRuntime', () => {
     const updateCanvasRevisionByAgentPatch = vi.fn()
     const onCanvasUpdate = vi.fn()
     const runtimeAdapter = adapter({
-      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate } as any),
+      getState: () => ({ conversationId: 'conv-1', engineVersion: 'harness', onCanvasUpdate }),
       updateToolCallByGenerationTask,
       updateCanvasItemByGenerationTask,
       updateCanvasRevisionByAgentPatch,

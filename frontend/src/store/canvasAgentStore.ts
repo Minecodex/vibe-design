@@ -714,7 +714,6 @@ export const useChatStore = create<ChatState & ChatActions>()(
                     )
                     const olderMessages = buildHarnessUiMessagesForConversation(
                         response.data.messages || [],
-                        targetConversationId,
                     )
                     set((state) => applyConversationSessionUpdate(state, targetConversationId, (currentSession) => {
                         const existingIds = new Set(currentSession.messages.map((message) => String(message.id)))

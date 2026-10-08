@@ -253,6 +253,7 @@ export interface PendingInteraction {
 }
 
 export interface HarnessRuntimeStateRead {
+    critique?: Record<string, unknown> | null
     conversation_id: string
     updated_at?: string | null
     phase: string

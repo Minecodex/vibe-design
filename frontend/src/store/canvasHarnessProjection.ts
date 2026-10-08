@@ -77,7 +77,7 @@ export function normalizePendingInteraction(
 }
 
 export function buildHarnessUiMessages(rawMessages: HarnessMessageLike[]): ChatMessage[] {
-    return buildHarnessUiMessagesForConversation(rawMessages, null)
+    return buildHarnessUiMessagesForConversation(rawMessages)
 }
 
 export function applySubmittedInteractionMetadataToMessages(
@@ -139,7 +139,6 @@ export function applySubmittedInteractionMetadataToMessages(
 
 export function buildHarnessUiMessagesForConversation(
     rawMessages: HarnessMessageLike[],
-    _conversationId: string | number | null,
 ): ChatMessage[] {
     const messages: ChatMessage[] = []
     let pendingRenderBlocks: MessageBlock[] = []
@@ -251,7 +250,7 @@ export function buildCanvasHarnessProjectionFromSnapshot(
     detail: HarnessConversationSnapshotDetail,
 ): HomeHarnessProjectionState {
     const runtimeUserInteraction = resolveHarnessRuntimeInteraction(detail)
-    const replayedMessages = buildHarnessUiMessagesForConversation(Array.isArray(detail.messages) ? detail.messages : [], detail.id)
+    const replayedMessages = buildHarnessUiMessagesForConversation(Array.isArray(detail.messages) ? detail.messages : [])
     const replayed = {
         messages: replayedMessages,
         activePlan: null,

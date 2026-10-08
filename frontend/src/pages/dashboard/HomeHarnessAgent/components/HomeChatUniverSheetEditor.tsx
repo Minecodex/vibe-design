@@ -67,7 +67,7 @@ export function HomeChatUniverSheetEditor({ snapshot, isDark = false }: HomeChat
       })
 
       const workbookPayload = toUniverWorkbookData(snapshot)
-      univerAPI.createWorkbook((workbookPayload || {}) as any)
+      univerAPI.createWorkbook((workbookPayload || {}))
       const resizeFrame = window.requestAnimationFrame(() => {
         window.dispatchEvent(new Event('resize'))
       })

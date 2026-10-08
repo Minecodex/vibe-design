@@ -275,8 +275,8 @@ export function useGeneratorControls({
               const text2video = providerRegistry?.models?.text2video || (providerRegistry as any)?.text2video || []
 
               enabledModels = [
-                ...text2image.map((model: any) => ({ model_name: model.model_name, model_type: 'text2image', is_enabled: true } as any)),
-                ...text2video.map((model: any) => ({ model_name: model.model_name, model_type: 'text2video', is_enabled: true } as any)),
+                ...text2image.map((model) => ({ model_name: model.model_name, model_type: 'text2image', is_enabled: true } as any)),
+                ...text2video.map((model) => ({ model_name: model.model_name, model_type: 'text2video', is_enabled: true } as any)),
               ]
             }
 

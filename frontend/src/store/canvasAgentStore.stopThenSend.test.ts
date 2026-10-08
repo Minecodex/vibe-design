@@ -254,7 +254,7 @@ describe('canvasAgentStore stop-then-send', () => {
     seedActiveStreamingConversation(useChatStore)
     useChatStore.setState({
       pendingInteraction: { request_id: 'req-1', question: '继续？', kind: 'ask_user', schema: null },
-    } as any)
+    })
 
     useChatStore.getState().stopStreaming()
     await useChatStore.getState().respondToAgent('req-1', 'confirm', '确认')

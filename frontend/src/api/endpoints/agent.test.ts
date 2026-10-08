@@ -229,8 +229,8 @@ describe('fetchSSE', () => {
       },
     } as any)
 
-    await streamHarnessSendMessage('conv-home-1', { content: 'hello' } as any, undefined, 7).next()
-    await streamHarnessRespondToAgent('conv-home-1', { request_id: 'req-1', answer: 'ok' } as any, undefined, 8).next()
+    await streamHarnessSendMessage('conv-home-1', { content: 'hello' }, undefined, 7).next()
+    await streamHarnessRespondToAgent('conv-home-1', { request_id: 'req-1', answer: 'ok' }, undefined, 8).next()
     await streamHarnessStartExecution('conv-home-1', undefined, 9).next()
     await streamHarnessRevisePlan('conv-home-1', 'change it', undefined, 10).next()
 

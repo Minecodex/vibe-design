@@ -450,9 +450,9 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
                             const multimodal = providerRegistry?.models?.multimodal || (providerRegistry as any)?.multimodal || [];
 
                             enabledModels = [
-                                ...text2image.map((m: any) => ({ model_name: m.model_name, model_type: 'text2image', is_enabled: true } as any)),
-                                ...text2video.map((m: any) => ({ model_name: m.model_name, model_type: 'text2video', is_enabled: true } as any)),
-                                ...multimodal.map((m: any) => ({ model_name: m.model_name, model_type: 'multimodal', is_enabled: true } as any))
+                                ...text2image.map((m) => ({ model_name: m.model_name, model_type: 'text2image', is_enabled: true } as any)),
+                                ...text2video.map((m) => ({ model_name: m.model_name, model_type: 'text2video', is_enabled: true } as any)),
+                                ...multimodal.map((m) => ({ model_name: m.model_name, model_type: 'multimodal', is_enabled: true } as any))
                             ];
                         }
 

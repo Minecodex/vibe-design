@@ -1683,8 +1683,8 @@ function handleAgentEventV2(
         const currentSession = projectionConversationId
             ? getConversationSession(_get(), projectionConversationId)
             : null
-        if (isPresentationOpEvent(event as any)) {
-            const conversationPatch = extractPresentationConversationPatch(event as any)
+        if (isPresentationOpEvent(event)) {
+            const conversationPatch = extractPresentationConversationPatch(event)
             if (!projectionConversationId) {
                 set((s) => buildActiveConversationFields(
                     applyPresentationOpToSession({
@@ -1693,7 +1693,7 @@ function handleAgentEventV2(
                         streamingBlocks: s.streamingBlocks,
                         lastSequence: s.conversationId && currentSession ? currentSession.lastSequence : 0,
                         appliedPresentationOps: currentSession?.appliedPresentationOps ?? [],
-                    }, event as any),
+                    }, event),
                 ))
                 return
             }
@@ -1715,7 +1715,7 @@ function handleAgentEventV2(
                     : {}
                 return {
                     ...applyConversationSessionUpdate(s, projectionConversationId, (session) => (
-                        applyPresentationOpToSession(session, event as any)
+                        applyPresentationOpToSession(session, event)
                     )),
                     ...activePatch,
                     conversations: conversationPatch

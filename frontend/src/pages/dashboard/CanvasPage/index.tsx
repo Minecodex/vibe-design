@@ -599,7 +599,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
     }
 
     if (generatorAssetLibraryContext.type === 'canvas-item') {
-      const item = canvasItems.find((canvasItem: any) => canvasItem.id === generatorAssetLibraryContext.itemId)
+      const item = canvasItems.find((canvasItem) => canvasItem.id === generatorAssetLibraryContext.itemId)
       if (!item) return null
       if (generatorAssetLibraryContext.target !== 'reference') {
         return { selectionMode: 'single' as const, maxSelection: 1 }

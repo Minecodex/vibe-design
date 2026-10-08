@@ -387,7 +387,7 @@ describe('canvasAgentStore respondToAgent', () => {
           request_id: 'req',
           display_label: '确认继续',
         },
-      } as any,
+      },
     ])
 
     expect(messages[0]?.id).toBe('interaction-submission:conv:req:stable')
@@ -717,7 +717,7 @@ describe('canvasAgentStore respondToAgent', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
 
     const stateDuringStream = useChatStore.getState()
-    const mediaBlock = stateDuringStream.messages[0]?.blocks?.find((block: any) => block.id === 'media-artifact-art-1')
+    const mediaBlock = stateDuringStream.messages[0]?.blocks?.find((block) => block.id === 'media-artifact-art-1')
 
     expect(stateDuringStream.streamingBlocks).toEqual([])
     expect(mediaBlock?.payload.status).toBe('completed')

@@ -77,7 +77,7 @@ export function useCanvasSaver({
       canvas_base_revision: payload.baseRevision,
     })
     const serverItems = Array.isArray(response.data.canvas_data)
-      ? response.data.canvas_data.filter((item: any) => item?.id !== 'global_state')
+      ? response.data.canvas_data.filter((item) => item?.id !== 'global_state')
       : undefined
     onRevisionSaved(
       normalizeCanvasRevision(response.data.canvas_revision),

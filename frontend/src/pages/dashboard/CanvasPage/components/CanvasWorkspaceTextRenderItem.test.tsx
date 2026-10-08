@@ -29,13 +29,14 @@ describe('CanvasWorkspaceTextRenderItem', () => {
     const { container } = render(
       <CanvasWorkspaceTextRenderItem
         item={item}
+        canvasItems={[item]}
         normalizedTextItem={normalizeTextCanvasItem(item)}
         isHidden={false}
         isItemSelected
         actualWidth={240}
         actualHeight={120}
         selectedItems={['text-1']}
-        clampCanvasStackZIndex={(value: number) => value}
+        clampCanvasStackZIndex={(value = 0) => value}
         activeTool="select"
         textEditingItemId={null}
         handleStartTextEdit={vi.fn()}
