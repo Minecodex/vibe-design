@@ -213,6 +213,11 @@ async def test_reconciler_renews_redis_leader_lease_while_running(monkeypatch, t
 @pytest.mark.asyncio
 @pytest.mark.skipif(reconciler_mod.fcntl is None, reason="fcntl unavailable")
 async def test_reconciler_file_lock_allows_only_one_leader(tmp_path, monkeypatch):
+    from app.core.config import Settings
+    from app.core.redis_coordination import DisabledRedisCoordinator
+
+    coordinator = DisabledRedisCoordinator(settings=Settings(_env_file=None, REDIS_ENABLED=False))
+    monkeypatch.setattr(reconciler_mod, "get_redis_coordinator", lambda: coordinator)
     started: list[str] = []
 
     async def fake_run_loop(self):
@@ -241,6 +246,11 @@ async def test_reconciler_file_lock_allows_only_one_leader(tmp_path, monkeypatch
 @pytest.mark.asyncio
 @pytest.mark.skipif(reconciler_mod.fcntl is None, reason="fcntl unavailable")
 async def test_reconciler_reacquires_lock_after_leader_shutdown(tmp_path, monkeypatch):
+    from app.core.config import Settings
+    from app.core.redis_coordination import DisabledRedisCoordinator
+
+    coordinator = DisabledRedisCoordinator(settings=Settings(_env_file=None, REDIS_ENABLED=False))
+    monkeypatch.setattr(reconciler_mod, "get_redis_coordinator", lambda: coordinator)
     async def fake_run_loop(self):
         await self._shutdown_event.wait()
 
