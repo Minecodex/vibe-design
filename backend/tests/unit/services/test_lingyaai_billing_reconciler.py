@@ -229,18 +229,22 @@ async def test_reconciler_file_lock_allows_only_one_leader(tmp_path, monkeypatch
     leader = reconciler_mod.LingyaAiBillingReconciler(lock_path=str(tmp_path / "billing.lock"))
     follower = reconciler_mod.LingyaAiBillingReconciler(lock_path=str(tmp_path / "billing.lock"))
 
-    leader.start()
-    await asyncio.sleep(0)
-    follower.start()
-    await asyncio.sleep(0)
+    try:
+        leader.start()
+        await asyncio.sleep(0)
+        follower.start()
+        await asyncio.sleep(0)
 
-    assert leader.is_leader is True
-    assert leader.is_running is True
-    assert follower.is_leader is False
-    assert follower.is_running is False
-    assert started == [str(tmp_path / "billing.lock")]
-
-    await leader.shutdown()
+        assert leader.is_leader is True
+        assert leader.is_running is True
+        assert follower.is_leader is False
+        # Followers keep their acquisition loop alive, but cannot do leader work.
+        assert follower.is_running is True
+        assert started == [str(tmp_path / "billing.lock")]
+        assert follower.metrics_snapshot()["leader_denied"] == 1
+    finally:
+        await follower.shutdown()
+        await leader.shutdown()
 
 
 @pytest.mark.asyncio

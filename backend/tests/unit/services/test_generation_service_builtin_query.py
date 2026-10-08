@@ -2552,7 +2552,11 @@ async def test_query_task_status_logs_failed_task_details(monkeypatch, caplog):
 
     assert updated.status == "failed"
     assert updated.error_message == "provider rejected prompt"
-    assert "Generation task failed" in caplog.text
+    assert "Generation task failed" in caplog.text, (
+        f"logger disabled={generation_service_module.logger.disabled} "
+        f"propagate={generation_service_module.logger.propagate} "
+        f"registered={logging.getLogger(generation_service_module.logger.name) is generation_service_module.logger}"
+    )
     assert "task_id=42" in caplog.text
     assert "provider=builtin" in caplog.text
     assert "model=seedream-5.0-lite" in caplog.text

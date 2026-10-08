@@ -56,7 +56,11 @@ def test_workflow_diagnostics_enabled_redacted_shape(monkeypatch, caplog):
         )
 
     messages = [record.getMessage() for record in caplog.records]
-    assert any("Workflow step slow" in message for message in messages)
+    assert any("Workflow step slow" in message for message in messages), (
+        f"logger disabled={diagnostics.logger.disabled} propagate={diagnostics.logger.propagate} "
+        f"level={diagnostics.logger.level} registered={logging.getLogger(diagnostics.logger.name) is diagnostics.logger} "
+        f"messages={messages}"
+    )
     assert any("Activity slow" in message for message in messages)
     assert any("Event fanout slow" in message for message in messages)
     assert any("Workflow phase timing" in message for message in messages)
