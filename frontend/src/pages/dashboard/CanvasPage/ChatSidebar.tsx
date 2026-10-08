@@ -435,9 +435,9 @@ export function ChatSidebar({ isOpen, onClose, projectId, canvasItems, appendMen
             try {
                 const { registry, providers } = await loadCanvasModelCatalog();
 
-                let imageModels: any[] = [];
-                let videoModels: any[] = [];
-                let multimodalModels: any[] = [];
+                const imageModels: any[] = [];
+                const videoModels: any[] = [];
+                const multimodalModels: any[] = [];
 
                 for (const { provider, models } of providers) {
                     try {

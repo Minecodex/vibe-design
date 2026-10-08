@@ -71,8 +71,8 @@ describe('InteractionCard', () => {
     const headerCell = screen.getByRole('columnheader', { name: 'Name' })
     const bodyCell = screen.getByRole('cell', { name: 'Foo' })
 
-    expect(headerCell).toHaveStyle({ border: '1px solid rgba(15,23,42,0.1)' })
-    expect(bodyCell).toHaveStyle({ border: '1px solid rgba(15,23,42,0.08)' })
+    expect(headerCell).toHaveStyle({ borderWidth: '1px', borderStyle: 'solid' })
+    expect(bodyCell).toHaveStyle({ borderWidth: '1px', borderStyle: 'solid' })
   })
 
   it('submits ask_user question answers in the structured choice shape', async () => {

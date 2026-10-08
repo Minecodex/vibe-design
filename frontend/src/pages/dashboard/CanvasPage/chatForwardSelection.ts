@@ -100,7 +100,7 @@ export function getForwardSelectableEntries(
     })
   }
 
-  ;(message.blocks || []).forEach((block) => {
+  (message.blocks || []).forEach((block) => {
     const text = getBlockText(block)
     if (!text) {
       return

@@ -10,17 +10,17 @@ describe('canvas image Chinese labels', () => {
   it('keeps the image generation labels readable in zh-CN and source fallbacks', () => {
     const currentDir = dirname(fileURLToPath(import.meta.url))
     const canvasWorkspaceSource = readFileSync(
-      resolve(currentDir, '../pages/dashboard/CanvasPage/components/CanvasWorkspace.tsx'),
+      resolve(currentDir, '../pages/dashboard/CanvasPage/components/CanvasWorkspaceFloatingPanels.tsx'),
       'utf8',
     )
     const messageListSource = readFileSync(
-      resolve(currentDir, '../pages/dashboard/CanvasPage/MessageList.tsx'),
+      resolve(currentDir, '../pages/dashboard/CanvasPage/components/MessageListRenderers.tsx'),
       'utf8',
     )
 
     expect(zhCN.canvas.chat.tool_tips.gen_image).toBe('生成图片')
     expect(zhCN.canvas.chat.tool_labels.generate_image).toBe('生成图片')
     expect(canvasWorkspaceSource).toContain("t('canvas.chat.tool_tips.gen_image', '生成图片')")
-    expect(messageListSource).toContain("t('canvas.chat.tool_labels.generate_image', '生成图片')")
+    expect(messageListSource).toContain("translateLabel(t, 'canvas.chat.tool_labels.generate_image', '生成图片')")
   })
 })

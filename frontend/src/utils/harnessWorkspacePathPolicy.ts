@@ -93,6 +93,9 @@ export function normalizeWorkspaceAttachmentPathByPolicy(url: string | null | un
   if (!classified.workspaceRelative) {
     return null
   }
+  if (classified.normalized.split('/').some((part) => part === '.' || part === '..')) {
+    return null
+  }
   return WORKSPACE_ROOT_PREFIXES.some((prefix) => classified.normalized.startsWith(prefix))
     ? classified.normalized
     : null

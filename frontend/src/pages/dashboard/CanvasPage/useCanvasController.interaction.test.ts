@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const hooksDir = resolve(currentDir, 'hooks')
 const controllerSource = readFileSync(resolve(hooksDir, 'useCanvasController.tsx'), 'utf8')
+const syncSource = readFileSync(resolve(hooksDir, 'useCanvasProjectSync.ts'), 'utf8')
 const viewportSource = readFileSync(resolve(hooksDir, 'useCanvasController.viewport.tsx'), 'utf8')
 const workspaceSource = readFileSync(resolve(currentDir, 'components', 'CanvasWorkspace.tsx'), 'utf8')
 const itemLayerPath = resolve(currentDir, 'components', 'CanvasWorkspaceItemLayer.tsx')
@@ -24,39 +25,39 @@ describe('useCanvasController interaction wiring', () => {
   })
 
   it('debounces canvas persistence so grouping and movement survive refresh', () => {
-    expect(controllerSource).toContain('const timer = setTimeout(() => {')
-    expect(controllerSource).toContain('void saveCanvasItems(latestCanvasItemsRef.current, {}, { dirtyEpoch: canvasDirtyEpochRef.current })')
-    expect(controllerSource).toContain('isCanvasStaleRef.current')
-    expect(controllerSource).toContain('}, 1000)')
+    expect(syncSource).toContain('const timer = setTimeout(() => {')
+    expect(syncSource).toContain('void saveCanvasItems(latestCanvasItemsRef.current, {}, { dirtyEpoch: canvasDirtyEpochRef.current })')
+    expect(syncSource).toContain('isCanvasStaleRef.current')
+    expect(syncSource).toContain('}, 1000)')
   })
 
   it('returns the stale-aware canvas updater to page-level integrations', () => {
-    expect(controllerSource).toContain('const trackedUpdateCanvasItems = useCallback')
-    expect(controllerSource).toContain('if (isCanvasStaleRef.current) return')
+    expect(syncSource).toContain('const trackedUpdateCanvasItems = useCallback')
+    expect(syncSource).toContain('if (isCanvasStaleRef.current) return')
     expect(controllerSource).toContain('updateCanvasItems: trackedUpdateCanvasItems')
   })
 
   it('skips autosave for the initial restored canvas until a user edit occurs', () => {
-    expect(controllerSource).toContain('const hasHydratedCanvasRef = useRef(false)')
-    expect(controllerSource).toContain('const canvasDirtyEpochRef = useRef(0)')
-    expect(controllerSource).toContain('const persistedCanvasDirtyEpochRef = useRef(0)')
-    expect(controllerSource).toContain('if (!hasHydratedCanvasRef.current) {')
-    expect(controllerSource).toContain('hasHydratedCanvasRef.current = true')
-    expect(controllerSource).toContain('if (canvasDirtyEpochRef.current <= persistedCanvasDirtyEpochRef.current) return')
+    expect(syncSource).toContain('const hasHydratedCanvasRef = useRef(false)')
+    expect(syncSource).toContain('const canvasDirtyEpochRef = useRef(0)')
+    expect(syncSource).toContain('const persistedCanvasDirtyEpochRef = useRef(0)')
+    expect(syncSource).toContain('if (!hasHydratedCanvasRef.current) {')
+    expect(syncSource).toContain('hasHydratedCanvasRef.current = true')
+    expect(syncSource).toContain('if (canvasDirtyEpochRef.current <= persistedCanvasDirtyEpochRef.current) return')
   })
 
   it('applies agent canvas patches through a skip-history non-dirty path', () => {
-    expect(controllerSource).toContain('const applyAgentCanvasItems = useCallback')
-    expect(controllerSource).toContain('confirmedCanvasItemsRef.current = nextItems')
-    expect(controllerSource).toContain('updateCanvasItems((current: any[]) => {')
-    expect(controllerSource).toContain('}, { skipHistory: true })')
+    expect(syncSource).toContain('const applyAgentCanvasItems = useCallback')
+    expect(syncSource).toContain('confirmedCanvasItemsRef.current = nextItems')
+    expect(syncSource).toContain('updateCanvasItems((current: CanvasItem[]) => {')
+    expect(syncSource).toContain('}, { skipHistory: true })')
     expect(readFileSync(resolve(currentDir, 'index.tsx'), 'utf8')).toContain('applyAgentCanvasItems,')
   })
 
   it('does not let an older save response downgrade a newer agent canvas revision', () => {
-    expect(controllerSource).toContain('const currentRevision = canvasRevisionRef.current')
-    expect(controllerSource).toContain('if (revision < currentRevision) {')
-    expect(controllerSource).toContain('return')
+    expect(syncSource).toContain('const currentRevision = canvasRevisionRef.current')
+    expect(syncSource).toContain('if (revision < currentRevision) {')
+    expect(syncSource).toContain('return')
   })
 
   it('separates hand-tool and visibility shortcuts so shift+ctrl+y does not trigger hand mode or redo', () => {

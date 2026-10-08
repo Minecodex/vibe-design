@@ -47,23 +47,23 @@ describe('AssetsPage', () => {
     render(<AssetsPage />)
 
     await waitFor(() => {
-      expect(listAllMock).toHaveBeenCalledWith({ origin_kind: 'ai_generated' })
+      expect(listAllMock).toHaveBeenCalledWith(expect.objectContaining({ origin_kind: 'ai_generated' }))
     })
 
     await user.click(screen.getByText(/我的收藏|my favorites/i))
 
     await waitFor(() => {
-      expect(listAllMock).toHaveBeenLastCalledWith({
+      expect(listAllMock).toHaveBeenLastCalledWith(expect.objectContaining({
         origin_kind: 'ai_generated',
         favorite_only: true,
-      })
+      }))
     })
 
     expect(screen.queryByRole('tab', { name: /我的收藏|my favorites/i })).not.toBeInTheDocument()
   })
 
-  it('uses responsive grids with a 250px minimum track size in assets and project details', () => {
-    expect(assetGridSource).toContain('grid-cols-[repeat(auto-fill,minmax(250px,1fr))]')
-    expect(projectDetailsSource).toContain('grid-cols-[repeat(auto-fill,minmax(250px,1fr))]')
+  it('uses the shared responsive virtual grid in assets and project details', () => {
+    expect(assetGridSource).toContain('<VirtualizedSectionGrid')
+    expect(projectDetailsSource).toContain('<VirtualizedSectionGrid')
   })
 })

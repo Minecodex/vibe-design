@@ -85,16 +85,17 @@ vi.mock('react-i18next', async (importOriginal) => {
     'agent.ecommerceInteraction.imageAlt': '参考图 {{index}}',
     'agent.ecommerceInteraction.taxonomy.loadFailed': '参考图库分类加载失败',
   }
-  return {
-    ...actual,
-    useTranslation: () => ({
-      t: (key: string, values?: Record<string, unknown>) => {
+  const t = (key: string, values?: Record<string, unknown>) => {
         const template = translations[key] ?? key
         return Object.entries(values || {}).reduce(
           (text, [name, value]) => text.split(`{{${name}}}`).join(String(value)),
           template,
         )
-      },
+      }
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t,
     }),
   }
 })

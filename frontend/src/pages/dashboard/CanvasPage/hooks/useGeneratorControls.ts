@@ -262,8 +262,8 @@ export function useGeneratorControls({
       try {
         const { registry, providers } = await loadCanvasModelCatalog()
 
-        let imageModels: ModelOption[] = []
-        let videoModels: ModelOption[] = []
+        const imageModels: ModelOption[] = []
+        const videoModels: ModelOption[] = []
 
         for (const { provider, models } of providers) {
           try {

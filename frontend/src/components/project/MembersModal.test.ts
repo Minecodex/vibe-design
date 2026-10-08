@@ -10,9 +10,9 @@ const projectsPageSource = readFileSync(resolve(currentDir, '../../pages/dashboa
 
 describe('MembersModal owner protections', () => {
   it('uses add-user wording for the member search area and feedback', () => {
-    expect(membersModalSource).toContain('添加用户')
-    expect(membersModalSource).toContain('输入用户名/昵称/邮箱以添加到项目')
-    expect(membersModalSource).toContain('已添加到项目')
+    expect(membersModalSource).toContain("t('projectsPage.addMember')")
+    expect(membersModalSource).toContain("t('projectsPage.addMemberPlaceholder')")
+    expect(membersModalSource).toContain("t('projectsPage.memberAddSuccess')")
   })
 
   it('uses fuzzy member search instead of exact-match lookup', () => {

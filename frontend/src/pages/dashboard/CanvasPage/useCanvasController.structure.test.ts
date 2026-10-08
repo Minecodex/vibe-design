@@ -23,5 +23,6 @@ describe('useCanvasController refactor structure', () => {
     expect(controllerSource).toContain("from './useCanvasController.arrangement'")
     expect(controllerSource).toContain("from './useCanvasController.marks'")
     expect(controllerSource).toContain("from './useCanvasViewportActions'")
+    expect(controllerSource).toContain("from './useCanvasProjectSync'")
   })
 })

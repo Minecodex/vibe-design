@@ -119,7 +119,7 @@ export function CanvasVideoItem({ url, zoom, autoPreview = false, onLoadedMetada
                 return
               }
               if ((videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void })?.webkitRequestFullscreen) {
-                ;(videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
+                (videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
               }
             }}
             style={{

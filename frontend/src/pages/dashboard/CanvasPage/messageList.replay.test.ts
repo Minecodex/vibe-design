@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
-const source = readFileSync(resolve(currentDir, 'MessageList.tsx'), 'utf8')
+const source = readFileSync(resolve(currentDir, 'components/GenerationTaskBox.tsx'), 'utf8')
 
 describe('MessageList replay guards', () => {
   it('waits for canvas meta to load before replaying completed generated media', () => {

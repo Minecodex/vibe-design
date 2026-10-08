@@ -32,7 +32,7 @@ function ensureResizeObserver() {
     disconnect() {}
   }
 
-  ;(window as typeof window & { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
+  (window as typeof window & { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
     NoopResizeObserver as unknown as typeof ResizeObserver
 }
 

@@ -2,15 +2,11 @@
 // @ts-nocheck
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { assetsApi } from '@/api/endpoints/assets'
-import { projectsApi } from '@/api/endpoints/projects'
 
 import { buildCanvasSelectionMenuItems } from '../contextMenu'
-import { normalizeAgentGeneratedMediaItems, normalizeDeletedAgentMediaKeys } from '../agentGeneratedMedia'
 import { buildGuideCandidateBuckets, collectGuideCandidates } from '../alignmentGuides'
 import { shouldShowSelectionMeta } from '../imageActions'
 import { canPhotoshopEditSelection } from '../photoshopEdit'
-import { normalizeReferenceImages } from '../generatorCapabilities'
 import { type EditableTextRedrawSegment } from '../textRedraw'
 import { type ModifierState } from '../gestureMode'
 import { type BrushDraftState, type BrushResizeState, type BrushToolbarState, type BrushToolState, type CropHandle, type CropPanelState, type ImageEraseSession, type MediaResizeState } from '../types'
@@ -21,35 +17,11 @@ import { useCanvasControllerGenerators } from './useCanvasController.generators'
 import { useCanvasControllerCrop } from './useCanvasController.crop'
 import { useCanvasControllerArrangement } from './useCanvasController.arrangement'
 import { useCanvasControllerViewport } from './useCanvasController.viewport'
-import { useCanvasSaver } from './useCanvasSaver'
+import { useCanvasProjectSync } from './useCanvasProjectSync'
 import { canReadSystemClipboardImages, hasClipboardImageInNavigator } from '../clipboardImage'
 import { useCanvasCamera } from './useCanvasCamera'
 import { useCanvasViewportActions } from './useCanvasViewportActions'
-import {
-  CANVAS_REVISION_BROADCAST_CHANNEL,
-  applyAgentPatchCanvasRevisionSync,
-  broadcastCanvasRevision,
-  normalizeCanvasRevision,
-} from '../canvasRevision'
 
-function mergeServerCanvasMediaUrls(localItems: any[], serverItems?: any[]) {
-  if (!Array.isArray(serverItems) || serverItems.length === 0) return localItems
-  const serverUrlById = new Map(
-    serverItems
-      .filter((item: any) => item?.id && typeof item.url === 'string' && item.url)
-      .map((item: any) => [String(item.id), item.url]),
-  )
-  if (serverUrlById.size === 0) return localItems
-
-  let changed = false
-  const nextItems = localItems.map((item: any) => {
-    const serverUrl = serverUrlById.get(String(item?.id || ''))
-    if (!serverUrl || item.url === serverUrl) return item
-    changed = true
-    return { ...item, url: serverUrl }
-  })
-  return changed ? nextItems : localItems
-}
 
 export function useCanvasController(args: any) {
   const {
@@ -107,8 +79,6 @@ export function useCanvasController(args: any) {
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, type?: 'item' | 'canvas' } | null>(null)
   const [activeContextMenuItem, setActiveContextMenuItem] = useState<string | null>(null)
   const [isAssetLibraryOpen, setIsAssetLibraryOpen] = useState(false)
-  const [projectAssets, setProjectAssets] = useState<Record<number, any>>({})
-  const [deletedAgentMediaKeys, setDeletedAgentMediaKeys] = useState<string[]>([])
   const [imageDetailItemId, setImageDetailItemId] = useState<string | null>(null)
   const [imageDetailPanelPosition, setImageDetailPanelPosition] = useState<any>(null)
   const [imageDetailSizeBytes, setImageDetailSizeBytes] = useState<number | null>(null)
@@ -158,9 +128,6 @@ export function useCanvasController(args: any) {
   const [imageAnchoredImageDraft, setImageAnchoredImageDraft] = useState<any>(null)
   const [imageAnchoredVideoDraft, setImageAnchoredVideoDraft] = useState<any>(null)
   const [spatialAngleSession, setSpatialAngleSession] = useState<any>(null)
-  const [canvasLoadFailed, setCanvasLoadFailed] = useState(false)
-  const [isCanvasStale, setIsCanvasStale] = useState(false)
-  const [isRefreshingCanvas, setIsRefreshingCanvas] = useState(false)
 
   const markIdCounter = useRef(0)
   const zoomRef = useRef(100)
@@ -191,16 +158,26 @@ export function useCanvasController(args: any) {
   const imageEraseSessionRef = useRef<ImageEraseSession | null>(null)
   const imageErasePointerRef = useRef<any>(null)
   const imageEraseCheckerboardPatternRef = useRef<any>(null)
-  const hasHydratedCanvasRef = useRef(false)
-  const canvasDirtyEpochRef = useRef(0)
-  const persistedCanvasDirtyEpochRef = useRef(0)
-  const canvasRevisionRef = useRef(0)
-  const isCanvasStaleRef = useRef(false)
-  const canvasStaleRevisionRef = useRef<number | null>(null)
-  const confirmedCanvasItemsRef = useRef<any[]>([])
-  const latestCanvasItemsRef = useRef<any[]>([])
-  const saveCanvasItemsRef = useRef<any>(null)
   const visibleSelectableItemsRef = useRef<any[]>([])
+
+  const {
+    projectAssets, setProjectAssets, deletedAgentMediaKeys, setDeletedAgentMediaKeys,
+    latestCanvasItemsRef, trackedUpdateCanvasItems, applyAgentCanvasItems,
+    saveCanvasItems, isCanvasStale, isCanvasStaleRef, isRefreshingCanvas,
+    refreshCanvasFromServer, syncCanvasRevisionFromAgentPatch, loadProjectAssets,
+  } = useCanvasProjectSync({
+    id, isGuest, guestProject, canvasItems, canvasItemsLoaded, setCanvasItemsLoaded,
+    setTitle, updateCanvasItems, initializeState, buildCanvasMeta,
+    loadPersistedGeneratorMeta, withReferenceImages,
+    onStale: useCallback(() => {
+      setSelectedItems([])
+      setContextMenu(null)
+      setActiveDropdown(null)
+      setIsAddMenuOpen(false)
+      setIsSelectMenuOpen(false)
+      setIsAssetLibraryOpen(false)
+    }, []),
+  })
 
   const camera = useCanvasCamera({
     canvasContentRef,
@@ -228,7 +205,6 @@ export function useCanvasController(args: any) {
   }, [canvasItems])
 
   useEffect(() => {
-    latestCanvasItemsRef.current = canvasItems
     visibleSelectableItemsRef.current = canvasItems.filter((item: any) => !item.is_hidden && !item.is_locked)
   }, [canvasItems])
 
@@ -241,130 +217,6 @@ export function useCanvasController(args: any) {
     () => buildGuideCandidateBuckets(baseGuideCandidates),
     [baseGuideCandidates],
   )
-
-  const markCanvasAsEdited = useCallback(() => {
-    if (!hasHydratedCanvasRef.current) return
-    if (isCanvasStaleRef.current) return
-    canvasDirtyEpochRef.current += 1
-  }, [])
-
-  const trackedUpdateCanvasItems = useCallback((updater: any, options?: any) => {
-    if (isCanvasStaleRef.current) return
-    markCanvasAsEdited()
-    updateCanvasItems(updater, options)
-  }, [markCanvasAsEdited, updateCanvasItems])
-
-  // Serialized + coalesced canvas autosave (defects D3/D4) lives in its own hook module.
-  const markCanvasRevisionSaved = useCallback((revision: number, savedItems: any[], serverItems?: any[], saveMeta?: { dirtyEpoch?: number }) => {
-    const currentRevision = canvasRevisionRef.current
-    const savedDirtyEpoch = saveMeta?.dirtyEpoch ?? 0
-    if (saveMeta?.dirtyEpoch !== undefined) {
-      persistedCanvasDirtyEpochRef.current = Math.max(
-        persistedCanvasDirtyEpochRef.current,
-        saveMeta.dirtyEpoch,
-      )
-    }
-    const normalizedItems = mergeServerCanvasMediaUrls(savedItems, serverItems)
-    if (revision < currentRevision) {
-      if (normalizedItems !== savedItems) {
-        confirmedCanvasItemsRef.current = mergeServerCanvasMediaUrls(confirmedCanvasItemsRef.current, serverItems)
-        updateCanvasItems((current: any[]) => {
-          const mergedItems = mergeServerCanvasMediaUrls(current, serverItems)
-          latestCanvasItemsRef.current = mergedItems
-          return mergedItems
-        }, { skipHistory: true })
-      }
-      return
-    }
-
-    canvasRevisionRef.current = revision
-    confirmedCanvasItemsRef.current = normalizedItems
-    if (savedDirtyEpoch >= canvasDirtyEpochRef.current) {
-      latestCanvasItemsRef.current = normalizedItems
-    }
-    if (normalizedItems !== savedItems) {
-      updateCanvasItems((current: any[]) => {
-        const mergedItems = mergeServerCanvasMediaUrls(current, serverItems)
-        latestCanvasItemsRef.current = mergedItems
-        return mergedItems
-      }, { skipHistory: true })
-    }
-    if (id && !isGuest) {
-      broadcastCanvasRevision(Number(id), revision)
-    }
-  }, [id, isGuest, updateCanvasItems])
-
-  const applyAgentCanvasItems = useCallback((updater: any) => {
-    if (isCanvasStaleRef.current) return
-    updateCanvasItems((current: any[]) => {
-      const nextItems = typeof updater === 'function' ? updater(current) : updater
-      latestCanvasItemsRef.current = nextItems
-      confirmedCanvasItemsRef.current = nextItems
-      return nextItems
-    }, { skipHistory: true })
-  }, [updateCanvasItems])
-
-  const syncCanvasRevisionFromAgentPatch = useCallback((revision: number, options?: { resolveStale?: boolean }) => {
-    const next = applyAgentPatchCanvasRevisionSync({
-      currentRevision: canvasRevisionRef.current,
-      isStale: isCanvasStaleRef.current,
-      staleRevision: canvasStaleRevisionRef.current,
-    }, revision, options)
-    if (!next.revisionChanged && !next.staleCleared) return
-    canvasRevisionRef.current = next.currentRevision
-    isCanvasStaleRef.current = next.isStale
-    canvasStaleRevisionRef.current = next.staleRevision
-    if (next.staleCleared) {
-      setIsCanvasStale(false)
-    }
-    if (id && !isGuest) {
-      broadcastCanvasRevision(Number(id), next.currentRevision)
-    }
-  }, [id, isGuest])
-
-  const markCanvasStale = useCallback((revision?: number) => {
-    if (revision !== undefined) {
-      canvasRevisionRef.current = Math.max(canvasRevisionRef.current, revision)
-      canvasStaleRevisionRef.current = normalizeCanvasRevision(revision)
-    } else {
-      canvasStaleRevisionRef.current = null
-    }
-    isCanvasStaleRef.current = true
-    setIsCanvasStale(true)
-    setSelectedItems([])
-    setContextMenu(null)
-    setActiveDropdown(null)
-    setIsAddMenuOpen(false)
-    setIsSelectMenuOpen(false)
-    setIsAssetLibraryOpen(false)
-  }, [])
-
-  const saveCanvasItems = useCanvasSaver({
-    id,
-    isGuest,
-    canvasItemsLoaded,
-    canvasLoadFailed,
-    buildCanvasMeta,
-    deletedAgentMediaKeys,
-    canvasRevisionRef,
-    isCanvasStaleRef,
-    getDirtyEpoch: () => canvasDirtyEpochRef.current,
-    onRevisionSaved: markCanvasRevisionSaved,
-    onObsoleteRevisionConflict: () => {
-      if (isCanvasStaleRef.current) return
-      if (canvasDirtyEpochRef.current <= persistedCanvasDirtyEpochRef.current) return
-      void saveCanvasItemsRef.current?.(
-        latestCanvasItemsRef.current,
-        {},
-        { dirtyEpoch: canvasDirtyEpochRef.current },
-      )
-    },
-    onRevisionConflict: (revision) => {
-      updateCanvasItems(confirmedCanvasItemsRef.current)
-      markCanvasStale(revision)
-    },
-  })
-  saveCanvasItemsRef.current = saveCanvasItems
 
   const updateItem = useCallback((itemId: string, updates: any) => {
     const isGenerationUpdate = updates.status !== undefined || updates.task_id !== undefined
@@ -396,24 +248,6 @@ export function useCanvasController(args: any) {
     })
   }, [])
 
-  const loadProjectAssets = useCallback(async () => {
-    if (!id || isGuest) {
-      setProjectAssets({})
-      return
-    }
-
-    try {
-      const res = await assetsApi.list(Number(id))
-      const nextAssets = res.data.reduce((acc: Record<number, any>, asset: any) => {
-        acc[asset.id] = asset
-        return acc
-      }, {})
-      setProjectAssets(nextAssets)
-    } catch (error) {
-      console.error('Failed to load project assets:', error)
-    }
-  }, [id, isGuest])
-
   const {
     handleFocusItem,
     handleJumpToItem,
@@ -431,147 +265,6 @@ export function useCanvasController(args: any) {
     zoom,
     zoomRef,
   })
-
-  const loadCanvasProjectData = useCallback((data: any, options: { clearStale?: boolean } = {}) => {
-    hasHydratedCanvasRef.current = false
-    canvasDirtyEpochRef.current = 0
-    persistedCanvasDirtyEpochRef.current = 0
-    setCanvasLoadFailed(false)
-    setTitle(data.title)
-    const revision = normalizeCanvasRevision(data.canvas_revision)
-    canvasRevisionRef.current = revision
-    if (options.clearStale) {
-      isCanvasStaleRef.current = false
-      canvasStaleRevisionRef.current = null
-      setIsCanvasStale(false)
-    }
-    let nextItems: any[] = []
-    if (Array.isArray(data.canvas_data) && data.canvas_data.length > 0) {
-      const meta = data.canvas_data.find((item: any) => item.id === 'global_state')
-      if (meta) {
-        loadPersistedGeneratorMeta(meta)
-        setDeletedAgentMediaKeys(normalizeDeletedAgentMediaKeys(meta.deletedAgentMediaKeys))
-      } else {
-        setDeletedAgentMediaKeys([])
-      }
-      nextItems = normalizeAgentGeneratedMediaItems(
-        data.canvas_data
-          .filter((item: any) => item.id !== 'global_state'),
-      )
-        .map((item: any) => ({
-          ...(item.type === 'text' ? normalizeTextCanvasItem(item) : item),
-          ...withReferenceImages(normalizeReferenceImages(item)),
-        }))
-      initializeState(nextItems, [])
-    } else {
-      initializeState([], [])
-      setDeletedAgentMediaKeys([])
-    }
-    confirmedCanvasItemsRef.current = nextItems
-    latestCanvasItemsRef.current = nextItems
-    hasHydratedCanvasRef.current = true
-    setCanvasItemsLoaded(true)
-  }, [initializeState, loadPersistedGeneratorMeta, setCanvasItemsLoaded, setTitle, withReferenceImages])
-
-  const refreshCanvasFromServer = useCallback(async () => {
-    if (!id || isGuest) return
-    setIsRefreshingCanvas(true)
-    try {
-      const res = await projectsApi.get(Number(id))
-      loadCanvasProjectData(res.data, { clearStale: true })
-      void loadProjectAssets()
-    } catch (error) {
-      console.error('Failed to refresh canvas:', error)
-    } finally {
-      setIsRefreshingCanvas(false)
-    }
-  }, [id, isGuest, loadCanvasProjectData, loadProjectAssets])
-
-  useEffect(() => {
-    if (isGuest && guestProject) {
-      loadCanvasProjectData(guestProject, { clearStale: true })
-    } else if (id && !isGuest) {
-      projectsApi.get(Number(id)).then((res) => {
-        loadCanvasProjectData(res.data, { clearStale: true })
-        void loadProjectAssets()
-      }).catch(() => {
-        hasHydratedCanvasRef.current = false
-        canvasDirtyEpochRef.current = 0
-        persistedCanvasDirtyEpochRef.current = 0
-        initializeState([], [])
-        setDeletedAgentMediaKeys([])
-        setCanvasLoadFailed(true)
-        setCanvasItemsLoaded(true)
-      })
-    }
-  }, [guestProject, id, isGuest, loadCanvasProjectData, loadProjectAssets, setCanvasItemsLoaded])
-
-  useEffect(() => {
-    if (isGuest || !canvasItemsLoaded || !id || canvasLoadFailed || isCanvasStaleRef.current) return
-    if (!hasHydratedCanvasRef.current) {
-      hasHydratedCanvasRef.current = true
-      return
-    }
-    if (canvasDirtyEpochRef.current <= persistedCanvasDirtyEpochRef.current) return
-    const timer = setTimeout(() => {
-      if (canvasDirtyEpochRef.current <= persistedCanvasDirtyEpochRef.current) return
-      void saveCanvasItems(latestCanvasItemsRef.current, {}, { dirtyEpoch: canvasDirtyEpochRef.current })
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [canvasItems, canvasItemsLoaded, canvasLoadFailed, id, isGuest, saveCanvasItems])
-
-  useEffect(() => {
-    isCanvasStaleRef.current = isCanvasStale
-  }, [isCanvasStale])
-
-  useEffect(() => {
-    if (!id || isGuest || typeof BroadcastChannel === 'undefined') return
-    const projectId = Number(id)
-    const channel = new BroadcastChannel(CANVAS_REVISION_BROADCAST_CHANNEL)
-    channel.onmessage = (event) => {
-      const message = event.data || {}
-      if (Number(message.projectId) !== projectId) return
-      const incomingRevision = normalizeCanvasRevision(message.canvasRevision)
-      if (incomingRevision > canvasRevisionRef.current) {
-        markCanvasStale(incomingRevision)
-      }
-    }
-    return () => channel.close()
-  }, [id, isGuest, markCanvasStale])
-
-  useEffect(() => {
-    if (!id || isGuest) return
-    let inFlight = false
-    const checkRevision = async () => {
-      if (inFlight || isCanvasStaleRef.current) return
-      inFlight = true
-      try {
-        const res = await projectsApi.get(Number(id))
-        const incomingRevision = normalizeCanvasRevision(res.data.canvas_revision)
-        if (incomingRevision > canvasRevisionRef.current) {
-          markCanvasStale(incomingRevision)
-        }
-      } catch {
-        // Keep the current editable state on transient revision probe failures.
-      } finally {
-        inFlight = false
-      }
-    }
-    const handleFocus = () => {
-      void checkRevision()
-    }
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        void checkRevision()
-      }
-    }
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => {
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [id, isGuest, markCanvasStale])
 
   useEffect(() => {
     if (canvasItemsLoaded && !hasInitialJumped && canvasRef.current) {

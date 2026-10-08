@@ -114,11 +114,20 @@ describe('TextRedrawPanel', () => {
     )
 
     const scrollArea = screen.getByTestId('text-redraw-scroll-area')
+    Object.defineProperties(scrollArea, {
+      scrollHeight: { configurable: true, value: 1000 },
+      clientHeight: { configurable: true, value: 300 },
+    })
     expect(scrollArea.scrollTop).toBe(0)
 
-    fireEvent.wheel(scrollArea, { deltaY: 120 })
+    const parentWheel = vi.fn()
+    document.addEventListener('wheel', parentWheel)
+    const wheel = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 120 })
+    fireEvent(scrollArea, wheel)
 
-    expect(scrollArea.scrollTop).toBe(120)
+    expect(parentWheel).not.toHaveBeenCalled()
+    expect(wheel.defaultPrevented).toBe(false)
+    document.removeEventListener('wheel', parentWheel)
   })
 
   test('renders caller-provided i18n labels for segments and submit action', () => {

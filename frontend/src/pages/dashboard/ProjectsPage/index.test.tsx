@@ -474,9 +474,9 @@ describe('ProjectsPage permissions', () => {
     expect(projectCardSource).toContain('hover:z-20')
   })
 
-  test('renders project title and updated time with dark text in the card footer', () => {
-    expect(projectCardSource).toContain('text-[15px] font-bold tracking-tight truncate text-black')
-    expect(projectCardSource).toContain('text-[11px] font-medium opacity-70 text-black/70')
+  test('renders project title and updated time with shared foreground tokens in the card footer', () => {
+    expect(projectCardSource).toContain('truncate text-[15px] font-bold tracking-tight text-foreground')
+    expect(projectCardSource).toContain('text-[11px] font-medium text-[var(--app-foreground-muted)]')
   })
 
   test('keeps the projects page inside an internal vertical scroll container', () => {

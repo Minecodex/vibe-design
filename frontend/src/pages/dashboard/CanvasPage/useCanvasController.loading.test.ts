@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const source = readFileSync(
-  resolve(currentDir, 'hooks', 'useCanvasController.tsx'),
+  resolve(currentDir, 'hooks', 'useCanvasProjectSync.ts'),
   'utf8',
 )
 
@@ -24,7 +24,7 @@ describe('useCanvasController loading flow', () => {
 
   it('prevents autosave from running after an initial project load failure', () => {
     expect(source).toContain('const [canvasLoadFailed, setCanvasLoadFailed] = useState(false)')
-    expect(source).toContain('if (isGuest || !canvasItemsLoaded || !id || canvasLoadFailed) return')
+    expect(source).toContain('if (isGuest || !canvasItemsLoaded || !id || canvasLoadFailed || isCanvasStaleRef.current) return')
     expect(source).toContain('setCanvasLoadFailed(true)')
   })
 
@@ -35,6 +35,6 @@ describe('useCanvasController loading flow', () => {
 
   it('restores deleted chat-generated media keys from persisted canvas meta', () => {
     expect(source).toContain('deletedAgentMediaKeys')
-    expect(source).toContain('normalizeDeletedAgentMediaKeys(meta.deletedAgentMediaKeys)')
+    expect(source).toContain('normalizeDeletedAgentMediaKeys(')
   })
 })

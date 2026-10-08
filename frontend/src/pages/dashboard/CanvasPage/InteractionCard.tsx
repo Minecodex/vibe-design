@@ -627,9 +627,9 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{
-                                    table: ({ children }) => <div style={{ overflowX: 'auto', margin: '8px 0' }}><table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--app-border)', fontSize: 13 }}>{children}</table></div>,
-                                    th: ({ children }) => <th style={{ padding: '8px 10px', border: '1px solid var(--app-border)', textAlign: 'left', fontWeight: 600 }}>{children}</th>,
-                                    td: ({ children }) => <td style={{ padding: '8px 10px', border: '1px solid var(--app-border)' }}>{children}</td>,
+                                    table: ({ children }) => <div style={{ overflowX: 'auto', margin: '8px 0' }}><table style={{ width: '100%', borderCollapse: 'collapse', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)', fontSize: 13 }}>{children}</table></div>,
+                                    th: ({ children }) => <th style={{ padding: '8px 10px', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)', textAlign: 'left', fontWeight: 600 }}>{children}</th>,
+                                    td: ({ children }) => <td style={{ padding: '8px 10px', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)' }}>{children}</td>,
                                 }}
                             >
                                 {briefing}
@@ -908,7 +908,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                             <table style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '1px solid var(--app-border)',
+                                                borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                                 fontSize: 13,
                                             }}>{children}</table>
                                         </div>
@@ -916,7 +916,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     th: ({ children }) => (
                                         <th style={{
                                             padding: '8px 10px',
-                                            border: '1px solid var(--app-border)',
+                                            borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                             textAlign: 'left',
                                             fontWeight: 600,
                                         }}>{children}</th>
@@ -924,7 +924,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     td: ({ children }) => (
                                         <td style={{
                                             padding: '8px 10px',
-                                            border: '1px solid var(--app-border)',
+                                            borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                         }}>{children}</td>
                                     ),
                                 }}
@@ -1267,7 +1267,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     <table style={{
                                         width: '100%',
                                         borderCollapse: 'collapse',
-                                        border: '1px solid var(--app-border)',
+                                        borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                         fontSize: 13,
                                     }}>{children}</table>
                                 </div>
@@ -1275,7 +1275,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             th: ({ children }) => (
                                 <th style={{
                                     padding: '6px 8px',
-                                    border: '1px solid var(--app-border)',
+                                    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                     backgroundColor: isDark ? 'var(--app-surface-muted)' : 'var(--app-surface-muted)',
                                     textAlign: 'left',
                                     fontWeight: 600,
@@ -1284,7 +1284,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             td: ({ children }) => (
                                 <td style={{
                                     padding: '6px 8px',
-                                    border: '1px solid var(--app-border)',
+                                    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                 }}>{children}</td>
                             ),
                         }}

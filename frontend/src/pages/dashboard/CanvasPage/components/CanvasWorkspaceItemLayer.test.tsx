@@ -255,7 +255,7 @@ describe('CanvasWorkspaceItemLayer', () => {
     const { container } = renderItemLayer(item)
 
     const generatorCard = container.querySelector('#item-generator-border-1 > div > div') as HTMLElement
-    expect(generatorCard.style.border).toBe('1px solid rgb(203, 213, 225)')
+    expect(generatorCard.style.border).toBe('1px solid var(--app-border)')
   })
 
   it('does not show a price badge in the selected generator action button', () => {

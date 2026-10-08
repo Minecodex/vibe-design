@@ -13,6 +13,7 @@ const navigateMock = vi.fn()
 let authState = {
   isAuthenticated: false,
   licenseExpired: true,
+  licenseStatus: 'expired',
   licenseExpiresAt: null as string | null,
 }
 
@@ -49,6 +50,7 @@ describe('ActivationPage', () => {
     authState = {
       isAuthenticated: false,
       licenseExpired: true,
+      licenseStatus: 'expired',
       licenseExpiresAt: null,
     }
   })
