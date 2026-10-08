@@ -1,27 +1,12 @@
 import React, { useCallback } from 'react'
 import { X } from 'lucide-react'
-
-type GeneratorReferenceChip = {
-  id: string
-  imageUrl: string
-  alt: string
-  removeLabel?: string
-  draggable?: boolean
-  onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void
-}
+import type { GeneratorReferenceChip } from './useGeneratorReferenceChips'
 
 type GeneratorReferenceStripProps = {
   chips: GeneratorReferenceChip[]
   isDark: boolean
   onPreviewImage: (url: string) => void
   onRemove?: (id: string) => void
-}
-
-type UseGeneratorReferenceChipsArgs = {
-  imageUrls: string[]
-  alt: string
-  removeLabel?: string
-  idPrefix?: string
 }
 
 const chipStyleBase: React.CSSProperties = {
@@ -71,53 +56,6 @@ function areChipsEqual(previous: GeneratorReferenceChip[], next: GeneratorRefere
       && previousChip.draggable === nextChip.draggable
       && previousChip.onDragStart === nextChip.onDragStart
   })
-}
-
-function areImageUrlsEqual(previous: string[], next: string[]) {
-  if (previous === next) return true
-  if (previous.length !== next.length) return false
-  return previous.every((imageUrl, index) => imageUrl === next[index])
-}
-
-export function useGeneratorReferenceChips({
-  imageUrls,
-  alt,
-  removeLabel,
-  idPrefix = '',
-}: UseGeneratorReferenceChipsArgs) {
-  const cacheRef = React.useRef<{
-    imageUrls: string[]
-    alt: string
-    removeLabel?: string
-    idPrefix: string
-    chips: GeneratorReferenceChip[]
-  } | null>(null)
-  const cached = cacheRef.current
-
-  if (
-    cached
-    && cached.alt === alt
-    && cached.removeLabel === removeLabel
-    && cached.idPrefix === idPrefix
-    && areImageUrlsEqual(cached.imageUrls, imageUrls)
-  ) {
-    return cached.chips
-  }
-
-  const chips = imageUrls.map((imageUrl, index) => ({
-    id: `${idPrefix}${index}:${imageUrl}`,
-    imageUrl,
-    alt,
-    removeLabel,
-  }))
-  cacheRef.current = {
-    imageUrls: imageUrls.slice(),
-    alt,
-    removeLabel,
-    idPrefix,
-    chips,
-  }
-  return chips
 }
 
 function areReferenceStripPropsEqual(

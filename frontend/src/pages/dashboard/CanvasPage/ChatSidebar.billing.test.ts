@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
-const source = readFileSync(resolve(currentDir, 'ChatSidebar.tsx'), 'utf8')
+const source = readFileSync(resolve(currentDir, 'hooks/useChatSidebar.ts'), 'utf8')
 const modelHelpersSource = readFileSync(resolve(currentDir, 'chatSidebarModelHelpers.ts'), 'utf8')
 
 describe('ChatSidebar billing guard wiring', () => {

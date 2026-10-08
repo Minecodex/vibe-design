@@ -342,7 +342,7 @@ function mergeWorkbookWarning<T extends { warning?: string | null }>(
 }
 
 function normalizeWorkbookRowHeights(
-  rows: Record<string, Record<string, any>> | null | undefined,
+  rows: Record<string, Record<string, unknown>> | null | undefined,
 ): Record<string, { h: number }> {
   return Object.entries(rows || {}).reduce<Record<string, { h: number }>>((accumulator, [rowIndex, row]) => {
     if (row && typeof row === 'object' && typeof (row as { h?: unknown }).h === 'number') {
@@ -353,7 +353,7 @@ function normalizeWorkbookRowHeights(
 }
 
 function normalizeWorkbookColumnWidths(
-  cols: Record<string, Record<string, any>> | null | undefined,
+  cols: Record<string, Record<string, unknown>> | null | undefined,
 ): Record<string, { w: number }> {
   return Object.entries(cols || {}).reduce<Record<string, { w: number }>>((accumulator, [columnIndex, column]) => {
     if (column && typeof column === 'object' && typeof (column as { w?: unknown }).w === 'number') {
@@ -380,7 +380,7 @@ function normalizeWorkbookSheetData(
 }
 
 function normalizeWorkbookStyles(
-  styles: Record<string, Record<string, any>> | null | undefined,
+  styles: Record<string, Record<string, unknown>> | null | undefined,
 ): Record<string, Record<string, unknown>> {
   return Object.entries(styles || {}).reduce<Record<string, Record<string, unknown>>>((accumulator, [styleId, style]) => {
     if (style && typeof style === 'object') {

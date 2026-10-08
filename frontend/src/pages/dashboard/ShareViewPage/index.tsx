@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { shareApi, ShareInfo } from '@/api/endpoints/share'
@@ -68,34 +68,7 @@ export function ShareViewPage() {
         </div>
     )
 
-    useEffect(() => {
-        const fetchInfo = async () => {
-            if (!token) return
-
-            try {
-                setLoading(true)
-                const res = await shareApi.getInfo(token)
-                if (res.data.require_password) {
-                    setRequirePassword(true)
-                    setLoading(false)
-                } else {
-                    await access(token)
-                }
-            } catch (err: any) {
-                const detail = err.response?.data?.detail || '访问分享链接失败'
-                if (err.response?.status === 410) {
-                    setError('分享链接已过期')
-                } else {
-                    setError(detail)
-                }
-                setLoading(false)
-            }
-        }
-
-        fetchInfo()
-    }, [token])
-
-    const access = async (shareToken: string, pwd?: string) => {
+    const access = useCallback(async (shareToken: string, pwd?: string) => {
         try {
             setLoading(true)
             const res = await shareApi.accessProject(shareToken, { password: pwd })
@@ -122,7 +95,34 @@ export function ShareViewPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [navigate])
+
+    useEffect(() => {
+        const fetchInfo = async () => {
+            if (!token) return
+
+            try {
+                setLoading(true)
+                const res = await shareApi.getInfo(token)
+                if (res.data.require_password) {
+                    setRequirePassword(true)
+                    setLoading(false)
+                } else {
+                    await access(token)
+                }
+            } catch (err: any) {
+                const detail = err.response?.data?.detail || '访问分享链接失败'
+                if (err.response?.status === 410) {
+                    setError('分享链接已过期')
+                } else {
+                    setError(detail)
+                }
+                setLoading(false)
+            }
+        }
+
+        fetchInfo()
+    }, [token, access])
 
     const handleJoin = async () => {
         if (!isAuthenticated) {

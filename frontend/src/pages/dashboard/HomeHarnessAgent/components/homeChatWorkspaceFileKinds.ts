@@ -17,7 +17,7 @@ export function isSessionMarkdownFile(file: Pick<HomeChatSessionFileLike, 'name'
 type HtmlPreviewableFile = Pick<HomeChatSessionFileLike, 'name' | 'path'> & {
   type?: string | null
   artifact_kind?: string | null
-  artifact_metadata?: Record<string, any> | null
+  artifact_metadata?: Record<string, unknown> | null
 }
 
 function isHtmlBundleArtifact(file: HtmlPreviewableFile) {

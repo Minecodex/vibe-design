@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import i18n from '@/i18n'
 import type { CanvasItem } from '@/api/endpoints/projects'
 import { useAppConfigStore } from '@/store/appConfigStore'
@@ -55,7 +55,7 @@ export function useGeneratorControls({
 }: UseGeneratorControlsArgs) {
   const appName = useAppConfigStore((s) => s.appName)
   const appNameEn = useAppConfigStore((s) => s.appNameEn)
-  const brand = { appName, appNameEn }
+  const brand = useMemo(() => ({ appName, appNameEn }), [appName, appNameEn])
   const [imageModel, setImageModel] = useState('')
   const [imageProvider, setImageProvider] = useState('')
   const [videoModel, setVideoModel] = useState('')
@@ -339,7 +339,7 @@ export function useGeneratorControls({
     }
 
     fetchModels()
-  }, [appName, appNameEn])
+  }, [brand])
 
   useEffect(() => {
     if (availableImageModels.length === 0) return

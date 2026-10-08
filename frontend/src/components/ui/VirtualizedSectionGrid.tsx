@@ -147,7 +147,7 @@ export function VirtualizedSectionGrid<T>({
     })
 
     return nextRows
-  }, [columns, gap, headerHeight, itemSize, sections])
+  }, [columns, headerHeight, itemSize, sections])
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,

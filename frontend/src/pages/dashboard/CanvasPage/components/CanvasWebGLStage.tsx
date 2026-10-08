@@ -550,6 +550,7 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
 
     const app = new Application()
     const world = new Container()
+    const records = recordsRef.current
     const resources = new CanvasImageResourceManager()
     resourcesRef.current = resources
 
@@ -605,8 +606,8 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
       disposed = true
       setReady(false)
       onReadyChangeRef.current?.(false)
-      recordsRef.current.forEach((record) => record.container.destroy({ children: true }))
-      recordsRef.current.clear()
+      records.forEach((record) => record.container.destroy({ children: true }))
+      records.clear()
       resources.destroy()
       resourcesRef.current = null
       if (appRef.current) {

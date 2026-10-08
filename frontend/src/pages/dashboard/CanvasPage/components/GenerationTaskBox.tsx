@@ -269,6 +269,11 @@ function GenerationTaskBoxImpl({
     messageId,
     onCanvasUpdate,
     result?.canvas_item,
+    result?.artifact_ref,
+    result?.canvas_revision,
+    result?.canvasRevision,
+    result?.canvas_item_deleted,
+    result?.canvasItemDeleted,
     modelDisplay,
     shouldSkipCanvasReplay,
     status,
@@ -312,6 +317,11 @@ function GenerationTaskBoxImpl({
     isImage,
     messageId,
     result?.canvas_item,
+    result?.artifact_ref,
+    result?.canvas_revision,
+    result?.canvasRevision,
+    result?.canvas_item_deleted,
+    result?.canvasItemDeleted,
     modelDisplay,
     shouldSkipCanvasReplay,
     status,
@@ -340,7 +350,7 @@ function GenerationTaskBoxImpl({
         })
       }
     }
-  }, [status, result?.result_url, originalResultUrl, conversationId, messageId, isImage, result?.canvas_item, modelDisplay, onCanvasUpdate, t, shouldSkipCanvasReplay, syncCanvasRevision])
+  }, [result?.artifact_ref, result?.canvas_revision, result?.canvasRevision, result?.canvas_item_deleted, result?.canvasItemDeleted, status, result?.result_url, originalResultUrl, conversationId, messageId, isImage, result?.canvas_item, modelDisplay, onCanvasUpdate, t, shouldSkipCanvasReplay, syncCanvasRevision])
 
   const aspect_ratio = result?.params?.aspect_ratio || result?.canvas_item?.aspect_ratio || toolCall.args.aspect_ratio || (isImage ? '1:1' : '16:9')
   const providerCode = result?.provider_code || result?.canvas_item?.provider_code || toolCall.args.provider_code || ''

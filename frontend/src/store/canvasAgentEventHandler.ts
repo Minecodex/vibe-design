@@ -1,8 +1,8 @@
 import type {
     AgentEvent,
-    WorkspaceFileRead,
 } from '@/api/endpoints/agent'
 import i18n from '@/i18n'
+import { normalizeLegacyWorkspaceFileEvent } from './canvasWorkspaceFileEvent'
 import { applyCanvasGenerationEvent } from './canvasGenerationProjection'
 import {
     createCanvasGenerationRuntimeAdapter,
@@ -360,16 +360,11 @@ export function handleAgentEventV2(
 
     switch (eventType) {
         case 'file_created':
-        case 'file_updated':
+        case 'file_updated': {
+            const file = normalizeLegacyWorkspaceFileEvent(event.data)
+            if (!file) break
             if (!scopedConversationId) {
                 set((s) => {
-                    const file: WorkspaceFileRead = {
-                        name: event.data.file_path?.split('/').pop() || '',
-                        path: event.data.file_path || '',
-                        type: event.data.type || 'other',
-                        size: event.data.size || 0,
-                        created_at: new Date().toISOString(),
-                    }
                     const existing = s.workspaceFiles.findIndex(f => f.path === file.path)
                     const files = [...s.workspaceFiles]
                     if (existing >= 0) {
@@ -382,13 +377,6 @@ export function handleAgentEventV2(
                 break
             }
             set((s) => applyConversationSessionUpdate(s, scopedConversationId, (session) => {
-                const file: WorkspaceFileRead = {
-                    name: event.data.file_path?.split('/').pop() || '',
-                    path: event.data.file_path || '',
-                    type: event.data.type || 'other',
-                    size: event.data.size || 0,
-                    created_at: new Date().toISOString(),
-                }
                 const existing = session.workspaceFiles.findIndex(f => f.path === file.path)
                 const files = [...session.workspaceFiles]
                 if (existing >= 0) {
@@ -402,6 +390,7 @@ export function handleAgentEventV2(
                 }
             }))
             break
+        }
 
     }
 }

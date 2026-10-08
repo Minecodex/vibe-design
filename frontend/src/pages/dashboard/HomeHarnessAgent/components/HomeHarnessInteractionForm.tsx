@@ -19,17 +19,23 @@ type HomeInteractionOption = InteractionOption & {
 }
 
 type HomeInteractionField = InteractionField & {
-  defaultValue?: any
+  defaultValue?: unknown
   maxSelections?: number | null
   options?: HomeInteractionOption[]
 }
 
 type HomeInteractionQuestion = InteractionQuestion & {
+  default_value?: unknown
+  defaultValue?: unknown
   maxSelections?: number | null
   options?: HomeInteractionOption[]
 }
 
 const OTHER_SELECTION_VALUE = '__ask_user_other__'
+
+function hasSelectedAnswerValue(answer: unknown, value: string): boolean {
+  return Array.isArray(answer) && answer.includes(value)
+}
 
 function isQuestionRequired(question: HomeInteractionQuestion): boolean {
   return question.required !== false
@@ -71,7 +77,7 @@ interface HomeHarnessInteractionFormProps {
     fields?: HomeInteractionField[]
     questions?: HomeInteractionQuestion[]
   } | null
-  answers?: Record<string, any> | null
+  answers?: Record<string, unknown> | null
   status?: 'pending' | 'submitted'
   submittedLabel?: string
   isDark: boolean
@@ -82,12 +88,12 @@ interface HomeHarnessInteractionFormProps {
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => Promise<void>
 }
 
-function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['schema']): Record<string, any> {
-  const defaults: Record<string, any> = {}
+function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['schema']): Record<string, unknown> {
+  const defaults: Record<string, unknown> = {}
   for (const field of schema?.fields || []) {
     const defaultValue = field.default_value !== undefined ? field.default_value : field.defaultValue
     if (defaultValue !== undefined) {
@@ -97,7 +103,7 @@ function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['sche
     defaults[field.id] = field.type === 'checkbox' ? [] : ''
   }
   for (const question of schema?.questions || []) {
-    const defaultValue = (question as Record<string, any>).default_value ?? (question as Record<string, any>).defaultValue
+    const defaultValue = question.default_value ?? question.defaultValue
     if (defaultValue !== undefined) {
       defaults[question.id] = defaultValue
       continue
@@ -109,8 +115,8 @@ function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['sche
 
 function buildInitialInteractionState(
   schema?: HomeHarnessInteractionFormProps['schema'],
-  answers?: Record<string, any> | null,
-): { formAnswers: Record<string, any>, otherAnswers: Record<string, string> } {
+  answers?: Record<string, unknown> | null,
+): { formAnswers: Record<string, unknown>, otherAnswers: Record<string, string> } {
   const formAnswers = { ...defaultAnswersFromSchema(schema) }
   const otherAnswers: Record<string, string> = {}
 
@@ -121,7 +127,7 @@ function buildInitialInteractionState(
     }
 
     if ((field.type === 'radio' || field.type === 'cards') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-      const source = answer as Record<string, any>
+      const source = answer as Record<string, unknown>
       if (String(source.type || '').trim() === 'other') {
         formAnswers[field.id] = OTHER_SELECTION_VALUE
         otherAnswers[field.id] = String(source.value || '').trim()
@@ -134,7 +140,7 @@ function buildInitialInteractionState(
     if (field.type === 'checkbox' && Array.isArray(answer)) {
       formAnswers[field.id] = answer.map((entry) => {
         if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-          const source = entry as Record<string, any>
+          const source = entry as Record<string, unknown>
           if (String(source.type || '').trim() === 'other') {
             otherAnswers[field.id] = String(source.value || '').trim()
             return OTHER_SELECTION_VALUE
@@ -149,7 +155,7 @@ function buildInitialInteractionState(
     formAnswers[field.id] = typeof answer === 'string'
       ? answer
       : (answer && typeof answer === 'object' && !Array.isArray(answer))
-        ? String((answer as Record<string, any>).value || '').trim()
+        ? String((answer as Record<string, unknown>).value || '').trim()
         : answer
   }
 
@@ -160,7 +166,7 @@ function buildInitialInteractionState(
     }
 
     if ((question.type === 'single' || question.type === 'input') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-      const source = answer as Record<string, any>
+      const source = answer as Record<string, unknown>
       if (String(source.type || '').trim() === 'other') {
         formAnswers[question.id] = OTHER_SELECTION_VALUE
         otherAnswers[question.id] = String(source.value || '').trim()
@@ -173,7 +179,7 @@ function buildInitialInteractionState(
     if (question.type === 'multiple' && Array.isArray(answer)) {
       formAnswers[question.id] = answer.map((entry) => {
         if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-          const source = entry as Record<string, any>
+          const source = entry as Record<string, unknown>
           if (String(source.type || '').trim() === 'other') {
             otherAnswers[question.id] = String(source.value || '').trim()
             return OTHER_SELECTION_VALUE
@@ -300,7 +306,7 @@ export function HomeHarnessInteractionForm({
     () => buildInitialInteractionState(localizedSchema, answers),
     [answers, localizedSchema],
   )
-  const [formAnswers, setFormAnswers] = useState<Record<string, any>>(() => initialState.formAnswers)
+  const [formAnswers, setFormAnswers] = useState<Record<string, unknown>>(() => initialState.formAnswers)
   const [otherAnswers, setOtherAnswers] = useState<Record<string, string>>(() => initialState.otherAnswers)
   const initialStateKey = useMemo(() => JSON.stringify(initialState), [initialState])
   const lastSyncedStateKeyRef = useRef(`${requestId}:${initialStateKey}`)
@@ -367,11 +373,11 @@ export function HomeHarnessInteractionForm({
   const canSubmit = hasAskUserQuestions ? canSubmitAskUser : canSubmitFields
 
   const buildSubmitAnswers = (
-    answerSource: Record<string, any> = formAnswers,
+    answerSource: Record<string, unknown> = formAnswers,
     otherSource: Record<string, string> = otherAnswers,
-  ): Record<string, any> => {
+  ): Record<string, unknown> => {
     if (kind === 'ask_user') {
-      const nextAnswers: Record<string, any> = {}
+      const nextAnswers: Record<string, unknown> = {}
       for (const question of askUserQuestions) {
         const value = answerSource[question.id]
         if (question.type === 'input') {
@@ -433,7 +439,7 @@ export function HomeHarnessInteractionForm({
     if (!usesStructuredSelectionAnswers(kind)) {
       return formAnswers
     }
-    const nextAnswers: Record<string, any> = {}
+    const nextAnswers: Record<string, unknown> = {}
     for (const field of localizedSchema?.fields || []) {
       const value = answerSource[field.id]
       if (field.type === 'checkbox') {
@@ -1018,19 +1024,19 @@ export function HomeHarnessInteractionForm({
                     className={cn(
                       'rounded-full px-3 py-2 text-sm',
                       surfaceButtonClassName(
-                        Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE),
+                        hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE),
                       ),
                     )}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span>{field.other_label || t('home.interaction.otherOption', 'Other')}</span>
-                      {renderSelectedIndicator(Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE))}
+                      {renderSelectedIndicator(hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE))}
                     </div>
                   </button>
                 ) : null}
               </div>
             ) : null}
-            {field.type === 'checkbox' && supportsCustomOther(kind, field) && Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE) ? (
+            {field.type === 'checkbox' && supportsCustomOther(kind, field) && hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE) ? (
               <Input
                 id={`${requestId}-${field.id}`}
                 aria-label={field.label}

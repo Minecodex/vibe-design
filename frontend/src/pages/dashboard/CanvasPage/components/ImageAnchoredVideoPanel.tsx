@@ -15,7 +15,8 @@ import { getCanvasItemDimensions } from '../mediaDimensions'
 import { getAllowedVideoRatios, getAllowedVideoResolutions, getResolvedVideoDurationsFromConfig, getVideoCapabilityFromConfig } from '../videoModelConfig'
 import { handleScrollableWheel } from '../scrollableWheel'
 import { GeneratorImageSourcePicker } from './GeneratorImageSourcePicker'
-import { GeneratorReferenceStrip, useGeneratorReferenceChips } from './GeneratorReferenceStrip'
+import { GeneratorReferenceStrip } from './GeneratorReferenceStrip'
+import { useGeneratorReferenceChips } from './useGeneratorReferenceChips'
 
 type VideoModelOption = {
   value: string

@@ -136,7 +136,7 @@ function GenerationCardComponent({
         setImageLoaded(false)
         setImageError(false)
     }, [resultUrl])
-    const applyPolledTaskSnapshot = useCallback((snapshot: Record<string, any>) => {
+    const applyPolledTaskSnapshot = useCallback((snapshot: Record<string, unknown>) => {
         const update = buildGenerationProjectionUpdateFromTaskSnapshot(snapshot, taskId)
         if (!update) {
             return null

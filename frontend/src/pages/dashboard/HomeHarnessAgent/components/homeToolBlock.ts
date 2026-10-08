@@ -19,7 +19,7 @@ export function resolveToolBlockName(block: MessageBlock): string {
 }
 
 export function resolveToolBlockStatus(block: MessageBlock): ToolRowStatus {
-  const payload = (block.payload || {}) as Record<string, any>
+  const payload = (block.payload || {}) as Record<string, unknown>
   if (payload.is_error || payload.isError) {
     return 'failed'
   }

@@ -90,7 +90,7 @@ const FILE_REFERENCE_TOKEN_PATTERN = new RegExp(
 export interface WorkspaceFileReferenceResolver {
   getFileForHref: (href: string | null | undefined) => SessionFileItem | null
   getFileForInlineCode: (value: string) => SessionFileItem | null
-  remarkPlugin: () => (tree: Record<string, any>) => void
+  remarkPlugin: () => (tree: Record<string, unknown>) => void
 }
 
 export function encodeWorkspaceFileReferenceHref(file: SessionFileItem): string {
@@ -222,8 +222,8 @@ export function inferWorkspaceFileTypeFromPath(filePath: string): string {
 function splitTextWithFileReferenceLinks(
   text: string,
   getFileForPath: (rawValue: string, allowUniqueNameFallback: boolean) => SessionFileItem | null,
-): Array<Record<string, any>> {
-  const nodes: Array<Record<string, any>> = []
+): Array<Record<string, unknown>> {
+  const nodes: Array<Record<string, unknown>> = []
   let cursor = 0
 
   FILE_REFERENCE_TOKEN_PATTERN.lastIndex = 0
@@ -257,8 +257,8 @@ function splitTextWithFileReferenceLinks(
 }
 
 function visitMarkdownTextNodes(
-  node: Record<string, any>,
-  transformText: (text: string) => Array<Record<string, any>>,
+  node: Record<string, unknown>,
+  transformText: (text: string) => Array<Record<string, unknown>>,
 ) {
   if (!node || typeof node !== 'object' || !Array.isArray(node.children)) {
     return
@@ -268,7 +268,7 @@ function visitMarkdownTextNodes(
     return
   }
 
-  const nextChildren: Array<Record<string, any>> = []
+  const nextChildren: Array<Record<string, unknown>> = []
   for (const child of node.children) {
     if (child?.type === 'text' && typeof child.value === 'string') {
       nextChildren.push(...transformText(child.value))

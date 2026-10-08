@@ -126,7 +126,7 @@ export function useCanvasCamera(args: {
     offsetRef.current = nextCamera.offset
     applyCanvasViewportTransform(canvasContentRef.current, nextCamera.offset, zoom)
     notify(nextCamera, { committed: true, reason: 'initial-sync' })
-  }, [canvasContentRef, notify, offset.x, offset.y, offsetRef, zoom, zoomRef])
+  }, [canvasContentRef, notify, offset, offsetRef, zoom, zoomRef])
 
   return useMemo(() => ({
     cameraRef,

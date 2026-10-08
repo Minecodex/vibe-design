@@ -14,13 +14,12 @@ import {
 import { ImagePreviewDialog } from '@/components/common/ZoomableImageViewer'
 
 import {
-    buildRenderableBlocks,
-    ensureFullUrl,
-    formatReplyTimestamp,
     MessageBlockRenderer,
     MessageBubble,
     ThinkingIndicator,
 } from './components/MessageListRenderers'
+import { buildRenderableBlocks, formatReplyTimestamp } from './components/messageBlockDisplay'
+import { ensureFullUrl } from './components/messageMediaUrl'
 import type {
     EcommerceReferenceImageRequestOptions,
     EcommerceReferenceImageSource,

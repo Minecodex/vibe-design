@@ -2,18 +2,18 @@ export const CANVAS_CLIPBOARD_EVENT_MIME = 'application/x-openai-canvas-items+js
 export const CANVAS_CLIPBOARD_MIME = `web ${CANVAS_CLIPBOARD_EVENT_MIME}`
 export const CANVAS_CLIPBOARD_TEXT_PREFIX = '__OPENAI_CANVAS__:'
 
-export function serializeCanvasClipboardPayload(items: any[]) {
+export function serializeCanvasClipboardPayload(items: unknown[]) {
   return JSON.stringify({
     version: 1,
     items,
   })
 }
 
-export function serializeCanvasClipboardTextMarker(items: any[]) {
+export function serializeCanvasClipboardTextMarker(items: unknown[]) {
   return `${CANVAS_CLIPBOARD_TEXT_PREFIX}${serializeCanvasClipboardPayload(items)}`
 }
 
-export function writeCanvasClipboardMarkerToClipboardData(clipboardData: DataTransfer | null | undefined, items: any[]) {
+export function writeCanvasClipboardMarkerToClipboardData(clipboardData: DataTransfer | null | undefined, items: unknown[]) {
   if (!clipboardData || !Array.isArray(items) || items.length === 0 || typeof clipboardData.setData !== 'function') {
     return false
   }

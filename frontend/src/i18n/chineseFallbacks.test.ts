@@ -24,7 +24,7 @@ describe('Chinese fallback copy', () => {
       'utf8',
     )
     const chatSidebarSource = readFileSync(
-      resolve(currentDir, '../pages/dashboard/CanvasPage/ChatSidebar.tsx'),
+      resolve(currentDir, '../pages/dashboard/CanvasPage/hooks/useChatSidebar.ts'),
       'utf8',
     )
 

@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { CanvasWorkspaceFloatingPanels } from './CanvasWorkspaceFloatingPanels'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import { createTranslationFixture } from '@/store/testing/translationFixture'
+import { TEXT_REDRAW_PANEL_TOKENS } from '../textRedrawUi'
+import { CanvasWorkspaceFloatingPanels, type CanvasWorkspaceFloatingPanelsProps } from './CanvasWorkspaceFloatingPanels'
 
-function renderFloatingPanels(selectedSingleItem: any, overrides: Record<string, any> = {}) {
+function renderFloatingPanels(selectedSingleItem: Partial<CanvasItem> | null, overrides: Partial<CanvasWorkspaceFloatingPanelsProps> = {}) {
+  const item: CanvasItem | null = selectedSingleItem ? { id: 'fixture', type: 'image', url: '', x: 0, y: 0, ...selectedSingleItem } : null
   const handleRetryFailedGeneration = vi.fn()
 
   const view = render(
@@ -12,15 +16,15 @@ function renderFloatingPanels(selectedSingleItem: any, overrides: Record<string,
       imageDetailData={null}
       imageDetailPanelPosition={null}
       isDark={false}
-      t={(_key: string, fallback?: string) => fallback ?? _key}
+      t={createTranslationFixture({})}
       handleCloseImageDetails={vi.fn()}
       textRedrawState={null}
       textRedrawPanelPosition={null}
-      TEXT_REDRAW_PANEL_TOKENS={{}}
+      TEXT_REDRAW_PANEL_TOKENS={TEXT_REDRAW_PANEL_TOKENS}
       handleChangeTextRedrawSegment={vi.fn()}
       handleCancelTextRedraw={vi.fn()}
       handleSubmitTextRedraw={vi.fn()}
-      selectedSingleItem={selectedSingleItem}
+      selectedSingleItem={item}
       selectedSingleItemRect={{ left: 40, top: 80, width: 240, height: 160 }}
       selectedSingleItemCanvasRect={{ left: 24, top: 48, width: 240, height: 160 }}
       activeTool="select"
@@ -58,9 +62,9 @@ function renderFloatingPanels(selectedSingleItem: any, overrides: Record<string,
   return { ...view, handleRetryFailedGeneration }
 }
 
-function createImageDetailProps(overrides: Record<string, any> = {}) {
+function createImageDetailProps(overrides: Partial<CanvasWorkspaceFloatingPanelsProps> = {}): Partial<CanvasWorkspaceFloatingPanelsProps> {
   return {
-    imageDetailItem: { id: 'img-1', type: 'image', asset_origin: 'local_upload' },
+    imageDetailItem: { id: 'img-1', type: 'image', url: '', x: 0, y: 0, asset_origin: 'local_upload' },
     imageDetailData: {
       creatorName: 'Alice',
       creatorAvatar: null,

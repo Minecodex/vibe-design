@@ -7,7 +7,7 @@ export interface PresentationBlockRendererProps<TBlock extends ProjectionMessage
 }
 
 export type PresentationBlockRenderer<TBlock extends ProjectionMessageBlock = ProjectionMessageBlock> =
-  ComponentType<PresentationBlockRendererProps<TBlock> & Record<string, any>>
+  ComponentType<PresentationBlockRendererProps<TBlock> & Record<string, unknown>>
 
 export type PresentationRendererRegistry = Readonly<Record<string, PresentationBlockRenderer>>
 

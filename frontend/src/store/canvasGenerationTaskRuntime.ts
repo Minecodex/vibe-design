@@ -97,9 +97,13 @@ export function upsertGenerationTaskFromItemEvent(
     return null
   }
   const state = adapter.getState()
+  const payload = event.data?.payload
+  const nestedConversationId = payload && typeof payload === 'object'
+    ? (payload as Record<string, unknown>).conversation_id
+    : undefined
   const conversationId = String(
     event.data?.conversation_id
-    || (event.data?.payload && event.data.payload.conversation_id)
+    || nestedConversationId
     || state.conversationId
     || '',
   ).trim()

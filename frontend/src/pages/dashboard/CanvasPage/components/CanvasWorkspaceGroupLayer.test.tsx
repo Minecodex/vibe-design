@@ -1,6 +1,7 @@
 import { fireEvent, render, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { CanvasResizeStart } from './canvasSelectionContracts'
 import { CanvasWorkspaceGroupLayer } from './CanvasWorkspaceGroupLayer'
 
 describe('CanvasWorkspaceGroupLayer', () => {
@@ -9,17 +10,17 @@ describe('CanvasWorkspaceGroupLayer', () => {
     const beginTransaction = vi.fn()
     const setActiveGuides = vi.fn()
     const setResizingGroupId = vi.fn()
-    const movingItemIdsRef = { current: new Set() }
+    const movingItemIdsRef = { current: new Set<string>() }
     const resizingHandle = { current: null as string | null }
     const dragItemStart = { current: null as { x: number; y: number } | null }
-    const resizingStart = { current: null as any }
+    const resizingStart = { current: null as CanvasResizeStart | null }
 
     const { container } = render(
       <CanvasWorkspaceGroupLayer
         canvasItems={[
           {
             id: 'group-1',
-            type: 'group',
+            type: 'group', url: '',
             x: 100,
             y: 80,
             width: 320,
@@ -40,6 +41,7 @@ describe('CanvasWorkspaceGroupLayer', () => {
         offset={{ x: 0, y: 0 }}
         canvasRef={{ current: { clientWidth: 1600, clientHeight: 900 } }}
         setEditingNameId={vi.fn()}
+        updateItem={vi.fn()}
         beginTransaction={beginTransaction}
         setActiveGuides={setActiveGuides}
         movingItemIdsRef={movingItemIdsRef}
@@ -88,11 +90,11 @@ describe('CanvasWorkspaceGroupLayer', () => {
     expect(dragItemStart.current).toEqual({ x: 240, y: 160 })
   })
 
-  const renderGroupLayer = (overrides: Record<string, any> = {}) =>
+  const renderGroupLayer = (overrides: Record<string, unknown> = {}) =>
     render(
       <CanvasWorkspaceGroupLayer
         canvasItems={[
-          { id: 'group-1', type: 'group', name: 'My Group', x: 100, y: 80, width: 320, height: 180, z_index: 8 },
+          { id: 'group-1', type: 'group', url: '', name: 'My Group', x: 100, y: 80, width: 320, height: 180, z_index: 8 },
         ]}
         selectedItems={[]}
         handleItemMouseDown={vi.fn()}
@@ -110,7 +112,7 @@ describe('CanvasWorkspaceGroupLayer', () => {
         updateItem={vi.fn()}
         beginTransaction={vi.fn()}
         setActiveGuides={vi.fn()}
-        movingItemIdsRef={{ current: new Set() }}
+        movingItemIdsRef={{ current: new Set<string>() }}
         setResizingGroupId={vi.fn()}
         resizingHandle={{ current: null }}
         dragItemStart={{ current: null }}

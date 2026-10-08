@@ -53,7 +53,7 @@ export function turnCompleted(
 
 export function presentationDelta(
   sequence: number, blockKey: string, delta: string, options: PresentationOverrides = {},
-): AgentEvent {
+): AgentEvent & { data: AgentEvent['data'] & { op_id: string } } {
   const runId = String(options.run_id || 'run-canvas')
   return {
     type: 'presentation.block.delta', sequence, run_id: runId, lane: 'user',

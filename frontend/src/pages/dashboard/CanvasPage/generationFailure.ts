@@ -5,7 +5,7 @@ export type CanvasGenerationPollingStatus = 'generating' | 'completed' | 'failed
 
 type FailureLike = Pick<CanvasItem, 'type' | 'status' | 'task_id' | 'generation_kind'> & {
   taskId?: string | number | null
-  failure_kind?: CanvasGenerationFailureKind
+  failure_kind?: CanvasItem['failure_kind']
 }
 
 export function getGenerationFailureKind(item: {

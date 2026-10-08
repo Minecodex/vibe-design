@@ -1,7 +1,7 @@
 type HarnessSnapshotWithProjection = {
-    projection?: Record<string, any> | null
-    event_stream?: Record<string, any> | null
-    eventStream?: Record<string, any> | null
+    projection?: Record<string, unknown> | null
+    event_stream?: Record<string, unknown> | null
+    eventStream?: Record<string, unknown> | null
 }
 
 export function resolveHarnessSnapshotEventSequence(detail: HarnessSnapshotWithProjection): number {

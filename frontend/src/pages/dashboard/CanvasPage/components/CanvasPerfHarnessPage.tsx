@@ -227,7 +227,7 @@ export function CanvasPerfHarnessPage() {
         handleGenerateAnchoredVideo={noop}
         handleContextMenuAction={() => {}}
         handleCanvasPaste={() => {}}
-        t={((key: string) => key) as any}
+        t={((key: string) => key) as unknown}
       />
     </div>
   )

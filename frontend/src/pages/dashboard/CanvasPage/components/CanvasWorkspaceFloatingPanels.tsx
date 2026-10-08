@@ -1,5 +1,4 @@
-﻿// @ts-nocheck
-
+﻿
 import {
   Box,
   Check,
@@ -32,7 +31,78 @@ import { canRenameCanvasItem } from '../canvasItemRename'
 import { isRetryableFailedGenerationItem } from '../generationFailure'
 import { handleScrollableWheel } from '../scrollableWheel'
 
-function ImageDetailCard({ item, data, position, t, showCloseButton, onClose, onMouseEnter, onMouseLeave }: any) {
+import type { ComponentProps, MouseEventHandler } from 'react'
+import type { TFunction } from 'i18next'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { ImageDetailViewModel } from '../imageActions'
+import type { ProjectedGuide } from '../alignmentGuides'
+import type { CropPanelState } from '../types'
+import type { formatDimensionLabel } from '../generatorOptionLabels'
+import type { TEXT_REDRAW_PANEL_TOKENS } from '../textRedrawUi'
+
+type FloatingRect = { left: number; top: number; width: number; height: number }
+type RedrawProps = ComponentProps<typeof TextRedrawPanel>
+type ItemAction = (id: string) => void
+interface ImageDetailCardProps {
+  item: CanvasItem | null
+  data: ImageDetailViewModel | null
+  position: FloatingRect | null
+  t: TFunction
+  isDark?: boolean
+  showCloseButton?: boolean
+  onClose: () => void
+  onMouseEnter?: MouseEventHandler<HTMLDivElement>
+  onMouseLeave?: MouseEventHandler<HTMLDivElement>
+}
+
+export interface CanvasWorkspaceFloatingPanelsProps {
+  imageDetailItem: ImageDetailCardProps['item']
+  imageDetailData: ImageDetailCardProps['data']
+  imageDetailPanelPosition: ImageDetailCardProps['position']
+  isDark: boolean
+  t: TFunction
+  handleCloseImageDetails: () => void
+  textRedrawState: { itemId: string; status: 'extracting' | 'editing'; segments: RedrawProps['segments']; isSubmitting: boolean } | null
+  textRedrawPanelPosition: FloatingRect | null
+  TEXT_REDRAW_PANEL_TOKENS: typeof TEXT_REDRAW_PANEL_TOKENS
+  handleChangeTextRedrawSegment: RedrawProps['onChangeSegment']
+  handleCancelTextRedraw: RedrawProps['onCancel']
+  handleSubmitTextRedraw: RedrawProps['onSubmit']
+  selectedSingleItem: CanvasItem | null
+  selectedSingleItemRect: FloatingRect | null
+  selectedSingleItemCanvasRect: FloatingRect | null
+  activeTool: string
+  cropState: CropPanelState | null
+  shouldShowImageToolbar: (type: CanvasItem['type']) => boolean
+  imageAnchoredImageDraft: { sourceImageItemId: string } | null
+  imageAnchoredVideoDraft: { sourceImageItemId: string } | null
+  openImageAnchoredImageDraft: ItemAction
+  openImageAnchoredVideoDraft: ItemAction
+  handleOpenHDUpscale: ItemAction
+  handleOpenCutout: ItemAction
+  handleOpenImageErase: ItemAction
+  handleOpenTextRedraw: ItemAction
+  handleOpenSpatialAngle: ItemAction
+  handleOpenCropPanel: ItemAction
+  handleDeleteCanvasImage: ItemAction
+  handleOpenImageDetails: ItemAction
+  handleRetryFailedGeneration: ItemAction
+  shouldRenderSelectedMeta: boolean
+  selectedSingleItemViewportWidth: number
+  selectedIsImageGroup: boolean
+  editingNameId: string | null
+  updateItem: (id: string, updates: Partial<CanvasItem>) => void
+  setEditingNameId: (id: string | null) => void
+  selectedIsGenerator: boolean
+  formatDimensionLabel: typeof formatDimensionLabel
+  selectedSingleItemWidth: number
+  selectedSingleItemHeight: number
+  projectedGuides: ProjectedGuide[]
+  selectionBox: { x1: number; x2: number; y1: number; y2: number } | null
+  isPanning?: boolean
+}
+
+function ImageDetailCard({ item, data, position, t, showCloseButton, onClose, onMouseEnter, onMouseLeave }: ImageDetailCardProps) {
   const [copied, setCopied] = useState(false)
   const generationMeta = data?.generationMeta
   const copyLabel = t('copy', '复制')
@@ -154,7 +224,7 @@ function ImageDetailCard({ item, data, position, t, showCloseButton, onClose, on
   )
 }
 
-export function CanvasWorkspaceFloatingPanels(props: any) {
+export function CanvasWorkspaceFloatingPanels(props: CanvasWorkspaceFloatingPanelsProps) {
   const {
     imageDetailItem,
     imageDetailData,
@@ -280,7 +350,7 @@ export function CanvasWorkspaceFloatingPanels(props: any) {
 
       {!isPanning && projectedGuides.length > 0 && (
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2147483400 }}>
-          {projectedGuides.map((guide: any) => (
+          {projectedGuides.map((guide) => (
             <div key={`${guide.axis}-${guide.sourceItemId}-${guide.matchedAnchor}-${guide.left}-${guide.top}`} style={{ position: 'absolute', left: guide.left, top: guide.top, width: guide.width, height: guide.height, backgroundColor: 'color-mix(in srgb, var(--app-primary) 70%, transparent)', borderRadius: 999, boxShadow: '0 0 0 1px var(--app-focus-ring)' }} />
           ))}
         </div>

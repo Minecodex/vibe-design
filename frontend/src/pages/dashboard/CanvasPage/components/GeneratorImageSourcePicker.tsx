@@ -83,13 +83,13 @@ export function GeneratorImageSourcePicker({
     if (disabled) return 'var(--app-foreground-subtle)'
     if (active || menuOpen) return accentColor
     return textColor || 'var(--app-foreground-muted)'
-  }, [accentColor, active, disabled, isDark, menuOpen, textColor])
+  }, [accentColor, active, disabled, menuOpen, textColor])
 
   const resolvedIconColor = useMemo(() => {
     if (disabled) return 'var(--app-foreground-subtle)'
     if (active || menuOpen) return accentColor
     return inactiveIconColor || 'var(--app-foreground-muted)'
-  }, [accentColor, active, disabled, inactiveIconColor, isDark, menuOpen])
+  }, [accentColor, active, disabled, inactiveIconColor, menuOpen])
 
   const closeAndRun = (callback: () => void) => {
     setMenuOpen(false)

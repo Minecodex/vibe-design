@@ -39,7 +39,7 @@ describe('canvasModelCatalog', () => {
 
   it('dedupes concurrent catalog loads and reuses the resolved cache', async () => {
     const providersDeferred = deferred<{ data: Array<{ code: string, status: string, is_builtin?: boolean, name: string }> }>()
-    const registryDeferred = deferred<{ data: Record<string, any> }>()
+    const registryDeferred = deferred<{ data: Record<string, unknown> }>()
     const modelDeferred = deferred<{ data: Array<{ model_name: string, model_type: string, is_enabled: boolean }> }>()
 
     providerMocks.list.mockReturnValue(providersDeferred.promise)

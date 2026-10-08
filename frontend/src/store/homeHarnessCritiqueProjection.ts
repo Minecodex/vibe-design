@@ -45,7 +45,7 @@ export interface HomeHarnessCritiqueProjectionEvent {
   lane?: 'user' | 'internal'
   sequence?: number
   run_id?: string | null
-  data: Record<string, any>
+  data: Record<string, unknown>
 }
 
 const CRITIQUE_EVENT_TYPES = new Set([
@@ -63,7 +63,7 @@ function numberOrNull(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
-export function normalizeHomeHarnessCritiquePayload(raw: Record<string, any>): HomeHarnessCritiqueState {
+export function normalizeHomeHarnessCritiquePayload(raw: Record<string, unknown>): HomeHarnessCritiqueState {
   const rawScores = raw.scores && typeof raw.scores === 'object' && !Array.isArray(raw.scores)
     ? raw.scores as Record<string, unknown>
     : {}
@@ -106,7 +106,7 @@ export function normalizeHomeHarnessCritiquePayload(raw: Record<string, any>): H
 
 export function applyHomeHarnessCritiqueEvent(
   current: HomeHarnessCritiqueState | null,
-  event: { type: string; data?: Record<string, any> },
+  event: { type: string; data?: Record<string, unknown> },
 ): HomeHarnessCritiqueState | null {
   if (!CRITIQUE_EVENT_TYPES.has(event.type)) {
     return current
@@ -118,10 +118,10 @@ export function applyHomeHarnessCritiqueEvent(
 }
 
 export function hydrateHomeHarnessCritique(
-  runtimeState: Record<string, any> | null | undefined,
+  runtimeState: Record<string, unknown> | null | undefined,
 ): HomeHarnessCritiqueState | null {
   const raw = runtimeState?.critique
   return raw && typeof raw === 'object' && !Array.isArray(raw)
-    ? normalizeHomeHarnessCritiquePayload(raw as Record<string, any>)
+    ? normalizeHomeHarnessCritiquePayload(raw as Record<string, unknown>)
     : null
 }

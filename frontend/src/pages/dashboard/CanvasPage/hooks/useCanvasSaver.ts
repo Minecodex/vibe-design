@@ -133,6 +133,6 @@ export function useCanvasSaver({
         dirtyEpoch: options.dirtyEpoch ?? getDirtyEpoch?.() ?? 0,
       })
     },
-    [canvasItemsLoaded, canvasLoadFailed, getDirtyEpoch, id, isGuest],
+    [canvasItemsLoaded, canvasLoadFailed, canvasRevisionRef, getDirtyEpoch, id, isGuest, isCanvasStaleRef],
   )
 }

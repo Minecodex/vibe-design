@@ -27,11 +27,10 @@ vi.mock('react-router-dom', () => ({
   useParams: () => ({ id: '1' }),
 }))
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback ?? key,
-  }),
-}))
+vi.mock('react-i18next', () => {
+  const t = (key: string, fallback?: string) => fallback ?? key
+  return { useTranslation: () => ({ t }) }
+})
 
 vi.mock('@/api/endpoints/users', () => ({
   usersApi: {

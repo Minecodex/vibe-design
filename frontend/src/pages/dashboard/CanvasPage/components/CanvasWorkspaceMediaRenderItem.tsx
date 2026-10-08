@@ -10,7 +10,8 @@ import { getModelDisplayName } from '@/utils/modelDisplayName'
 
 import { CanvasVideoItem } from './CanvasVideoItem'
 import { GeneratorImageSourcePicker } from './GeneratorImageSourcePicker'
-import { GeneratorReferenceStrip, useGeneratorReferenceChips } from './GeneratorReferenceStrip'
+import { GeneratorReferenceStrip } from './GeneratorReferenceStrip'
+import { useGeneratorReferenceChips } from './useGeneratorReferenceChips'
 import { ImageAnchoredImagePanel } from './ImageAnchoredImagePanel'
 import { ImageAnchoredVideoPanel } from './ImageAnchoredVideoPanel'
 import {

@@ -16,7 +16,8 @@ import {
 import { getCanvasItemDimensions } from '../mediaDimensions'
 import { handleScrollableWheel } from '../scrollableWheel'
 import { GeneratorImageSourcePicker } from './GeneratorImageSourcePicker'
-import { GeneratorReferenceStrip, useGeneratorReferenceChips } from './GeneratorReferenceStrip'
+import { GeneratorReferenceStrip } from './GeneratorReferenceStrip'
+import { useGeneratorReferenceChips } from './useGeneratorReferenceChips'
 
 type ImageModelOption = {
   value: string

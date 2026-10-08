@@ -139,7 +139,6 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
     hoverDomItemId,
     props.zoom,
     props.offset,
-    props.canvasRef,
     viewportSize,
     props.getItemDims,
   ])
@@ -249,28 +248,29 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
   // Single source of truth for "what does this paste actually contain?".
   // Order matters: the live clipboard wins over any in-memory copy intent, so a
   // stale internal canvas copy can never permanently block pasting an OS / web image.
+  const { handleCanvasPaste, handleContextMenuAction } = props
   const runNativePasteFromClipboardData = React.useCallback((clipboardData: DataTransfer | null | undefined) => {
     if (isCanvasStale) return true
     // 1) Our own canvas marker travels through the system clipboard → internal duplicate paste.
     if (clipboardDataHasCanvasClipboardMarker(clipboardData)) {
-      props.handleContextMenuAction?.('paste')
+      handleContextMenuAction?.('paste')
       return true
     }
     // 2) A real image on the clipboard (copied from the OS or a web page) → external import.
     //    This MUST be checked before any in-memory internal fallback below.
     const imageFile = getClipboardImageFile(clipboardData)
     if (imageFile) {
-      props.handleCanvasPaste?.(imageFile)
+      handleCanvasPaste?.(imageFile)
       return true
     }
     // 3) Nothing recognizable on the clipboard, but we still hold an in-memory canvas
     //    copy (e.g. the system clipboard write was blocked) → internal fallback.
     if (hasInternalClipboardPasteIntent) {
-      props.handleContextMenuAction?.('paste')
+      handleContextMenuAction?.('paste')
       return true
     }
     return false
-  }, [hasInternalClipboardPasteIntent, isCanvasStale, props.handleCanvasPaste, props.handleContextMenuAction])
+  }, [hasInternalClipboardPasteIntent, isCanvasStale, handleCanvasPaste, handleContextMenuAction])
 
   React.useEffect(() => {
     const handleWindowPaste = (event: ClipboardEvent) => {
@@ -406,7 +406,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
           // Decide from the live clipboard. If nothing matched, still attempt an
           // internal paste so the context-menu / system-clipboard path can resolve it.
           if (!runNativePasteFromClipboardData(event.clipboardData)) {
-            props.handleContextMenuAction?.('paste')
+            handleContextMenuAction?.('paste')
           }
         }}
         onKeyDown={(event) => {

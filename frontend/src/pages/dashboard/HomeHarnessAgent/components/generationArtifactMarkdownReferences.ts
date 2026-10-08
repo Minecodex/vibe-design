@@ -25,13 +25,13 @@ export function normalizeGenerationArtifactRef(value: string | null | undefined)
 }
 
 export function createGenerationArtifactReferenceRemarkPlugin() {
-  return () => (tree: Record<string, any>) => {
+  return () => (tree: Record<string, unknown>) => {
     visitMarkdownTextNodes(tree, splitTextWithGenerationArtifactReferenceLinks)
   }
 }
 
-function splitTextWithGenerationArtifactReferenceLinks(text: string): Array<Record<string, any>> {
-  const nodes: Array<Record<string, any>> = []
+function splitTextWithGenerationArtifactReferenceLinks(text: string): Array<Record<string, unknown>> {
+  const nodes: Array<Record<string, unknown>> = []
   let cursor = 0
 
   ARTIFACT_REF_PATTERN.lastIndex = 0
@@ -64,8 +64,8 @@ function splitTextWithGenerationArtifactReferenceLinks(text: string): Array<Reco
 }
 
 function visitMarkdownTextNodes(
-  node: Record<string, any>,
-  transformText: (text: string) => Array<Record<string, any>>,
+  node: Record<string, unknown>,
+  transformText: (text: string) => Array<Record<string, unknown>>,
 ) {
   if (!node || typeof node !== 'object' || !Array.isArray(node.children)) {
     return
@@ -75,7 +75,7 @@ function visitMarkdownTextNodes(
     return
   }
 
-  const nextChildren: Array<Record<string, any>> = []
+  const nextChildren: Array<Record<string, unknown>> = []
   for (const child of node.children) {
     if (child?.type === 'text' && typeof child.value === 'string') {
       nextChildren.push(...transformText(child.value))

@@ -125,7 +125,7 @@ const styles = [
   },
 ]
 
-function interaction(overrides: Record<string, any> = {}): PendingInteraction {
+function interaction(overrides: Record<string, unknown> = {}): PendingInteraction {
   return {
     request_id: 'req-options',
     kind: 'ecommerce_generation_options',

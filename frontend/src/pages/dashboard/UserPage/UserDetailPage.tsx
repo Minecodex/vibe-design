@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { Pencil, Check, X, Lock, UserCircle } from 'lucide-react'
 import { usersApi, User as UserType } from '@/api/endpoints/users'
@@ -69,13 +69,7 @@ export function UserDetailPage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    useEffect(() => {
-        if (id) {
-            fetchUser(parseInt(id))
-        }
-    }, [id])
-
-    const fetchUser = async (userId: number) => {
+    const fetchUser = useCallback(async (userId: number) => {
         try {
             setLoading(true)
             const { data } = await usersApi.getUser(userId)
@@ -87,7 +81,13 @@ export function UserDetailPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [t])
+
+    useEffect(() => {
+        if (id) {
+            fetchUser(parseInt(id))
+        }
+    }, [id, fetchUser])
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]

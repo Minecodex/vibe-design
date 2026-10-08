@@ -2,12 +2,8 @@ import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import {
-  HomeHarnessCritiquePanel,
-  isCritiqueVisible,
-  normalizeDesignJuryDimensionKey,
-  resolveDesignJuryDimensionLabel,
-} from './HomeHarnessCritiquePanel'
+import { HomeHarnessCritiquePanel } from './HomeHarnessCritiquePanel'
+import { isCritiqueVisible, normalizeDesignJuryDimensionKey, resolveDesignJuryDimensionLabel } from './homeHarnessCritiqueDisplay'
 
 const t = createTranslationFixture({
   "home.chat.design_jury.warnings.screenshot_unavailable": "No rendered screenshot was captured; model-led quality review continued.",

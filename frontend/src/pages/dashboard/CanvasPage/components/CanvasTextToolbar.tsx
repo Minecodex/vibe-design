@@ -296,7 +296,7 @@ function ColorPopover({
   const [hexDraft, setHexDraft] = useState(colorToHexInput(visibleColor))
 
   useEffect(() => {
-    setHexDraft(colorToHexInput(visibleColor))
+    setHexDraft(colorToHexInput({ r: visibleColor.r, g: visibleColor.g, b: visibleColor.b, a: 1 }))
   }, [visibleColor.b, visibleColor.g, visibleColor.r])
 
   const commitColor = (nextColor: RgbaColor) => {
@@ -553,7 +553,7 @@ function ColorPopover({
                   })
                 }
               }}
-              onBlur={() => setHexDraft(colorToHexInput(visibleColor))}
+              onBlur={() => setHexDraft(colorToHexInput({ r: visibleColor.r, g: visibleColor.g, b: visibleColor.b, a: 1 }))}
               style={{
                 width: '100%',
                 border: 'none',

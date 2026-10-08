@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { useHarnessMediaSource } from './useHarnessMediaSource'
 
 interface HomeWebSearchCardProps {
-  payload: Record<string, any>
+  payload: Record<string, unknown>
   isDark: boolean
   conversationId?: string | number | null
 }
@@ -42,9 +42,9 @@ function asNumber(value: unknown): number | undefined {
   return Number.isFinite(normalized) && normalized > 0 ? normalized : undefined
 }
 
-function normalizePayload(payload: Record<string, any>): SearchPayload {
+function normalizePayload(payload: Record<string, unknown>): SearchPayload {
   const resultPayload = payload.result && typeof payload.result === 'object'
-    ? payload.result as Record<string, any>
+    ? payload.result as Record<string, unknown>
     : payload
   const rawResults = Array.isArray(resultPayload.results)
     ? resultPayload.results
@@ -71,7 +71,7 @@ function normalizePayload(payload: Record<string, any>): SearchPayload {
     query: String(resultPayload.query ?? payload.query ?? ''),
     message: String(resultPayload.message ?? payload.message ?? ''),
     results: rawResults
-      .filter((item): item is Record<string, any> => !!item && typeof item === 'object')
+      .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
       .map((item) => ({
         title: String(item.title ?? ''),
         url: asString(item.url),
