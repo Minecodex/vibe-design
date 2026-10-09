@@ -1,10 +1,7 @@
+import type { CanvasLoadedTexture } from './canvasImageResourceManager'
+import { Texture } from 'pixi.js'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('pixi.js', () => ({
-  Texture: {
-    from: vi.fn((source) => source),
-  },
-}))
 
 import {
   CanvasImageResourceManager,
@@ -13,10 +10,9 @@ import {
 } from './canvasImageResourceManager'
 
 function texture(id: string) {
-  return {
-    id,
-    destroy: vi.fn(),
-  } as any
+  const result = new Texture({ label: id })
+  vi.spyOn(result, 'destroy').mockImplementation(() => undefined)
+  return result
 }
 
 async function flushMicrotasks() {
@@ -71,7 +67,7 @@ describe('CanvasImageResourceManager', () => {
     }
 
     const loaded = await manager.loadTexture(request)
-    expect((loaded as any)?.id).toBe('/image.png-256')
+    expect((loaded)?.label).toBe('/image.png-256')
     expect(manager.getTexture(request)).toBe(loaded)
     expect(loader).toHaveBeenCalledTimes(1)
 
@@ -102,8 +98,8 @@ describe('CanvasImageResourceManager', () => {
     const imageTexture = await manager.loadTexture(request)
     const videoTexture = await manager.loadVideoFrameTexture(request)
 
-    expect((imageTexture as any)?.id).toBe('image-/shared.mp4-512')
-    expect((videoTexture as any)?.id).toBe('video-/shared.mp4-512')
+    expect((imageTexture)?.label).toBe('image-/shared.mp4-512')
+    expect((videoTexture)?.label).toBe('video-/shared.mp4-512')
     expect(manager.getTexture(request)).toBe(imageTexture)
     expect(manager.getVideoFrameTexture(request)).toBe(videoTexture)
     expect(videoFrameLoader).toHaveBeenCalledTimes(1)
@@ -113,12 +109,12 @@ describe('CanvasImageResourceManager', () => {
   })
 
   it('falls back to the best cached lower tier while a higher idle tier loads', async () => {
-    const highResolvers: Array<(value: any) => void> = []
+    const highResolvers: Array<(value: CanvasLoadedTexture) => void> = []
     const low = texture('low')
     const high = texture('high')
     const loader = vi.fn(({ tier }: { tier: CanvasImageTextureTier }) => {
       if (tier === 2048) {
-        return new Promise<any>((resolve) => {
+        return new Promise<CanvasLoadedTexture>((resolve) => {
           highResolvers.push(resolve)
         })
       }
@@ -168,8 +164,8 @@ describe('CanvasImageResourceManager', () => {
   })
 
   it('limits concurrent loads and evicts least recently used textures', async () => {
-    const resolvers: Array<(value: any) => void> = []
-    const loader = vi.fn(({ url }: { url: string }) => new Promise<any>((resolve) => {
+    const resolvers: Array<(value: CanvasLoadedTexture) => void> = []
+    const loader = vi.fn(({ url }: { url: string }) => new Promise<CanvasLoadedTexture>((resolve) => {
       resolvers.push(resolve)
       void url
     }))
@@ -230,7 +226,7 @@ describe('CanvasImageResourceManager', () => {
       tier: 2048,
       maxDimension: 2048,
     })
-    expect((loaded as any)?.id).toBe('/image__canvas_2048.webp?v=1-2048')
+    expect((loaded)?.label).toBe('/image__canvas_2048.webp?v=1-2048')
   })
 
   it('falls back to original URLs when preview URLs are unavailable or fail to load', async () => {
@@ -264,7 +260,7 @@ describe('CanvasImageResourceManager', () => {
       tier: 256,
       maxDimension: 256,
     })
-    expect((loaded as any)?.id).toBe('/image.png-256')
+    expect((loaded)?.label).toBe('/image.png-256')
   })
 
   it('does not request backend previews without project context or for full textures', async () => {

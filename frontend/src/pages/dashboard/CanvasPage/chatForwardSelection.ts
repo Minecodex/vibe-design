@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { ChatMessage, MessageBlock } from '@/store/canvasAgentStore'
 
 export interface ForwardSelectableEntry {
@@ -45,7 +46,7 @@ function getBlockText(block: MessageBlock): string {
     const question = String(block.payload?.question || '').trim()
     const options = Array.isArray(block.payload?.options)
       ? block.payload.options
-        .map((option: any) => String(option?.label || option?.value || '').trim())
+        .map((value: unknown) => { const option = wireRecord(value); return String(option?.label || option?.value || '').trim() })
         .filter(Boolean)
       : []
 
@@ -58,10 +59,10 @@ function getBlockText(block: MessageBlock): string {
 
   if (block.uiKind === 'plan_artifact') {
     const steps = Array.isArray(block.payload?.steps)
-      ? block.payload.steps.map((step: any) => compactTextParts([
+      ? block.payload.steps.map((value: unknown) => { const step = wireRecord(value); return compactTextParts([
         `${String(step?.order || '').trim()}. ${String(step?.title || '').trim()}`.trim(),
         String(step?.description || '').trim(),
-      ])).filter(Boolean)
+      ]) }).filter(Boolean)
       : []
 
     return compactTextParts([

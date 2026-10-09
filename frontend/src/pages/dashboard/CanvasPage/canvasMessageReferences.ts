@@ -77,9 +77,9 @@ export function buildCanvasMentionReferences(
 
 function isReferenceableImageItem(item: CanvasItem): boolean {
   const type = String(item.type || '')
-  const origin = String((item as any).asset_origin || '')
-  const url = String((item as any).url || '')
-  const artifactRef = String((item as any).artifact_ref || '')
+  const origin = String((item).asset_origin || '')
+  const url = String((item).url || '')
+  const artifactRef = String((item).artifact_ref || '')
   const isImageLike = type === 'image' || type === 'image_generator'
   if (!isImageLike) return false
   if (type === 'image_generator' && artifactRef) {

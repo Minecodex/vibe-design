@@ -1,6 +1,7 @@
+import { wireRecord } from '@/store/harnessWireFields'
 export type AgentToolStatus = 'pending' | 'running' | 'completed' | 'failed'
 
-type GenerationRecord = Record<string, any> | undefined
+type GenerationRecord = Record<string, unknown> | undefined
 
 type ResolveAsyncGenerationToolStatusInput = {
     currentStatus: AgentToolStatus
@@ -39,8 +40,8 @@ export function resolveAsyncGenerationToolStatus({
     const taskId = getGenerationTaskId(result, args)
     const hasTaskId = taskId != null
     const resStatus = result?.status
-    const canvasItemStatus = result?.canvas_item?.status
-    const hasResultUrl = !!(result?.result_url || result?.result_urls?.length)
+    const canvasItemStatus = wireRecord(result?.canvas_item)?.status
+    const hasResultUrl = !!(result?.result_url || (Array.isArray(result?.result_urls) && result.result_urls.length))
     const hasError = !!(error || result?.error || result?.error_message)
     const hasFailedStatus = resStatus === 'failed' || canvasItemStatus === 'failed' || currentStatus === 'failed'
 

@@ -1,3 +1,4 @@
+import { wireRecord, wireString } from './harnessWireFields'
 import type { GenerationProjectionUpdate } from './generationProjection'
 
 type GenerationEventLike = {
@@ -38,7 +39,7 @@ export function buildGenerationProjectionUpdateFromEvent(
 
   return {
     taskId,
-    status: pickFirst(result.status, data.status, statusFromEventType(event.type)),
+    status: wireString(pickFirst(result.status, data.status, statusFromEventType(event.type))),
     sourceSequence: typeof event.sequence === 'number' ? event.sequence : numberOrNull(data.sequence),
     progress: numberOrNull(pickFirst(result.progress, data.progress)),
     resultUrl: stringOrNull(pickFirst(result.result_url, result.resultUrl, data.result_url, data.resultUrl, data.url)),
@@ -96,15 +97,15 @@ function buildGenerationProjectionUpdateFromItemEvent(
 
   return {
     taskId,
-    status: pickFirst(data.status, payload.status, statusFromItemEventType(event.type)),
+    status: wireString(pickFirst(data.status, payload.status, statusFromItemEventType(event.type))),
     sourceSequence: typeof event.sequence === 'number' ? event.sequence : numberOrNull(data.sequence),
     progress: numberOrNull(pickFirst(payload.progress, data.progress)),
     resultUrl: stringOrNull(pickFirst(
       payload.result_url,
       payload.resultUrl,
       payload.url,
-      payload.canvas_item?.url,
-      payload.canvasItem?.url,
+      wireRecord(payload.canvas_item)?.url,
+      wireRecord(payload.canvasItem)?.url,
       data.result_url,
       data.resultUrl,
     )),
@@ -273,11 +274,11 @@ function statusFromItemEventType(type: string): string | null {
   return null
 }
 
-function pickFirst(...values: unknown[]): any {
-  return values.find((value) => value != null && value !== '')
+function pickFirst(...values: unknown[]): string | number | undefined {
+  return values.find((value): value is string | number => (typeof value === 'string' || typeof value === 'number') && value !== '')
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 

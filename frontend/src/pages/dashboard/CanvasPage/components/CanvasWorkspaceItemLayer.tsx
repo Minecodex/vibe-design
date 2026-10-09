@@ -141,7 +141,7 @@ export function CanvasWorkspaceItemLayer(props: CanvasWorkspaceItemLayerProps) {
             top: 0,
           }
 
-        const currentModel = (isImageGroup ? availableImageModels : availableVideoModels).find((m: any) => (
+        const currentModel = (isImageGroup ? availableImageModels : availableVideoModels).find((m) => (
           isGeneratorModelOptionSelected(
             m,
             item.model_name || (isImageGroup ? imageModel : videoModel),
@@ -411,7 +411,7 @@ export function CanvasWorkspaceItemLayer(props: CanvasWorkspaceItemLayerProps) {
                   if (isMarkableImage) setHoveredMarkableImageId(item.id)
                 }}
                 onMouseLeave={() => {
-                  setHoveredMarkableImageId((prev: any) => (prev === item.id ? null : prev))
+                  setHoveredMarkableImageId((prev) => (prev === item.id ? null : prev))
                 }}
                 onClick={(e) => {
                   e.stopPropagation()

@@ -1,3 +1,4 @@
+import { apiErrorDetail } from '@/utils/apiErrors'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usersApi, User, UserCreate, UserUpdate } from '@/api/endpoints/users'
@@ -120,8 +121,8 @@ export function UserFormModal({ open, user, onCancel, onSuccess }: UserFormModal
                 toast.success(t('organization.create_success', '用户创建成功'))
             }
             onSuccess()
-        } catch (error: any) {
-            toast.error(formatApiErrorDetail(error?.response?.data?.detail, t('organization.operation_failed', '操作失败')))
+        } catch (error) {
+            toast.error(formatApiErrorDetail(apiErrorDetail(error), t('organization.operation_failed', '操作失败')))
         } finally {
             setLoading(false)
         }
@@ -139,8 +140,8 @@ export function UserFormModal({ open, user, onCancel, onSuccess }: UserFormModal
             setApimartKeyStatus(data.status || 'active')
             setApimartKeyHint(data.key_hint || null)
             toast.success(t('organization.apimart_key_saved', 'APIMart Key 已保存'))
-        } catch (error: any) {
-            toast.error(formatApiErrorDetail(error?.response?.data?.detail, t('organization.apimart_key_failed', 'APIMart Key 保存失败')))
+        } catch (error) {
+            toast.error(formatApiErrorDetail(apiErrorDetail(error), t('organization.apimart_key_failed', 'APIMart Key 保存失败')))
         } finally {
             setSavingApimartKey(false)
         }
@@ -158,8 +159,8 @@ export function UserFormModal({ open, user, onCancel, onSuccess }: UserFormModal
                 authState.updateUser({ ...authState.user, balance_cents: 0 })
             }
             toast.success(t('organization.apimart_key_revoked', 'APIMart Key 已撤销'))
-        } catch (error: any) {
-            toast.error(formatApiErrorDetail(error?.response?.data?.detail, t('organization.apimart_key_failed', 'APIMart Key 操作失败')))
+        } catch (error) {
+            toast.error(formatApiErrorDetail(apiErrorDetail(error), t('organization.apimart_key_failed', 'APIMart Key 操作失败')))
         } finally {
             setSavingApimartKey(false)
         }

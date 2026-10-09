@@ -1,3 +1,5 @@
+import { canvasItem, projectRead } from '@/store/testing/canvasStateFixtures'
+import { httpResponse } from '@/store/testing/harnessStateFixtures'
 import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
@@ -5,7 +7,8 @@ import { projectsApi } from '@/api/endpoints/projects'
 
 import { useCanvasSaver } from './hooks/useCanvasSaver'
 
-vi.mock('@/api/endpoints/projects', () => ({
+vi.mock('@/api/endpoints/projects', async (importOriginal) => ({
+  ...await importOriginal<typeof import('@/api/endpoints/projects')>(),
   projectsApi: {
     update: vi.fn(),
   },
@@ -17,7 +20,7 @@ describe('useCanvasSaver revision handling', () => {
   })
 
   it('sends canvas_base_revision and stores the returned revision', async () => {
-    vi.mocked(projectsApi.update).mockResolvedValueOnce({ data: { canvas_revision: 4 } } as any)
+    vi.mocked(projectsApi.update).mockResolvedValueOnce(httpResponse({ data: projectRead({ canvas_revision: 4 }) }))
     const onRevisionSaved = vi.fn()
     const onRevisionConflict = vi.fn()
     const canvasRevisionRef = { current: 3 }
@@ -37,16 +40,16 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     await act(async () => {
-      await result.current([{ id: 'item-1' } as any])
+      await result.current([canvasItem({ id: 'item-1' })])
     })
 
     expect(projectsApi.update).toHaveBeenCalledWith(7, {
-      canvas_data: [{ id: 'item-1' }, { id: 'global_state', deletedAgentMediaKeys: [] }],
+      canvas_data: [canvasItem({ id: 'item-1' }), { id: 'global_state', deletedAgentMediaKeys: [] }],
       canvas_base_revision: 3,
     })
     expect(onRevisionSaved).toHaveBeenCalledWith(
       4,
-      [{ id: 'item-1' }],
+      [canvasItem({ id: 'item-1' })],
       undefined,
       { baseRevision: 3, dirtyEpoch: 0 },
     )
@@ -54,15 +57,13 @@ describe('useCanvasSaver revision handling', () => {
   })
 
   it('passes normalized canvas items returned by the server', async () => {
-    vi.mocked(projectsApi.update).mockResolvedValueOnce({
-      data: {
+    vi.mocked(projectsApi.update).mockResolvedValueOnce(httpResponse({ data: projectRead({
         canvas_revision: 4,
         canvas_data: [
-          { id: 'item-1', url: '/api/v1/uploads/canvas/7/source.png' },
+          canvasItem({ id: 'item-1', url: '/api/v1/uploads/canvas/7/source.png' }),
           { id: 'global_state', deletedAgentMediaKeys: [] },
         ],
-      },
-    } as any)
+      }) }))
     const onRevisionSaved = vi.fn()
 
     const { result } = renderHook(() => useCanvasSaver({
@@ -79,22 +80,22 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     await act(async () => {
-      await result.current([{ id: 'item-1', url: '/api/v1/uploads/canvas/1/source.png' } as any])
+      await result.current([canvasItem({ id: 'item-1', url: '/api/v1/uploads/canvas/1/source.png' })])
     })
 
     expect(onRevisionSaved).toHaveBeenCalledWith(
       4,
-      [{ id: 'item-1', url: '/api/v1/uploads/canvas/1/source.png' }],
-      [{ id: 'item-1', url: '/api/v1/uploads/canvas/7/source.png' }],
+      [canvasItem({ id: 'item-1', url: '/api/v1/uploads/canvas/1/source.png' })],
+      [canvasItem({ id: 'item-1', url: '/api/v1/uploads/canvas/7/source.png' })],
       { baseRevision: 3, dirtyEpoch: 0 },
     )
   })
 
   it('captures the base revision when the save is enqueued', async () => {
-    let resolveSave: ((value: any) => void) | null = null
+    let resolveSave: ((value: Awaited<ReturnType<typeof projectsApi.update>>) => void) | null = null
     vi.mocked(projectsApi.update).mockImplementationOnce(() => new Promise((resolve) => {
       resolveSave = resolve
-    }) as any)
+    }))
     const canvasRevisionRef = { current: 3 }
 
     const { result } = renderHook(() => useCanvasSaver({
@@ -111,15 +112,15 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     const savePromise = act(async () => {
-      const pending = result.current([{ id: 'item-1' } as any])
+      const pending = result.current([canvasItem({ id: 'item-1' })])
       canvasRevisionRef.current = 9
-      resolveSave?.({ data: { canvas_revision: 4 } })
+      resolveSave?.(httpResponse({ data: projectRead({ canvas_revision: 4 }) }))
       await pending
     })
     await savePromise
 
     expect(projectsApi.update).toHaveBeenCalledWith(7, {
-      canvas_data: [{ id: 'item-1' }, { id: 'global_state', deletedAgentMediaKeys: [] }],
+      canvas_data: [canvasItem({ id: 'item-1' }), { id: 'global_state', deletedAgentMediaKeys: [] }],
       canvas_base_revision: 3,
     })
   })
@@ -148,7 +149,7 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     await act(async () => {
-      await result.current([{ id: 'item-1' } as any])
+      await result.current([canvasItem({ id: 'item-1' })])
     })
 
     expect(onRevisionConflict).toHaveBeenCalledWith(8)
@@ -185,7 +186,7 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     await act(async () => {
-      await result.current([{ id: 'item-1' } as any])
+      await result.current([canvasItem({ id: 'item-1' })])
     })
 
     expect(onObsoleteRevisionConflict).toHaveBeenCalledWith({
@@ -211,7 +212,7 @@ describe('useCanvasSaver revision handling', () => {
     }))
 
     await act(async () => {
-      await result.current([{ id: 'item-1' } as any])
+      await result.current([canvasItem({ id: 'item-1' })])
     })
 
     expect(projectsApi.update).not.toHaveBeenCalled()

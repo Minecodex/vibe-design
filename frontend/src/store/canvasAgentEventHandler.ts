@@ -59,7 +59,7 @@ function isActiveCanvasConversation(
 function dispatchCanvasUpdateForActiveConversation(
     get: () => ChatState & ChatActions,
     conversationId: number | string | null | undefined,
-    canvasUpdate: { action: string; item: Record<string, any>; meta?: Record<string, any> },
+    canvasUpdate: { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> },
 ): void {
     const state = get()
     if (!isActiveCanvasConversation(state, conversationId)) {
@@ -89,7 +89,7 @@ function syncCanvasRevisionForActiveConversation(
 }
 
 export function getDurableCanvasEventSequence(event: AgentEvent): number | null {
-    if ((event as any).transient === true) {
+    if ('transient' in event && event.transient === true) {
         return null
     }
     const sequence = typeof event.sequence === 'number' ? event.sequence : null
@@ -340,7 +340,7 @@ export function handleAgentEventV2(
         || event.type === 'generation_completed'
         || event.type === 'generation_failed'
     ) {
-        let canvasUpdate: { action: string; item: Record<string, any>; meta?: Record<string, any> } | undefined
+        let canvasUpdate: { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> } | undefined
         if (scopedConversationId) {
             set((s) => applyConversationSessionUpdate(s, scopedConversationId, (session) => {
                 const projected = applyCanvasGenerationEvent(
@@ -437,7 +437,7 @@ function shouldReplaySameSequenceTurnCompleted(
 function terminalFailureSummary(event: AgentEvent): string {
     const error = event.data?.error
     if (error && typeof error === 'object') {
-        return String((error as Record<string, any>).summary || '').trim()
+        return String((error as Record<string, unknown>).summary || '').trim()
     }
     return String(event.data?.summary || event.data?.message || '').trim()
 }

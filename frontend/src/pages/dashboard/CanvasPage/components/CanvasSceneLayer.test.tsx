@@ -1,6 +1,7 @@
+import { installCanvas2dContextFixture } from '@/store/testing/canvas2dContextFixture'
 import { render, waitFor } from '@testing-library/react'
 import React from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CanvasItem } from '@/api/endpoints/projects'
 
@@ -40,9 +41,11 @@ describe('CanvasSceneLayer', () => {
     scale: vi.fn(),
   } as unknown as CanvasRenderingContext2D
 
+  let contextFixture: ReturnType<typeof installCanvas2dContextFixture>
+  afterEach(() => contextFixture?.mockRestore())
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(HTMLCanvasElement.prototype as any, 'getContext').mockImplementation(() => context)
+    contextFixture = installCanvas2dContextFixture(context)
   })
 
   it('draws accelerated low-zoom items into the scene canvas', async () => {
@@ -153,10 +156,7 @@ describe('CanvasSceneLayer', () => {
 
   it('redraws the scene when an image asset finishes loading without needing an external rerender', async () => {
     const drawImage = vi.fn()
-    vi.spyOn(HTMLCanvasElement.prototype as any, 'getContext').mockImplementation(() => ({
-      ...context,
-      drawImage,
-    } as unknown as CanvasRenderingContext2D))
+    installCanvas2dContextFixture({ ...context, drawImage })
 
     const originalImage = globalThis.Image
     class MockImage {

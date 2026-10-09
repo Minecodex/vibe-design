@@ -636,7 +636,7 @@ describe('homeHarnessStore', () => {
   })
 
     it('switches immediately to the target conversation state without inheriting the previous settings', async () => {
-    let resolveSnapshot: (value: any) => void = () => undefined
+    let resolveSnapshot: (value: unknown) => void = () => undefined
     getHarnessConversationMock.mockImplementationOnce(() => new Promise((resolve) => {
       resolveSnapshot = resolve
     }))
@@ -903,7 +903,7 @@ describe('homeHarnessStore', () => {
   })
 
     it('lets a terminal detail snapshot stop an active live send before later SSE events', async () => {
-    let resolveSnapshot: ((value: any) => void) | null = null
+    let resolveSnapshot: ((value: unknown) => void) | null = null
     const snapshotPromise = new Promise((resolve) => {
       resolveSnapshot = resolve
     })
@@ -1287,7 +1287,7 @@ describe('homeHarnessStore', () => {
     let callCount = 0
     streamHarnessSendMessageMock.mockImplementation((
       _conversationId: string,
-      _data: any,
+      _data: unknown,
       signal: AbortSignal,
     ) => {
       callCount += 1
@@ -3696,7 +3696,7 @@ describe('homeHarnessStore', () => {
     const eventsDelivered: string[] = []
 
     streamHarnessSendMessageMock.mockImplementation(async function* () {
-      const yieldEvent = async (event: any) => {
+      const yieldEvent = async <T extends { type: string }>(event: T) => {
         eventsDelivered.push(event.type)
         return event
       }
@@ -4216,8 +4216,7 @@ describe('homeHarnessStore stop-then-action recovery', () => {
     mock
       .mockImplementationOnce(async function* () {
 
-        const err: any = new Error('Conversation already has an active run')
-        err.status = 409
+        const err = Object.assign(new Error('Conversation already has an active run'), { status: 409 })
         yield* [] // This fixture intentionally emits no events.
         throw err
       })

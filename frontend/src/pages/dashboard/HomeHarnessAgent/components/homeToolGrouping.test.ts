@@ -1,18 +1,11 @@
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { describe, expect, it } from 'vitest'
 
 import type { MessageBlock } from '@/store/homeHarnessStore'
 
 import { groupHomeReadonlyToolBlocks, summarizeToolGroup, TOOL_GROUP_UI_KIND } from './homeToolGrouping'
 
-const t = ((key: string, fallback?: string | Record<string, any>) => {
-  if (typeof fallback === 'string') {
-    return fallback
-  }
-  if (fallback && typeof fallback.defaultValue === 'string') {
-    return fallback.defaultValue.replace('{{count}}', String(fallback.count ?? ''))
-  }
-  return key
-}) as any
+const t = createTranslationFixture({})
 
 function toolBlock(id: string, tool: string, status = 'completed'): MessageBlock {
   return {

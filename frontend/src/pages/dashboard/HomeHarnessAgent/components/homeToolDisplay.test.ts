@@ -1,3 +1,4 @@
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -6,15 +7,7 @@ import {
   summarizeToolArgs,
 } from './homeToolDisplay'
 
-const t = ((key: string, fallback?: string | Record<string, any>) => {
-  if (typeof fallback === 'string') {
-    return fallback
-  }
-  if (fallback && typeof fallback.defaultValue === 'string') {
-    return fallback.defaultValue.replace('{{count}}', String(fallback.count ?? ''))
-  }
-  return key
-}) as any
+const t = createTranslationFixture({})
 
 describe('summarizeToolArgs', () => {
   it('summarizes file tools as their (relative) path', () => {

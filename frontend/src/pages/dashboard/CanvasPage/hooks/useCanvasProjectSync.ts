@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { assetsApi, type AssetRead } from '@/api/endpoints/assets'
-import { projectsApi, type CanvasItem, type ProjectRead } from '@/api/endpoints/projects'
+import { projectsApi, isCanvasItemRecord, type CanvasItem, type CanvasDataRecord, type ProjectRead } from '@/api/endpoints/projects'
 import { normalizeAgentGeneratedMediaItems, normalizeDeletedAgentMediaKeys } from '../agentGeneratedMedia'
 import { normalizeReferenceImages } from '../generatorCapabilities'
 import { normalizeTextCanvasItem } from '../textTypography'
@@ -24,7 +24,7 @@ interface CanvasProjectSyncArgs {
   updateCanvasItems: (updater: CanvasUpdater, options?: CanvasUpdateOptions) => void
   initializeState: (items: CanvasItem[], marks: []) => void
   buildCanvasMeta: () => Record<string, unknown>
-  loadPersistedGeneratorMeta: (meta: CanvasItem) => void
+  loadPersistedGeneratorMeta: (meta: CanvasDataRecord) => void
   withReferenceImages: (images: string[]) => Partial<CanvasItem>
   onStale: () => void
 }
@@ -223,7 +223,7 @@ export function useCanvasProjectSync({
     }
     let nextItems: CanvasItem[] = []
     if (Array.isArray(data.canvas_data) && data.canvas_data.length > 0) {
-      const meta = data.canvas_data.find((item: CanvasItem) => item.id === 'global_state')
+      const meta = data.canvas_data.find(item => item.id === 'global_state')
       if (meta) {
         loadPersistedGeneratorMeta(meta)
         setDeletedAgentMediaKeys(normalizeDeletedAgentMediaKeys('deletedAgentMediaKeys' in meta ? meta.deletedAgentMediaKeys : undefined))
@@ -232,7 +232,7 @@ export function useCanvasProjectSync({
       }
       nextItems = normalizeAgentGeneratedMediaItems(
         data.canvas_data
-          .filter((item: CanvasItem) => item.id !== 'global_state'),
+          .filter(isCanvasItemRecord),
       )
         .map((item: CanvasItem) => ({
           ...(item.type === 'text' ? normalizeTextCanvasItem(item) : item),

@@ -1,3 +1,4 @@
+import type { CanvasWorkspaceItemLayerProps } from './canvasRenderContracts'
 import React from 'react'
 import type { CanvasItem } from '@/api/endpoints/projects'
 import { canvasRenderFixture } from '@/store/testing/canvasRenderFixture'
@@ -33,7 +34,10 @@ vi.mock('./CanvasWorkspaceMultiSelectToolbar', () => ({
 }))
 
 vi.mock('./CanvasWorkspaceItemLayer', () => ({
-  CanvasWorkspaceItemLayer: (props: any) => {
+  CanvasWorkspaceItemLayer: (props: CanvasWorkspaceItemLayerProps & {
+    onHoverImageDetailEnter?: (itemId: string) => void
+    onHoverImageDetailLeave?: () => void
+  }) => {
     const item = props.canvasItems[0]
     return (
       <div
@@ -48,7 +52,7 @@ vi.mock('./CanvasWorkspaceItemLayer', () => ({
         onMouseEnter={() => props.onHoverImageDetailEnter?.(item.id)}
         onMouseLeave={() => props.onHoverImageDetailLeave?.()}
       >
-        {item.id}:{props.useWebGLRenderer ? props.renderSnapshot?.overlayNodes?.map((node: any) => node.id).join(',') : 'dom'}
+        {item.id}:{props.useWebGLRenderer ? props.renderSnapshot?.overlayNodes?.map((node) => node.id).join(',') : 'dom'}
         {props.imageAnchoredImageDraft?.sourceImageItemId === item.id && (
           <textarea data-testid="anchored-image-prompt" />
         )}
@@ -62,7 +66,7 @@ vi.mock('./CanvasWorkspaceFloatingPanels', () => ({
     hoverImageDetailItem,
     hoverImageDetailPanelPosition,
     hoverImageDetailSourceRect,
-  }: any) => (
+  }: { hoverImageDetailItem?: Pick<CanvasItem, 'id'> | null; hoverImageDetailPanelPosition?: { left: number; top: number } | null; hoverImageDetailSourceRect?: { width: number; height: number } | null }) => (
     <div>
       <div data-testid="hover-item-id">{hoverImageDetailItem?.id ?? 'none'}</div>
       <div data-testid="hover-panel-left">{hoverImageDetailPanelPosition?.left ?? 'none'}</div>
@@ -85,7 +89,7 @@ function createBaseProps(overrides: Partial<CanvasWorkspaceCanvasAreaProps> = {}
     onReadyChange,
     onFallback,
   }: {
-    nodes: any[]
+    nodes: NonNullable<CanvasWorkspaceItemLayerProps['renderSnapshot']>['nodes']
     isInteracting?: boolean
     onReadyChange?: (ready: boolean) => void
     onFallback?: () => void

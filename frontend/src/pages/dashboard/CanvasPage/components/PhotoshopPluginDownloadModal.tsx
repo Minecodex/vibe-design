@@ -1,3 +1,4 @@
+import type { PluginDownloadModalProps } from './pluginDownloadModalProps'
 import { Download, Layers, Sparkles } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,7 @@ function getServiceAddress() {
   return getApiOrigin()
 }
 
-export function PhotoshopPluginDownloadModal(props: any) {
+export function PhotoshopPluginDownloadModal(props: PluginDownloadModalProps) {
   const {
     open,
     onOpenChange,

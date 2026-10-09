@@ -79,7 +79,7 @@ type GeneratorAssetLibraryContext =
   | { type: 'ecommerce-reference'; onSelect: (urls: string[]) => void; maxSelection?: number }
 
 // ---------- component ----------
-export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?: boolean, guestProject?: any }) {
+export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?: boolean, guestProject?: unknown }) {
   const { t } = useTranslation()
   const isDark = useIsDarkMode()
   const navigate = useNavigate()
@@ -682,7 +682,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
         ref={anchoredImageReferenceInputRef}
         type="file"
         accept="image/*"
-        multiple={Boolean(imageAnchoredImageDraftItem && getResolvedImageCapability(imageAnchoredImageDraftItem as any).maxReferenceImages > 2)}
+        multiple={Boolean(imageAnchoredImageDraftItem && getResolvedImageCapability(imageAnchoredImageDraftItem).maxReferenceImages > 2)}
         style={{ display: 'none' }}
         onChange={handleUploadAnchoredImageReference}
       />

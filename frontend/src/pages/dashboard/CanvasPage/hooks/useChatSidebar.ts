@@ -5,7 +5,7 @@ import { useIsDarkMode } from "@/hooks/useTheme"
 import { useChatStore } from '@/store/canvasAgentStore'
 import { agentApi, type AttachmentData } from '@/api/endpoints/agent'
 import { buildCanvasChatSkills, type ChatSkillId } from '.././chatSkills'
-import { loadCanvasModelCatalog } from '.././canvasModelCatalog'
+import { loadCanvasModelCatalog, enabledProviderModels, registryModels, type CanvasSelectableModel } from '.././canvasModelCatalog'
 import { getAppendMentionInsertionPoint, getManualMentionInsertionPoint, moveCursorAfterNode, removeAtomicChipBeforeCaret } from '.././chatComposerDom'
 import {
     buildCanvasPendingAttachment,
@@ -436,34 +436,21 @@ export function useChatSidebar({ isOpen, onClose, projectId, canvasItems, append
             try {
                 const { registry, providers } = await loadCanvasModelCatalog();
 
-                const imageModels: any[] = [];
-                const videoModels: any[] = [];
-                const multimodalModels: any[] = [];
+                const imageModels: CanvasSelectableModel[] = [];
+                const videoModels: CanvasSelectableModel[] = [];
+                const multimodalModels: CanvasSelectableModel[] = [];
 
                 for (const { provider, models } of providers) {
                     try {
-                        let enabledModels = models.filter(m => m.is_enabled);
-
-                        if (provider.is_builtin && enabledModels.length === 0) {
-                            const providerRegistry = registry[provider.code];
-                            const text2image = providerRegistry?.models?.text2image || (providerRegistry as any)?.text2image || [];
-                            const text2video = providerRegistry?.models?.text2video || (providerRegistry as any)?.text2video || [];
-                            const multimodal = providerRegistry?.models?.multimodal || (providerRegistry as any)?.multimodal || [];
-
-                            enabledModels = [
-                                ...text2image.map((m) => ({ model_name: m.model_name, model_type: 'text2image', is_enabled: true } as any)),
-                                ...text2video.map((m) => ({ model_name: m.model_name, model_type: 'text2video', is_enabled: true } as any)),
-                                ...multimodal.map((m) => ({ model_name: m.model_name, model_type: 'multimodal', is_enabled: true } as any))
-                            ];
-                        }
+                        const enabledModels = enabledProviderModels({ provider, models }, registry, ['text2image', 'text2video', 'multimodal'])
 
                         for (const model of enabledModels) {
                             let label = model.model_name;
                             let description = '';
                             let tag = '';
                             const providerRegistry = registry[provider.code];
-                            const typeModels = providerRegistry?.models?.[model.model_type] || (providerRegistry as any)?.[model.model_type] || [];
-                            const regModel = (typeModels as any[]).find(rm => rm.model_name === model.model_name);
+                            const typeModels = registryModels(providerRegistry, model.model_type);
+                            const regModel = typeModels.find(rm => rm.model_name === model.model_name);
 
                             if (regModel) {
                                 label = regModel.label;

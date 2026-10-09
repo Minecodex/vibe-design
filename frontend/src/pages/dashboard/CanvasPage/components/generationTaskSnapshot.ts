@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { GenerationTaskRead } from '@/api/endpoints/generation'
 
 export type CanvasGenerationTaskSnapshot = Partial<GenerationTaskRead> & {
@@ -7,21 +8,21 @@ export type CanvasGenerationTaskSnapshot = Partial<GenerationTaskRead> & {
   resolution?: string | null
   duration?: string | number | null
   quality?: string | null
-  canvas_item?: Record<string, any> | null
+  canvas_item?: Record<string, unknown> | null
   canvas_revision?: number | null
   canvas_item_deleted?: boolean | null
-  artifact?: Record<string, any> | null
+  artifact?: Record<string, unknown> | null
 }
 
 export const mergeGenerationTaskSnapshot = (
-  currentResult: Record<string, any> | undefined,
+  currentResult: Record<string, unknown> | undefined,
   taskData: CanvasGenerationTaskSnapshot,
 ) => {
-  const nextCanvasItemSource = currentResult?.canvas_item ?? taskData.canvas_item
-  const nextCanvasItem = nextCanvasItemSource
+  const nextCanvasItemSource = wireRecord(currentResult?.canvas_item) ?? taskData.canvas_item
+  const nextCanvasItem: Record<string, unknown> | undefined = nextCanvasItemSource
     ? { ...nextCanvasItemSource }
     : undefined
-  const nextParams = taskData.params || currentResult?.params || null
+  const nextParams = taskData.params || wireRecord(currentResult?.params) || null
   const nextResolution = nextParams?.resolution || currentResult?.resolution || nextCanvasItem?.resolution
   const nextAspectRatio = nextParams?.aspect_ratio || currentResult?.aspect_ratio || nextCanvasItem?.aspect_ratio
   const nextDuration = nextParams?.duration || currentResult?.duration || nextCanvasItem?.duration

@@ -10,6 +10,7 @@ import {
 } from '../canvasImageTiles'
 import type { CanvasRenderNode } from '../canvasRenderModel'
 import type { CanvasInteractionPreviewController } from '../canvasInteractionPreview'
+import type { CanvasCameraView } from '../hooks/useCanvasCamera'
 import { recordCanvasPerfSnapshot } from '../canvasPerfHarness'
 import { scaleBrushPathPoint } from '../brushPaths'
 import {
@@ -20,7 +21,7 @@ import {
 
 type CanvasWebGLStageProps = {
   canvasRef: React.RefObject<HTMLElement>
-  canvasCamera: any
+  canvasCamera?: CanvasCameraView | null
   projectId?: number | null
   nodes: CanvasRenderNode[]
   zoom: number
@@ -545,6 +546,7 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
     mountedRef.current = true
     let disposed = false
     let initialized = false
+    let contextHandlers: { handleContextLost: (event: Event) => void; handleContextRestored: () => void } | undefined
     const host = hostRef.current
     if (!host) return undefined
 
@@ -586,7 +588,7 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
       app.canvas.addEventListener('webglcontextlost', handleContextLost)
       app.canvas.addEventListener('webglcontextrestored', handleContextRestored)
       host.appendChild(app.canvas)
-      ;(app.canvas as any).__canvasWebglHandlers = {
+      contextHandlers = {
         handleContextLost,
         handleContextRestored,
       }
@@ -611,7 +613,7 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
       resources.destroy()
       resourcesRef.current = null
       if (appRef.current) {
-        const handlers = (appRef.current.canvas as any).__canvasWebglHandlers
+        const handlers = contextHandlers
         if (handlers) {
           appRef.current.canvas.removeEventListener('webglcontextlost', handlers.handleContextLost)
           appRef.current.canvas.removeEventListener('webglcontextrestored', handlers.handleContextRestored)
@@ -653,7 +655,7 @@ export const CanvasWebGLStage = React.memo(function CanvasWebGLStage({
 
   useEffect(() => {
     if (!canvasCamera?.subscribe) return undefined
-    return canvasCamera.subscribe((camera: any) => {
+    return canvasCamera.subscribe((camera) => {
       const world = worldRef.current
       if (!world) return
       applyCamera(world, viewport, camera)

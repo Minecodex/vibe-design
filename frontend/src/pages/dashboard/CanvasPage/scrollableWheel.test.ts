@@ -14,7 +14,7 @@ describe('handleScrollableWheel', () => {
       stopPropagation,
       currentTarget,
       nativeEvent: { cancelable: true },
-    } as any
+    }
 
     handleScrollableWheel(event)
 
@@ -34,7 +34,7 @@ describe('handleScrollableWheel', () => {
       stopPropagation,
       currentTarget,
       nativeEvent: { cancelable: false },
-    } as any
+    }
 
     handleScrollableWheel(event)
 
@@ -53,7 +53,7 @@ describe('handleScrollableWheel', () => {
       stopPropagation,
       currentTarget: { scrollTop: 20 },
       nativeEvent: { cancelable: true },
-    } as any
+    }
 
     handleScrollableWheel(event)
 

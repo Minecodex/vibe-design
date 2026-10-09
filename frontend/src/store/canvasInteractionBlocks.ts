@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { PendingInteraction } from '@/api/endpoints/agent'
 import type { ChatMessage, MessageBlock } from './canvasAgentTypes'
 import {
@@ -8,7 +9,7 @@ import {
 
 export function upsertRenderMessage(
     messages: ChatMessage[],
-    payload: Record<string, any>,
+    payload: Record<string, unknown>,
 ): ChatMessage[] {
     const renderKey = String(payload.render_key || payload.renderKey || '').trim()
     const messageId = String(payload.message_id || payload.messageId || '').trim()
@@ -30,7 +31,7 @@ export function upsertRenderMessage(
     const blocks = existingMessage
         ? preserveSubmittedCanvasInteractionBlocks(existingMessage.blocks || [], normalizedBlocks)
         : normalizedBlocks
-    const content = payload.content ?? extractMessageText(blocks)
+    const content = typeof payload.content === 'string' ? payload.content : extractMessageText(blocks)
 
     const nextMessage: ChatMessage = {
         id: messageId || `render-only-${renderKey || Date.now()}`,
@@ -163,13 +164,13 @@ export function shouldClearCanvasPendingInteraction(
 ): boolean {
     const requestId = String(
         pendingInteraction?.request_id
-        || (pendingInteraction as any)?.requestId
+        || (pendingInteraction)?.requestId
         || '',
     ).trim()
     return Boolean(requestId && findSubmittedCanvasInteractionBlock(messages, requestId))
 }
 
-export function buildCanvasInteractionFormBlock(payload: Record<string, any>): MessageBlock | null {
+export function buildCanvasInteractionFormBlock(payload: Record<string, unknown>): MessageBlock | null {
     const requestId = String(payload.request_id || payload.tool_call_id || '').trim()
     if (!requestId) {
         return null
@@ -216,7 +217,7 @@ export function findCanvasInteractionMessageIndex(messages: ChatMessage[], reque
 
 export function upsertCanvasInteractionCardMessage(
     messages: ChatMessage[],
-    payload: Record<string, any>,
+    payload: Record<string, unknown>,
 ): ChatMessage[] {
     const requestId = String(payload.request_id || payload.tool_call_id || '').trim()
     const interactionBlock = buildCanvasInteractionFormBlock(payload)
@@ -225,7 +226,7 @@ export function upsertCanvasInteractionCardMessage(
     }
 
     const existingIndex = findCanvasInteractionMessageIndex(messages, requestId)
-    const content = String(payload.content || payload.question || payload.schema?.title || '').trim() || null
+    const content = String(payload.content || payload.question || wireRecord(payload.schema)?.title || '').trim() || null
 
     if (
         interactionBlock.payload.status !== 'submitted'

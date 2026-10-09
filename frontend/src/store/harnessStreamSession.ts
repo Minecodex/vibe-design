@@ -1,3 +1,4 @@
+import { errorName } from '@/utils/apiErrors'
 import { isTurnCompletedEvent } from './harnessTurnProtocol'
 
 export type HarnessStreamSource<TEvent> = (
@@ -68,8 +69,8 @@ export function startHarnessStreamSession<TEvent>({
               latestSequence = Math.max(latestSequence, eventSequence)
             }
           }
-        } catch (error: any) {
-          if (error?.name === 'AbortError') {
+        } catch (error) {
+          if (errorName(error) === 'AbortError') {
             break
           }
           streamError = error
@@ -105,8 +106,9 @@ export function startHarnessStreamSession<TEvent>({
 }
 
 function defaultIsTerminalEvent<TEvent>(event: TEvent): boolean {
-  return isTurnCompletedEvent(event as any)
-    || (event as { type?: unknown } | null)?.type === 'protocol_error'
+  const candidate = event as { type?: unknown } | null
+  return (typeof candidate?.type === 'string' && isTurnCompletedEvent({ type: candidate.type }))
+    || candidate?.type === 'protocol_error'
 }
 
 function defaultGetEventSequence<TEvent>(event: TEvent): number | null {

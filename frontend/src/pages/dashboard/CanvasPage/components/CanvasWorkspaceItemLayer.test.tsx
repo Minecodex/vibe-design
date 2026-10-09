@@ -363,7 +363,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           ? { width: 3840, height: 2160 }
           : { width: 2880, height: 2880 }
       ),
-      formatAspectRatioOptionLabelWithDimensions: (value: string, _labels: any, dims: { width: number; height: number }) =>
+      formatAspectRatioOptionLabelWithDimensions: (value: string, _labels: unknown, dims: { width: number; height: number }) =>
         `${value} ${dims.width} × ${dims.height}`,
       updateItem,
     })
@@ -445,7 +445,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           prompt: 'test prompt',
         },
       ])
-      const [activeDropdown, setActiveDropdown] = useState<any>(null)
+      const [activeDropdown, setActiveDropdown] = useState<CanvasWorkspaceItemLayerProps['activeDropdown']>(null)
 
       return (
         <TestItemLayer
@@ -545,7 +545,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           isMarkModifierPressed={() => false}
           addMark={vi.fn()}
           handleAppendImageMentionToChat={vi.fn()}
-          updateItem={(targetItemId: string, updates: any) => {
+          updateItem={(targetItemId: string, updates: Partial<CanvasItem>) => {
             setItems(prev => prev.map(item => item.id === targetItemId ? { ...item, ...updates } : item))
           }}
           getMediaDisplayInitializationUpdate={() => null}
@@ -641,7 +641,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           reference_images: ['https://example.com/reference-1.png'],
         },
       ])
-      const [activeDropdown, setActiveDropdown] = useState<any>(null)
+      const [activeDropdown, setActiveDropdown] = useState<CanvasWorkspaceItemLayerProps['activeDropdown']>(null)
 
       return (
         <TestItemLayer
@@ -753,7 +753,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           isMarkModifierPressed={() => false}
           addMark={vi.fn()}
           handleAppendImageMentionToChat={vi.fn()}
-          updateItem={(targetItemId: string, updates: any) => {
+          updateItem={(targetItemId: string, updates: Partial<CanvasItem>) => {
             setItems(prev => prev.map(item => item.id === targetItemId ? { ...item, ...updates } : item))
           }}
           getMediaDisplayInitializationUpdate={() => null}

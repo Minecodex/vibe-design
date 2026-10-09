@@ -1,3 +1,6 @@
+import { wireRecord } from './harnessWireFields'
+import type { ChatMessage, MessageBlock } from './canvasAgentTypes'
+import { httpResponse, artifactTask } from './testing/harnessStateFixtures'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { agentApi, type AgentEvent } from '@/api/endpoints/agent'
 import {
@@ -26,7 +29,7 @@ vi.mock('@/api/endpoints/generation', () => ({
   },
 }))
 
-function event(type: AgentEvent['type'], data: Record<string, any>): AgentEvent {
+function event(type: AgentEvent['type'], data: Record<string, unknown>): AgentEvent {
   return { type, data, sequence: 1 }
 }
 
@@ -71,14 +74,12 @@ describe('canvasGenerationTaskRuntime', () => {
 
   it('polls harness generation tasks by artifact ref when one is available', async () => {
     vi.useFakeTimers()
-    vi.mocked(agentApi.getHarnessGenerationArtifactTask).mockResolvedValue({
-      data: {
+    vi.mocked(agentApi.getHarnessGenerationArtifactTask).mockResolvedValue(httpResponse({ data: artifactTask({
         task_id: '42',
         artifact_ref: 'artifact_ref:image-1',
         status: 'completed',
         result_url: '/uploads/final.png',
-      },
-    } as any)
+      }) }))
     const runtimeAdapter = adapter()
 
     upsertGenerationTaskFromItemEvent(event('item_started', {
@@ -367,7 +368,7 @@ describe('canvasGenerationTaskRuntime', () => {
   })
 
   it('rebuilds only the matched message and preserves sibling identity (memo-friendly)', () => {
-    const matchingMessage = {
+    const matchingMessage: ChatMessage = {
       id: 'm-match',
       role: 'assistant',
       createdAt: '2026-01-01T00:00:00Z',
@@ -380,7 +381,7 @@ describe('canvasGenerationTaskRuntime', () => {
         result: { task_id: 42, artifact_ref: 'artifact_ref:image-1', status: 'processing', progress: 0 },
       }],
     }
-    const siblingMessage = {
+    const siblingMessage: ChatMessage = {
       id: 'm-sibling',
       role: 'assistant',
       createdAt: '2026-01-01T00:00:00Z',
@@ -393,9 +394,9 @@ describe('canvasGenerationTaskRuntime', () => {
         result: { task_id: 7, artifact_ref: 'artifact_ref:other', status: 'processing', progress: 0 },
       }],
     }
-    const messages = [matchingMessage, siblingMessage]
+    const messages: ChatMessage[] = [matchingMessage, siblingMessage]
 
-    const next = updateToolCallsByGenerationTask(messages as any, {
+    const next = updateToolCallsByGenerationTask(messages, {
       task_id: 42,
       artifact_ref: 'artifact_ref:image-1',
       status: 'processing',
@@ -411,7 +412,7 @@ describe('canvasGenerationTaskRuntime', () => {
   })
 
   it('returns the same messages array when no tool call matches', () => {
-    const messages = [{
+    const messages: ChatMessage[] = [{
       id: 'm1',
       role: 'assistant',
       createdAt: '2026-01-01T00:00:00Z',
@@ -425,7 +426,7 @@ describe('canvasGenerationTaskRuntime', () => {
       }],
     }]
 
-    const next = updateToolCallsByGenerationTask(messages as any, {
+    const next = updateToolCallsByGenerationTask(messages, {
       task_id: 999,
       artifact_ref: 'artifact_ref:none',
       status: 'processing',
@@ -556,7 +557,7 @@ describe('canvasGenerationTaskRuntime', () => {
           result: { task_id: 99, artifact_ref: 'artifact_ref:pending', status: 'processing' },
         }],
       }],
-    } as any, runtimeAdapter)
+    }, runtimeAdapter)
 
     expect(recovered).toBe(1)
     expect(startGenerationTaskPolling('conv-1:artifact_ref:pending')).toBe(false)
@@ -566,8 +567,10 @@ describe('canvasGenerationTaskRuntime', () => {
     ['image_generation', 'image_generator', '/uploads/final.png'],
     ['video_generation', 'video_generator', '/uploads/final.mp4'],
   ])('updates %s media card blocks from completed task snapshots', (mediaType, canvasType, resultUrl) => {
-    const blocks = [{
+    const blocks: MessageBlock[] = [{
       id: 'media-artifact-image-1',
+      order: 0,
+      visible: true,
       kind: 'content',
       uiKind: 'media_card',
       status: 'processing',
@@ -589,7 +592,7 @@ describe('canvasGenerationTaskRuntime', () => {
       },
     }]
 
-    const nextBlocks = updateBlocksByGenerationTask(blocks as any, {
+    const nextBlocks = updateBlocksByGenerationTask(blocks, {
       task_id: '42',
       artifact_ref: 'artifact_ref:image-1',
       status: 'completed',
@@ -609,8 +612,8 @@ describe('canvasGenerationTaskRuntime', () => {
     expect(nextBlocks[0].payload.status).toBe('completed')
     expect(nextBlocks[0].payload.progress).toBe(100)
     expect(nextBlocks[0].payload.result_url).toBe(resultUrl)
-    expect(nextBlocks[0].payload.canvas_item.status).toBe('completed')
-    expect(nextBlocks[0].payload.canvas_item.url).toBe(resultUrl)
+    expect(wireRecord(nextBlocks[0].payload.canvas_item)?.status).toBe('completed')
+    expect(wireRecord(nextBlocks[0].payload.canvas_item)?.url).toBe(resultUrl)
   })
 
   it('disposes conversation polling tasks', () => {

@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import {
     agentApi,
     type AgentEvent,
@@ -16,6 +17,8 @@ import {
     type SendMessageRequest,
 } from '@/api/endpoints/agent'
 import type { MediaGenerationSettings } from '@/types/modelPreferences'
+import { normalizeFailureRead } from '@/api/agentWireNormalization'
+import { isHarnessConversationPhase } from './harnessConversationPhase'
 import {
     applyHomeHarnessEvent,
     createHomeHarnessProjectionState,
@@ -50,7 +53,7 @@ export interface ChatMessage {
     id: number | string
     role: 'user' | 'assistant' | 'tool'
     content: string | null
-    attachments?: Record<string, any>[]
+    attachments?: Record<string, unknown>[]
     baseFileVersions?: NonNullable<SendMessageRequest['base_file_versions']>
     toolCalls?: ToolCallInfo[]
     blocks?: MessageBlock[]
@@ -80,7 +83,7 @@ export interface MessageBlock {
     userVisible?: boolean
     debugOnly?: boolean
     uiKind: string
-    payload: Record<string, any>
+    payload: Record<string, unknown>
     renderKey?: string
     taskId?: string
     label?: string
@@ -651,7 +654,7 @@ export function buildHarnessUiMessages(rawMessages: HarnessMessageLike[]): ChatM
 
     rawMessages.forEach((message, index) => {
         const metadata = (message.metadata || {}) as Record<string, unknown>
-        const renderBlocks = normalizeBlocks((message as Record<string, any>).blocks)
+        const renderBlocks = normalizeBlocks(message.blocks)
         const isRenderOnly = Boolean(metadata.render_only)
         const isExcludedFromHistory = Boolean(metadata.exclude_from_history)
         const isInternalOnly = String(metadata.message_kind || '') === 'internal_model_prompt'
@@ -911,8 +914,8 @@ function getHomepageMediaArtifactKey(block: MessageBlock): string | null {
     const artifactRef = String(
         block.payload.artifactRef
         ?? block.payload.artifact_ref
-        ?? block.payload.result?.artifactRef
-        ?? block.payload.result?.artifact_ref
+        ?? wireRecord(block.payload.result)?.artifactRef
+        ?? wireRecord(block.payload.result)?.artifact_ref
         ?? '',
     ).trim()
     if (artifactRef) {
@@ -933,8 +936,8 @@ function getHomepageMediaArtifactKey(block: MessageBlock): string | null {
         block.taskId
         ?? block.payload.taskId
         ?? block.payload.task_id
-        ?? block.payload.result?.taskId
-        ?? block.payload.result?.task_id
+        ?? wireRecord(block.payload.result)?.taskId
+        ?? wireRecord(block.payload.result)?.task_id
         ?? '',
     ).trim()
     return taskId ? `task:${taskId}` : null
@@ -1306,7 +1309,7 @@ export function buildConversationMetaOverridesFromEvent(
 
     if (eventType === 'turn_started') {
         const activity = typeof event.data.activity === 'string' ? event.data.activity : session.runtimeState?.activity ?? null
-        overrides.phase = typeof event.data.phase === 'string' ? event.data.phase as any : existing?.phase
+        overrides.phase = isHarnessConversationPhase(event.data.phase) ? event.data.phase : existing?.phase
         overrides.runtime_status = 'running'
         overrides.run_state = typeof event.data.run_state === 'string'
             ? event.data.run_state
@@ -1324,9 +1327,7 @@ export function buildConversationMetaOverridesFromEvent(
             : existing?.turn_route ?? null
     } else if (eventType === 'turn_completed') {
         const status = String(event.data.status || 'completed') as HarnessConversationRead['runtime_status']
-        const error = event.data.error && typeof event.data.error === 'object'
-            ? event.data.error as Record<string, unknown>
-            : null
+        const error = normalizeFailureRead(event.data.error)
         const runtimeSnapshot = event.data.runtime_snapshot && typeof event.data.runtime_snapshot === 'object'
             ? event.data.runtime_snapshot as Record<string, unknown>
             : {}
@@ -1345,13 +1346,16 @@ export function buildConversationMetaOverridesFromEvent(
         overrides.last_error_summary = error?.summary ? String(error.summary) : null
         overrides.recovery_summary = status === 'completed' ? null : existing?.recovery_summary ?? null
         overrides.runtime_state = {
+            conversation_id: String(existing?.id ?? event.data.conversation_id ?? ''),
+            phase: existing?.phase ?? 'discovery',
+            run_status: status,
             ...(existingRuntimeState || {}),
             ...runtimeSnapshot,
             run_state: status,
             runtime_status: status,
             activity: status,
             failure: error,
-        } as any
+        }
     }
 
     return overrides

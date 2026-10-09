@@ -9,6 +9,9 @@ export type CanvasCamera = {
   zoom: number
 }
 
+export type CanvasCameraView = Partial<Pick<ReturnType<typeof useCanvasCamera>,
+  'getCamera' | 'getCommittedCamera' | 'subscribe'>>
+
 type CameraUpdate = Partial<CanvasCamera> & {
   offset?: { x: number; y: number }
 }

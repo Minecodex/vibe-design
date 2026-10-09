@@ -1,3 +1,4 @@
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useAppConfigStore } from '@/store/appConfigStore'
@@ -11,7 +12,7 @@ vi.mock('sonner', () => ({
   },
 }))
 
-const t = ((key: string, values?: Record<string, string>) => `${key}:${values?.maxSize ?? ''}`) as any
+const t = createTranslationFixture({"upload.file_too_large":"upload.file_too_large:{{maxSize}}"})
 
 describe('validateUploadFileSize', () => {
   beforeEach(() => {

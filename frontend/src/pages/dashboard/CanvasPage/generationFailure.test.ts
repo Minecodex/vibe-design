@@ -14,7 +14,7 @@ describe('generationFailure helpers', () => {
       type: 'image_generator',
       status: 'failed',
       task_id: 42,
-    } as any)).toBe(true)
+    })).toBe(true)
   })
 
   it('classifies failed items without a generation task as internal failures', () => {
@@ -23,12 +23,12 @@ describe('generationFailure helpers', () => {
       type: 'video_generator',
       status: 'failed',
       task_id: undefined,
-    } as any)).toBe(true)
+    })).toBe(true)
     expect(isRetryableFailedGenerationItem({
       type: 'video_generator',
       status: 'failed',
       task_id: undefined,
-    } as any)).toBe(false)
+    })).toBe(false)
   })
 
   it('keeps harness artifact failures generating while automatic retries remain', () => {

@@ -1,3 +1,5 @@
+import { wireRecord } from '@/store/harnessWireFields'
+import { errorName, errorMessage } from '@/utils/apiErrors'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { toast } from 'sonner'
@@ -171,7 +173,7 @@ function preserveSubmittedInteractionAfterSnapshot(
 ): Pick<HomeHarnessProjectionState, 'messages' | 'userInteraction'> {
     const requestId = String(
         snapshotProjection.userInteraction?.request_id
-        || (snapshotProjection.userInteraction as any)?.requestId
+        || (snapshotProjection.userInteraction)?.requestId
         || '',
     ).trim()
     const requestIds = requestId ? [requestId] : findPendingInteractionRequestIds(incomingMessages)
@@ -565,8 +567,8 @@ function applyToolCallUpdatesToBlock(
     const incomingTaskId = updates.result?.task_id ?? updates.result?.taskId
     const blockTaskId = (
         block.payload.taskId
-        ?? block.payload.result?.task_id
-        ?? block.payload.result?.taskId
+        ?? wireRecord(block.payload.result)?.task_id
+        ?? wireRecord(block.payload.result)?.taskId
     )
     const taskIdMatches = incomingTaskId == null || blockTaskId == null || incomingTaskId === blockTaskId
     const isMatchingCall = blockCallId === callId && taskIdMatches
@@ -582,15 +584,15 @@ function applyToolCallUpdatesToBlock(
 
     if (nextResult) {
         nextPayload.result = nextResult
-        nextPayload.progress = nextResult.progress ?? nextPayload.progress
-        nextPayload.status = nextResult.status ?? nextPayload.status
-        nextPayload.taskId = nextResult.task_id ?? nextResult.taskId ?? nextPayload.taskId
-        nextPayload.previewUrl = nextResult.preview_url ?? nextResult.previewUrl ?? nextPayload.previewUrl
-        nextPayload.resultUrl = nextResult.result_url ?? nextResult.resultUrl ?? nextPayload.resultUrl
+        nextPayload.progress = wireRecord(nextResult)?.progress ?? nextPayload.progress
+        nextPayload.status = wireRecord(nextResult)?.status ?? nextPayload.status
+        nextPayload.taskId = wireRecord(nextResult)?.task_id ?? wireRecord(nextResult)?.taskId ?? nextPayload.taskId
+        nextPayload.previewUrl = wireRecord(nextResult)?.preview_url ?? wireRecord(nextResult)?.previewUrl ?? nextPayload.previewUrl
+        nextPayload.resultUrl = wireRecord(nextResult)?.result_url ?? wireRecord(nextResult)?.resultUrl ?? nextPayload.resultUrl
         nextPayload.errorMessage = (
-            nextResult.error_message
-            ?? nextResult.errorMessage
-            ?? nextResult.error
+            wireRecord(nextResult)?.error_message
+            ?? wireRecord(nextResult)?.errorMessage
+            ?? wireRecord(nextResult)?.error
             ?? nextPayload.errorMessage
         )
     }
@@ -741,8 +743,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 let detail: HarnessConversationDetailRead | null = null
                 try {
                     detail = await fetchHarnessConversationDetailSnapshot(targetId, detailAbortController.signal)
-                } catch (error: any) {
-                    if (error?.name === 'CanceledError' || error?.name === 'AbortError') {
+                } catch (error) {
+                    if (errorName(error) === 'CanceledError' || errorName(error) === 'AbortError') {
                         return
                     }
                     throw error
@@ -953,15 +955,15 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError' && isActiveHarnessSend(get, targetConversationId, abortController)) {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError' && isActiveHarnessSend(get, targetConversationId, abortController)) {
                         sendError = err
                         set((s) => applyConversationSessionUpdate(s, targetConversationId, (session) => ({
                             ...session,
                             messages: [...session.messages, {
                                 id: `error-${Date.now()}`,
                                 role: 'assistant',
-                                content: `Error: ${err.message}`,
+                                content: `Error: ${errorMessage(err)}`,
                                 createdAt: new Date().toISOString(),
                             }],
                         })))
@@ -1172,8 +1174,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Agent resume error:', err)
                     }
@@ -1284,8 +1286,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err?.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Plan execution error:', err)
                     }
@@ -1355,8 +1357,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err?.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Plan revision error:', err)
                     }
@@ -1812,7 +1814,7 @@ function handleAgentEventV2(
 }
 
 function getDurableEventSequence(event: AgentEvent): number | null {
-    if ((event as any).transient === true) {
+    if (('transient' in event && event.transient) === true) {
         return null
     }
     const sequence = typeof event.sequence === 'number' ? event.sequence : null
@@ -1901,11 +1903,11 @@ function durableRuntimeEventKey(
     event: AgentEvent,
     durableSequence: number | null,
 ): string | null {
-    const eventId = String((event as Record<string, any>).event_id ?? '').trim()
+    const eventId = String(('event_id' in event ? event.event_id : undefined) ?? '').trim()
     if (eventId) {
         return `event:${eventId}`
     }
-    const idempotencyKey = String((event as Record<string, any>).idempotency_key ?? '').trim()
+    const idempotencyKey = String(('idempotency_key' in event ? event.idempotency_key : undefined) ?? '').trim()
     if (idempotencyKey) {
         return `idempotency:${idempotencyKey}`
     }

@@ -36,7 +36,7 @@ export interface MessageBlock {
     status: string
     visible: boolean
     uiKind: string
-    payload: Record<string, any>
+    payload: Record<string, unknown>
     renderKey?: string
     messageId?: string
     taskId?: string
@@ -52,7 +52,7 @@ export interface ToolCallInfo {
     callId: string
     name: string
     args: Record<string, unknown>
-    result?: Record<string, any>
+    result?: Record<string, unknown>
     error?: string
     status: 'pending' | 'running' | 'completed' | 'failed'
     /** Incremental streaming text for tools that support streaming (e.g., image analysis) */
@@ -86,7 +86,7 @@ export const CANVAS_MENSWEAR_ECOMMERCE_HERO_SKILL_ID = 'menswear-ecommerce-hero'
 export const LEGACY_CANVAS_PRODUCT_HERO_SKILL_ID = 'product-hero'
 export const FALLBACK_CANVAS_EXPLICIT_SKILL_IDS = ['brand_strategy_architect', 'logo', CANVAS_MENSWEAR_ECOMMERCE_HERO_SKILL_ID, 'vi-design-guide']
 
-export function normalizeCanvasSkillIdAlias(skillId: string | null | undefined): string {
+export function normalizeCanvasSkillIdAlias(skillId: unknown): string {
     const normalized = String(skillId || '').trim()
     return normalized === LEGACY_CANVAS_PRODUCT_HERO_SKILL_ID
         ? CANVAS_MENSWEAR_ECOMMERCE_HERO_SKILL_ID
@@ -168,7 +168,7 @@ export function shouldOmitCanvasReplayMessage(message: HarnessMessageLike): bool
     )
 }
 
-export function resolvePersistedCanvasMessageSkillId(metadata: Record<string, any> | null | undefined): string | null {
+export function resolvePersistedCanvasMessageSkillId(metadata: Record<string, unknown> | null | undefined): string | null {
     if (!metadata || typeof metadata !== 'object') {
         return null
     }

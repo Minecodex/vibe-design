@@ -67,7 +67,7 @@ export function isTurnStartedEvent(event: Pick<AgentEvent, 'type'> | null | unde
   return event?.type === 'turn_started'
 }
 
-export function isTurnCompletedEvent(event: Pick<AgentEvent, 'type'> | null | undefined): event is AgentEvent & { type: 'turn_completed' } {
+export function isTurnCompletedEvent(event: { type?: unknown } | null | undefined): event is AgentEvent & { type: 'turn_completed' } {
   return event?.type === 'turn_completed'
 }
 

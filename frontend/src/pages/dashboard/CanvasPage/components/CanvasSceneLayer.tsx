@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
 import type { RefObject } from 'react'
-import type { useCanvasCamera } from '../hooks/useCanvasCamera'
+import type { CanvasCameraView } from '../hooks/useCanvasCamera'
 
 import type { CanvasItem } from '@/api/endpoints/projects'
 
@@ -181,7 +181,7 @@ function getSceneRect(item: CanvasItem, args: {
 
 type CanvasSceneLayerProps = Omit<Parameters<typeof getVisibleCanvasSceneItems>[0], 'viewport'> & {
   canvasRef: RefObject<HTMLElement>
-  canvasCamera?: ReturnType<typeof useCanvasCamera>
+  canvasCamera?: CanvasCameraView
   isDark: boolean
   onReadyChange?: (ready: boolean) => void
 }
@@ -217,7 +217,7 @@ export const CanvasSceneLayer = React.memo(function CanvasSceneLayer(props: Canv
       const canvas = sceneCanvasRef.current
       if (!canvas) return
 
-      const committedCamera = canvasCamera.getCommittedCamera()
+      const committedCamera = canvasCamera.getCommittedCamera?.() ?? { zoom, offset }
       const committedScale = committedCamera.zoom / 100
       const nextScale = camera.zoom / 100
       const scaleRatio = committedScale > 0 ? nextScale / committedScale : 1
@@ -227,7 +227,7 @@ export const CanvasSceneLayer = React.memo(function CanvasSceneLayer(props: Canv
       canvas.style.transformOrigin = '0 0'
       canvas.style.willChange = 'transform'
     })
-  }, [canvasCamera])
+  }, [canvasCamera, offset, zoom])
 
   useLayoutEffect(() => {
     const element = canvasRef?.current || sceneCanvasRef.current?.parentElement

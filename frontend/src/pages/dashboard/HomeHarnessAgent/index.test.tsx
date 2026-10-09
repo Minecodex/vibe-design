@@ -31,7 +31,7 @@ describe('ChatHomePage', () => {
       role: 'assistant',
       content: 'Latest response',
       createdAt: '2026-06-02T14:00:00Z',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -90,7 +90,7 @@ describe('ChatHomePage', () => {
     user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
     storeState.messages = [{
       id: 'assistant-plan',
       role: 'assistant',
@@ -113,7 +113,7 @@ describe('ChatHomePage', () => {
           ],
         },
       }],
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -129,7 +129,7 @@ describe('ChatHomePage', () => {
   })
 
   it('shows open-design lint warnings from the published artifact manifest', () => {
-    (storeState as any).runtimeState = {
+    (storeState).runtimeState = {
       artifact_manifest: {
         title: 'Landing',
         kind: 'html',
@@ -186,7 +186,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -222,7 +222,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -256,7 +256,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -295,7 +295,7 @@ describe('ChatHomePage', () => {
     })
 
     storeState.newChat.mockImplementation(() => {
-      storeState.conversationId = null as any
+      storeState.conversationId = null
       storeState.messages = []
       storeState.conversations = []
     })

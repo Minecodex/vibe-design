@@ -724,6 +724,8 @@ type AgentRuntimeEventType =
 
 export interface AgentEvent {
     type: AgentRuntimeEventType | PresentationEventType
+    transient?: boolean
+    payload?: Record<string, unknown>
     lane?: 'user' | 'internal'
     sequence?: number
     event_id?: number | string | null

@@ -1,3 +1,4 @@
+import type { InteractionSchema } from '@/api/endpoints/agent'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const createConversationMock = vi.fn()
@@ -42,8 +43,8 @@ function presentationComplete(
   sequence: number,
   blockKey: string,
   text: string,
-  options: Record<string, any> = {},
-): any {
+  options: Record<string, unknown> = {},
+): unknown {
   const runId = String(options.run_id || 'run-canvas')
   const messageKey = String(options.message_key || `message:${runId}`)
   const uiKind = String(options.ui_kind || 'text')
@@ -127,7 +128,7 @@ describe('canvasAgentStore respondToAgent', () => {
       activeSkillId: 'logo',
       modelPreferences: { auto: false },
       webSearchEnabled: false,
-    } as any)
+    })
 
     await useChatStore.getState().createConversation(88, 'logo')
 
@@ -172,7 +173,7 @@ describe('canvasAgentStore respondToAgent', () => {
       activeSkillId: null,
       modelPreferences: { auto: false },
       webSearchEnabled: false,
-    } as any)
+    })
 
     await useChatStore.getState().createConversation(88)
 
@@ -218,7 +219,7 @@ describe('canvasAgentStore respondToAgent', () => {
       modelPreferences: { auto: false },
       webSearchEnabled: false,
       messages: [],
-    } as any)
+    })
 
     await useChatStore.getState().sendMessage('帮我创建一个猴子的图片')
 
@@ -359,7 +360,7 @@ describe('canvasAgentStore respondToAgent', () => {
         kind: 'ask_user',
         status: 'pending',
       },
-    } as any)
+    })
 
     await useChatStore.getState().respondToAgent('req-dup', 'new_brand', displayLabel)
 
@@ -442,7 +443,7 @@ describe('canvasAgentStore respondToAgent', () => {
           ],
         },
       ],
-    } as any)
+    })
 
     const submittedAnswers = {
       direction: {
@@ -484,7 +485,7 @@ describe('canvasAgentStore respondToAgent', () => {
   it('keeps submitted interaction_form answers when the resume stream replays the same pending card', async () => {
     const { useChatStore } = await import('./canvasAgentStore')
 
-    const schema = {
+    const schema: InteractionSchema = {
       title: '鹦鹉咖啡｜品牌基础信息',
       fields: [
         {
@@ -586,7 +587,7 @@ describe('canvasAgentStore respondToAgent', () => {
         answers: null,
         status: 'pending',
       },
-    } as any)
+    })
 
     await useChatStore.getState().respondToAgent(
       'call_canvas_ask_user',
@@ -706,7 +707,7 @@ describe('canvasAgentStore respondToAgent', () => {
       streamingBlocks: [],
       currentToolCalls: [],
       isStreaming: false,
-    } as any)
+    })
 
     const respondPromise = useChatStore.getState().respondToAgent(
       'req-media-1',

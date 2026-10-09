@@ -1,5 +1,5 @@
 import type { ChatMessage as CanvasChatMessage, MessageBlock as CanvasMessageBlock } from '../canvasAgentTypes'
-import type { OutlineRuntimeRead, PlanningDraftRead, UserPlanRead } from '@/api/endpoints/agent'
+import type { OutlineRuntimeRead, PlanningDraftRead, UserPlanRead, HarnessRuntimeStateRead } from '@/api/endpoints/agent'
 
 export type ProjectionChatMessage = CanvasChatMessage
 export type ProjectionMessageBlock = CanvasMessageBlock
@@ -22,5 +22,5 @@ export interface ProjectionSessionLike {
   planningDraft?: PlanningDraftRead | null
   activeUserPlan?: UserPlanRead | null
   outlineRuntime?: OutlineRuntimeRead | null
-  runtimeState?: Record<string, any> | null
+  runtimeState?: Partial<HarnessRuntimeStateRead> | null
 }

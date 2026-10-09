@@ -1,4 +1,5 @@
-import type { OutlineRuntimeRead, PlanningDraftRead, UserPlanRead } from '@/api/endpoints/agent'
+import { wireRecord, wireString, wireNullableString } from '../harnessWireFields'
+import type { OutlineRuntimeRead, PlanningDraftRead, UserPlanRead, UserPlanOutlineItemRead } from '@/api/endpoints/agent'
 import { EMPTY_MESSAGE_BLOCKS } from '../canvasAgentTypes'
 import type { PresentationOpEvent, ProjectionChatMessage, ProjectionMessageBlock, ProjectionSessionLike } from './types'
 import {
@@ -83,24 +84,25 @@ function applyPresentationStateProjection<T extends ProjectionSessionLike>(
 }
 
 function normalizeOp(event: PresentationOpEvent) {
-  const data = (event.data && typeof event.data === 'object' ? event.data : event.payload || {}) as Record<string, any>
+  const data = (event.data && typeof event.data === 'object' ? event.data : event.payload || {}) as Record<string, unknown>
+  const block = wireRecord(data.block) || {}
   const sourceSequence = getPresentationSourceSequence(event) ?? 0
   const messageKey = String(data.message_key || data.messageKey || `message:${event.run_id || 'default'}`)
-  const blockKey = String(data.block_key || data.blockKey || data.block?.block_key || data.block?.id || `block:${sourceSequence}`)
-  const status = String(data.status || data.block?.status || 'running')
+  const blockKey = String(data.block_key || data.blockKey || block.block_key || block.id || `block:${sourceSequence}`)
+  const status = String(data.status || block.status || 'running')
   return {
     type: event.type,
     messageKey,
     blockKey,
-    parentBlockKey: data.parent_block_key || data.parentBlockKey || null,
+    parentBlockKey: wireNullableString(data.parent_block_key || data.parentBlockKey),
     role: normalizeRole(data.role),
     status,
     content: typeof data.content === 'string' ? data.content : null,
-    order: Number(data.order ?? data.block?.order ?? 0) || 0,
+    order: Number(data.order ?? block.order ?? 0) || 0,
     payload: data.payload && typeof data.payload === 'object' ? data.payload as Record<string, unknown> : {},
-    block: normalizeBlock(data.block && typeof data.block === 'object' ? data.block : data, blockKey, sourceSequence, status),
+    block: normalizeBlock(wireRecord(data.block) || data, blockKey, sourceSequence, status),
     sourceSequence,
-    revision: Number(data.revision ?? data.block?.revision ?? sourceSequence) || sourceSequence,
+    revision: Number(data.revision ?? block.revision ?? sourceSequence) || sourceSequence,
     requiresExistingMessage: Boolean(data.requires_existing_message ?? data.requiresExistingMessage),
   }
 }
@@ -109,7 +111,7 @@ function normalizeRole(role: unknown): ProjectionChatMessage['role'] {
   return role === 'user' || role === 'tool' ? role : 'assistant'
 }
 
-function normalizeBlock(source: Record<string, any>, blockKey: string, sourceSequence: number, status: string): ProjectionMessageBlock {
+function normalizeBlock(source: Record<string, unknown>, blockKey: string, sourceSequence: number, status: string): ProjectionMessageBlock {
   const payload = source.payload && typeof source.payload === 'object' ? source.payload as Record<string, unknown> : {}
   const uiKind = String(source.uiKind || source.ui_kind || payload.uiKind || payload.ui_kind || 'text')
   const kind = normalizeBlockKind(source.kind, uiKind)
@@ -126,10 +128,10 @@ function normalizeBlock(source: Record<string, any>, blockKey: string, sourceSeq
     visible: source.visible !== false,
     uiKind,
     payload,
-    renderKey: source.renderKey || source.render_key,
-    taskId: source.taskId || source.task_id || payload.taskId || payload.task_id,
-    label: source.label || payload.label,
-    summary: source.summary || payload.summary,
+    renderKey: wireString(source.renderKey || source.render_key),
+    taskId: wireString(source.taskId || source.task_id || payload.taskId || payload.task_id),
+    label: wireString(source.label || payload.label),
+    summary: wireString(source.summary || payload.summary),
     expanded: typeof source.expanded === 'boolean' ? source.expanded : undefined,
     children,
     revision: normalizePositiveNumber(source.revision ?? payload.revision) ?? sourceSequence,
@@ -233,8 +235,8 @@ function findOptimisticUserMessageIndex(
       continue
     }
     if (submissionRequestId) {
-      const messageRequestId = optimisticSubmissionRequestId((message as Record<string, any>).metadata)
-        || optimisticSubmissionRequestId((message as Record<string, any>).payload?.metadata)
+      const messageRequestId = optimisticSubmissionRequestId(message.metadata)
+        || optimisticSubmissionRequestId(wireRecord('payload' in message ? message.payload : undefined)?.metadata)
       if (messageRequestId !== submissionRequestId) {
         continue
       }
@@ -244,9 +246,8 @@ function findOptimisticUserMessageIndex(
     if (!areEquivalentMessageAttachments(message.attachments ?? [], attachments ?? [])) {
       continue
     }
-    const messageBaseFileVersions = Array.isArray((message as Record<string, any>).baseFileVersions)
-      ? (message as Record<string, any>).baseFileVersions
-      : []
+    const rawBaseFileVersions = 'baseFileVersions' in message ? message.baseFileVersions : undefined
+    const messageBaseFileVersions = Array.isArray(rawBaseFileVersions) ? rawBaseFileVersions : []
     if (!areEquivalentJsonValues(messageBaseFileVersions, baseFileVersions)) {
       continue
     }
@@ -512,7 +513,7 @@ function applyBlockDelta(blocks: ProjectionMessageBlock[], op: ReturnType<typeof
   const delta = String(op.payload.delta || '')
   const nextPayload = { ...existing.payload }
   if (field === 'content' || field === 'text') {
-    nextPayload.text = `${nextPayload.text || (existing as any).content || ''}${delta}`
+    nextPayload.text = `${nextPayload.text || ('content' in existing && existing.content) || ''}${delta}`
   } else {
     nextPayload[field] = `${nextPayload[field] || ''}${delta}`
   }
@@ -555,7 +556,7 @@ function compareBlocks(left: ProjectionMessageBlock, right: ProjectionMessageBlo
   return left.order - right.order
 }
 
-function planningDraftFromPayload(payload: Record<string, any>): PlanningDraftRead | null {
+function planningDraftFromPayload(payload: Record<string, unknown>): PlanningDraftRead | null {
   const draftOutline = normalizeOutlineItems(payload.draft_outline ?? payload.draftOutline)
   const summary = String(payload.summary ?? '').trim()
   if (!summary && draftOutline.length === 0) {
@@ -567,11 +568,11 @@ function planningDraftFromPayload(payload: Record<string, any>): PlanningDraftRe
     assumptions: normalizeStringArray(payload.assumptions),
     draft_outline: draftOutline,
     open_questions: normalizeStringArray(payload.open_questions ?? payload.openQuestions),
-    updated_at: payload.updated_at ?? payload.updatedAt ?? null,
+    updated_at: wireNullableString(payload.updated_at ?? payload.updatedAt ?? null),
   }
 }
 
-function userPlanFromPayload(payload: Record<string, any>): UserPlanRead | null {
+function userPlanFromPayload(payload: Record<string, unknown>): UserPlanRead | null {
   const outlineState = normalizePlainObject(payload.outline_state ?? payload.outlineState)
   const projectionState = normalizePlainObject(payload.projection_state ?? payload.projectionState)
   const executionState = normalizePlainObject(payload.execution_state ?? payload.executionState)
@@ -615,14 +616,14 @@ function userPlanFromPayload(payload: Record<string, any>): UserPlanRead | null 
     status,
     plan_instance_id: planInstanceId || null,
     snapshot_status: snapshotStatus,
-    progress_message: payload.progress_message ?? payload.progressMessage ?? outlineState?.progress_message ?? null,
+    progress_message: wireNullableString(payload.progress_message ?? payload.progressMessage ?? outlineState?.progress_message ?? null),
     items,
     outline: outline.length ? outline : items,
     constraints: normalizeStringArray(payload.constraints ?? outlineState?.constraints),
     style_notes: normalizeStringArray(payload.style_notes ?? payload.styleNotes ?? outlineState?.style_notes),
-    file_path: payload.file_path ?? payload.filePath ?? outlineState?.file_path ?? null,
-    file_name: payload.file_name ?? payload.fileName ?? outlineState?.file_name ?? null,
-    outline_id: payload.outline_id ?? payload.outlineId ?? outlineState?.outline_id ?? projectionState?.outline_id ?? null,
+    file_path: wireNullableString(payload.file_path ?? payload.filePath ?? outlineState?.file_path ?? null),
+    file_name: wireNullableString(payload.file_name ?? payload.fileName ?? outlineState?.file_name ?? null),
+    outline_id: wireNullableString(payload.outline_id ?? payload.outlineId ?? outlineState?.outline_id ?? projectionState?.outline_id ?? null),
     version: outlineVersion,
     readonly: Boolean(payload.readonly || outlineState?.readonly || projectionState?.readonly),
     outline_state: outlineState,
@@ -662,12 +663,18 @@ function normalizeStringArray(value: unknown): string[] {
     : []
 }
 
-function normalizeOutlineItems(value: unknown): any[] {
-  return Array.isArray(value)
-    ? value
-      .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-      .map((item) => ({ ...item }))
-    : []
+function isOutlineItem(item: Record<string, unknown>): item is Record<string, unknown> & UserPlanOutlineItemRead {
+  return typeof item.title === 'string'
+    && ['id', 'summary', 'description', 'file_path', 'file_name'].every(key => item[key] == null || typeof item[key] === 'string')
+    && (item.order == null || typeof item.order === 'number')
+    && (item.artifact_ref == null || !!wireRecord(item.artifact_ref))
+}
+
+function normalizeOutlineItems(value: unknown): UserPlanOutlineItemRead[] {
+  return Array.isArray(value) ? value.flatMap(value => {
+    const item = wireRecord(value)
+    return item && isOutlineItem(item) ? [{ ...item }] : []
+  }) : []
 }
 
 function extractText(blocks: ProjectionMessageBlock[]): string | null {
@@ -701,9 +708,9 @@ function hasToolIdentity(block: ProjectionMessageBlock): boolean {
     block.payload?.toolName,
     block.payload?.call_id,
     block.payload?.callId,
-    (block as Record<string, any>).tool,
-    (block as Record<string, any>).tool_name,
-    (block as Record<string, any>).toolName,
+    ('tool' in block ? block.tool : undefined),
+    ('tool_name' in block ? block.tool_name : undefined),
+    ('toolName' in block ? block.toolName : undefined),
   ].some((value) => String(value || '').trim())
 }
 

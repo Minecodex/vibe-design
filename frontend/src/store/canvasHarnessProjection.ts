@@ -29,13 +29,13 @@ import {
 import type { ConversationSessionState } from './canvasAgentSession'
 
 export function normalizePendingInteraction(
-    raw: Record<string, any> | PendingInteraction | null | undefined,
+    raw: Record<string, unknown> | PendingInteraction | null | undefined,
 ): PendingInteraction | null {
     if (!raw || typeof raw !== 'object') {
         return null
     }
 
-    const source = raw as Record<string, any>
+    const source = raw as Record<string, unknown>
 
     const kind = source.kind ? String(source.kind) : undefined
     const question = String(
@@ -70,7 +70,7 @@ export function normalizePendingInteraction(
                 }],
             },
         answers: source.answers && typeof source.answers === 'object'
-            ? source.answers as Record<string, any>
+            ? source.answers as Record<string, unknown>
             : null,
         status: String(source.status || 'pending') === 'submitted' ? 'submitted' : 'pending',
     }
@@ -82,7 +82,7 @@ export function buildHarnessUiMessages(rawMessages: HarnessMessageLike[]): ChatM
 
 export function applySubmittedInteractionMetadataToMessages(
     messages: ChatMessage[],
-    metadata: Record<string, any>,
+    metadata: Record<string, unknown>,
 ): ChatMessage[] {
     const requestId = String(metadata.request_id || metadata.requestId || '').trim()
     if (!requestId) {
@@ -92,7 +92,7 @@ export function applySubmittedInteractionMetadataToMessages(
     const submittedLabel = String(metadata.display_label || metadata.displayLabel || metadata.answer || '').trim()
     const submittedAnswer = String(metadata.answer || '').trim()
     const answers = metadata.answers && typeof metadata.answers === 'object' && !Array.isArray(metadata.answers)
-        ? metadata.answers as Record<string, any>
+        ? metadata.answers as Record<string, unknown>
         : null
 
     return messages.map((message) => {
@@ -166,8 +166,8 @@ export function buildHarnessUiMessagesForConversation(
             return
         }
 
-        const metadata = (message.metadata || {}) as Record<string, any>
-        const renderBlocks = normalizeBlocks((message as Record<string, any>).blocks)
+        const metadata = (message.metadata || {}) as Record<string, unknown>
+        const renderBlocks = normalizeBlocks(message.blocks)
         const isRenderOnly = Boolean(metadata.render_only)
         const createdAt = message.created_at || new Date().toISOString()
         const messageId = message.id || `msg-${index}`
@@ -243,7 +243,7 @@ export function buildHarnessUiMessagesForConversation(
 export type HarnessConversationSnapshotDetail = HarnessConversationDetailRead
 
 export function resolveHarnessRuntimeInteraction(detail: HarnessConversationSnapshotDetail): PendingInteraction | null {
-    return normalizePendingInteraction(resolveHarnessPendingInteraction(detail) as Record<string, any> | null)
+    return normalizePendingInteraction(resolveHarnessPendingInteraction(detail) as Record<string, unknown> | null)
 }
 
 export function buildCanvasHarnessProjectionFromSnapshot(

@@ -1,3 +1,4 @@
+
 export type GenerationProjectionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'retrying'
 
 export type GenerationProjectionUpdate = {
@@ -213,7 +214,7 @@ export function applyGenerationProjectionUpdate(
   return { state: nextState }
 }
 
-export function normalizeGenerationProjectionStatus(status: GenerationProjectionUpdate['status']): GenerationProjectionStatus | null {
+export function normalizeGenerationProjectionStatus(status: unknown): GenerationProjectionStatus | null {
   const normalized = String(status || '').trim().toLowerCase()
   if (normalized === 'queued' || normalized === 'running') return 'processing'
   if (normalized === 'pending' || normalized === 'processing' || normalized === 'completed' || normalized === 'failed' || normalized === 'retrying') {
@@ -234,8 +235,8 @@ export function isTerminalGenerationProjectionStatus(status: GenerationProjectio
   return status === 'completed' || status === 'failed'
 }
 
-function pickFirst(...values: unknown[]): any {
-  return values.find((value) => value != null && value !== '')
+function pickFirst(...values: unknown[]): string | number | undefined {
+  return values.find((value): value is string | number => (typeof value === 'string' || typeof value === 'number') && value !== '')
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

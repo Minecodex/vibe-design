@@ -2,7 +2,8 @@ import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { providersApi } from '@/api/endpoints/providers'
-import type { ModelRead, ModelOption } from '@/api/endpoints/providers'
+import type { ModelOption } from '@/api/endpoints/providers'
+import type { ProviderModelView } from './providerModelView'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -25,7 +26,7 @@ const LOGO_MAP: Record<string, string> = {
 
 type ModelType = 'all' | 'text2image' | 'text2video' | 'multimodal'
 
-interface FlatModel extends ModelRead {
+interface FlatModel extends ProviderModelView {
   provider_name: string
   logo_url: string
   pricing_items: { label: string }[] | null
@@ -64,7 +65,7 @@ export function ProvidersPage() {
         .map(async (p) => {
           try {
             const mRes = await providersApi.listModels(p.code)
-            let models = mRes.data
+            let models: ProviderModelView[] = mRes.data
             
             // Build-in provider fallback logic
             const regEntry = registryData[p.code]
@@ -96,7 +97,7 @@ export function ProvidersPage() {
                 credential_id: 1,
                 endpoint: null
               })) || []
-              models = [...text2image, ...text2video, ...multimodal] as any
+              models = [...text2image, ...text2video, ...multimodal]
             }
 
             // Map pricing

@@ -1196,13 +1196,14 @@ describe('HomeHarnessMessageList', () => {
             artifact_type: 'ppt',
             title: '设计行业洞察',
             summary: '四页演示文稿',
+            status: 'planning_ready',
             items: [
-              { id: 'slide-1', title: '封面', summary: '主题与一句话定位', order: 1, status: 'pending' },
-              { id: 'slide-2', title: '行业概述', summary: '市场规模与细分领域', order: 2, status: 'pending' },
+              { id: 'slide-1', title: '封面', summary: '主题与一句话定位', order: 1 },
+              { id: 'slide-2', title: '行业概述', summary: '市场规模与细分领域', order: 2 },
             ],
             constraints: [],
             style_notes: [],
-          } as any,
+          },
           last_revision: null,
         }}
       userInteraction={null}
@@ -1271,12 +1272,13 @@ describe('HomeHarnessMessageList', () => {
             artifact_type: 'ppt',
             title: '设计行业洞察',
             summary: '四页演示文稿',
+            status: 'planning_ready',
             items: [
-              { id: 'slide-1', title: '封面', summary: '主题与一句话定位', order: 1, status: 'pending' },
+              { id: 'slide-1', title: '封面', summary: '主题与一句话定位', order: 1 },
             ],
             constraints: [],
             style_notes: [],
-          } as any,
+          },
           last_revision: null,
         }}
       userInteraction={null}

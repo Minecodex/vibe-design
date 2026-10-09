@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { AgentEvent } from '@/api/endpoints/agent'
 import type { MessageBlock, ToolCallInfo } from './canvasAgentTypes'
 import { normalizeHarnessPayload } from './canvasAgentBlockNormalize'
@@ -13,7 +14,7 @@ export function applyToolCallUpdatesToBlock(
     const incomingTaskId = updates.result?.task_id
     const blockTaskId = (
         block.payload.task_id
-        ?? block.payload.result?.task_id
+        ?? wireRecord(block.payload.result)?.task_id
     )
     const taskIdMatches = (
         incomingTaskId == null
@@ -33,14 +34,14 @@ export function applyToolCallUpdatesToBlock(
 
     if (nextResult) {
         nextPayload.result = nextResult
-        nextPayload.progress = nextResult.progress ?? nextPayload.progress
-        nextPayload.status = nextResult.status ?? nextPayload.status
-        nextPayload.task_id = nextResult.task_id ?? nextPayload.task_id
-        nextPayload.preview_url = nextResult.preview_url ?? nextPayload.preview_url
-        nextPayload.result_url = nextResult.result_url ?? nextPayload.result_url
+        nextPayload.progress = wireRecord(nextResult)?.progress ?? nextPayload.progress
+        nextPayload.status = wireRecord(nextResult)?.status ?? nextPayload.status
+        nextPayload.task_id = wireRecord(nextResult)?.task_id ?? nextPayload.task_id
+        nextPayload.preview_url = wireRecord(nextResult)?.preview_url ?? nextPayload.preview_url
+        nextPayload.result_url = wireRecord(nextResult)?.result_url ?? nextPayload.result_url
         nextPayload.error_message = (
-            nextResult.error_message
-            ?? nextResult.error
+            wireRecord(nextResult)?.error_message
+            ?? wireRecord(nextResult)?.error
             ?? nextPayload.error_message
         )
     }

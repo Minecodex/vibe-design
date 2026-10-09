@@ -1,3 +1,4 @@
+import type { CanvasItem } from '@/api/endpoints/projects'
 export type GeneratorLibraryAsset = {
   id: number
   url: string
@@ -9,7 +10,7 @@ export type GeneratorLibraryAsset = {
 export type GeneratorLibraryTarget = 'reference' | 'first_frame' | 'tail_frame'
 
 type CanvasItemArgs = {
-  item: any
+  item: Partial<CanvasItem>
   target: GeneratorLibraryTarget
   assets: GeneratorLibraryAsset[]
   maxSelection: number

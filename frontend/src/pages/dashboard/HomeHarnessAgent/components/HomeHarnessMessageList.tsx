@@ -1,3 +1,7 @@
+import { wireString, wireId, wireNullableString } from '@/store/harnessWireFields'
+import { wireArtifact, attachmentViews } from '@/store/harnessRenderFields'
+import { normalizeInteractionSchema } from '@/api/agentWireNormalization'
+import { wireRecord } from '@/store/harnessWireFields'
 import { Fragment, memo, useCallback, useMemo, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import type { TFunction } from 'i18next'
@@ -126,7 +130,7 @@ interface HomeHarnessMessageListProps {
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => Promise<void>
   onStartExecution?: () => Promise<void>
   onRevisePlan?: (instruction: string) => Promise<void>
@@ -291,15 +295,15 @@ function normalizeStatusHistory(raw: unknown): HomeStatusHistoryItem[] {
     return []
   }
   return raw
-    .filter((item): item is Record<string, any> => !!item && typeof item === 'object')
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
     .map((item, index) => ({
       id: String(item.id || `status-${index}`),
       text: String(item.text || item.message || item.summary || '').trim(),
       status: item.status ? String(item.status) : undefined,
       toolCalls: Array.isArray(item.toolCalls || item.tool_calls)
-        ? (item.toolCalls || item.tool_calls)
-          .filter((tool: unknown): tool is Record<string, any> => !!tool && typeof tool === 'object')
-          .map((tool: Record<string, any>) => ({
+        ? (Array.isArray(item.toolCalls) ? item.toolCalls : Array.isArray(item.tool_calls) ? item.tool_calls : [])
+          .filter((tool: unknown): tool is Record<string, unknown> => !!tool && typeof tool === 'object')
+          .map((tool: Record<string, unknown>) => ({
             id: tool.id ? String(tool.id) : undefined,
             name: tool.name ? String(tool.name) : tool.tool ? String(tool.tool) : undefined,
             status: tool.status ? String(tool.status) : undefined,
@@ -385,8 +389,8 @@ function getHomepageMediaType(block: MessageBlock): string {
   return String(
     block.payload?.mediaType
     || block.payload?.media_type
-    || block.payload?.result?.mediaType
-    || block.payload?.result?.media_type
+    || wireRecord(block.payload?.result)?.mediaType
+    || wireRecord(block.payload?.result)?.media_type
     || '',
   )
 }
@@ -433,7 +437,7 @@ function extractAnalyzeImageBlockText(block: MessageBlock | undefined): string {
 function mergeGenerationMediaCardPayload(
   mediaCard: MessageBlock,
   companion: MessageBlock | undefined,
-): Record<string, any> {
+): Record<string, unknown> {
   const companionPayload = companion?.payload || {}
 
   return {
@@ -448,65 +452,65 @@ function mergeGenerationMediaCardPayload(
       ?? mediaCard.payload?.task_id
       ?? companionPayload.taskId
       ?? companionPayload.task_id
-      ?? companionPayload.result?.taskId
-      ?? companionPayload.result?.task_id,
+      ?? wireRecord(companionPayload.result)?.taskId
+      ?? wireRecord(companionPayload.result)?.task_id,
     resultUrl: mediaCard.payload?.resultUrl
       ?? mediaCard.payload?.result_url
       ?? companionPayload.resultUrl
       ?? companionPayload.result_url
-      ?? companionPayload.result?.resultUrl
-      ?? companionPayload.result?.result_url,
+      ?? wireRecord(companionPayload.result)?.resultUrl
+      ?? wireRecord(companionPayload.result)?.result_url,
     prompt: mediaCard.payload?.prompt
       ?? companionPayload.prompt
-      ?? companionPayload.result?.prompt,
+      ?? wireRecord(companionPayload.result)?.prompt,
     mediaType: mediaCard.payload?.mediaType
       ?? mediaCard.payload?.media_type
       ?? companionPayload.mediaType
       ?? companionPayload.media_type
-      ?? companionPayload.result?.mediaType
-      ?? companionPayload.result?.media_type,
+      ?? wireRecord(companionPayload.result)?.mediaType
+      ?? wireRecord(companionPayload.result)?.media_type,
     modelName: mediaCard.payload?.modelName
       ?? mediaCard.payload?.model_name
       ?? companionPayload.modelName
       ?? companionPayload.model_name
-      ?? companionPayload.result?.modelName
-      ?? companionPayload.result?.model_name,
+      ?? wireRecord(companionPayload.result)?.modelName
+      ?? wireRecord(companionPayload.result)?.model_name,
     modelLabel: mediaCard.payload?.modelLabel
       ?? mediaCard.payload?.model_label
       ?? companionPayload.modelLabel
       ?? companionPayload.model_label
-      ?? companionPayload.result?.modelLabel
-      ?? companionPayload.result?.model_label,
+      ?? wireRecord(companionPayload.result)?.modelLabel
+      ?? wireRecord(companionPayload.result)?.model_label,
     aspectRatio: mediaCard.payload?.aspectRatio
       ?? mediaCard.payload?.aspect_ratio
       ?? companionPayload.aspectRatio
       ?? companionPayload.aspect_ratio
-      ?? companionPayload.result?.aspectRatio
-      ?? companionPayload.result?.aspect_ratio,
+      ?? wireRecord(companionPayload.result)?.aspectRatio
+      ?? wireRecord(companionPayload.result)?.aspect_ratio,
     resolution: mediaCard.payload?.resolution
       ?? companionPayload.resolution
-      ?? companionPayload.result?.resolution,
+      ?? wireRecord(companionPayload.result)?.resolution,
     duration: mediaCard.payload?.duration
       ?? companionPayload.duration
-      ?? companionPayload.result?.duration,
+      ?? wireRecord(companionPayload.result)?.duration,
     quality: mediaCard.payload?.quality
       ?? companionPayload.quality
-      ?? companionPayload.result?.quality,
+      ?? wireRecord(companionPayload.result)?.quality,
     progress: mediaCard.payload?.progress
       ?? companionPayload.progress
-      ?? companionPayload.result?.progress,
+      ?? wireRecord(companionPayload.result)?.progress,
     errorMessage: mediaCard.payload?.errorMessage
       ?? mediaCard.payload?.error_message
       ?? companionPayload.errorMessage
       ?? companionPayload.error_message
-      ?? companionPayload.result?.errorMessage
-      ?? companionPayload.result?.error_message,
+      ?? wireRecord(companionPayload.result)?.errorMessage
+      ?? wireRecord(companionPayload.result)?.error_message,
     elapsedMs: mediaCard.payload?.elapsedMs
       ?? mediaCard.payload?.elapsed_ms
       ?? companionPayload.elapsedMs
       ?? companionPayload.elapsed_ms
-      ?? companionPayload.result?.elapsedMs
-      ?? companionPayload.result?.elapsed_ms,
+      ?? wireRecord(companionPayload.result)?.elapsedMs
+      ?? wireRecord(companionPayload.result)?.elapsed_ms,
   }
 }
 
@@ -547,8 +551,8 @@ function mergeHomepageMessageBlocksUncached(blocks: MessageBlock[]): MessageBloc
         const elapsedMs = Number(
           companionPanel?.payload?.elapsedMs
           ?? companionPanel?.payload?.elapsed_ms
-          ?? companionPanel?.payload?.result?.elapsedMs
-          ?? companionPanel?.payload?.result?.elapsed_ms
+          ?? wireRecord(companionPanel?.payload?.result)?.elapsedMs
+          ?? wireRecord(companionPanel?.payload?.result)?.elapsed_ms
           ?? block.payload?.elapsedMs
           ?? block.payload?.elapsed_ms
           ?? 0,
@@ -718,10 +722,10 @@ function getHomeSubagentStatusTone(status: string | undefined): 'success' | 'war
 function getSubagentType(block: MessageBlock): unknown {
   return block.payload?.subagentType
     ?? block.payload?.subagent_type
-    ?? block.payload?.result?.subagentType
-    ?? block.payload?.result?.subagent_type
-    ?? block.payload?.taskSpec?.subagentType
-    ?? block.payload?.taskSpec?.subagent_type
+    ?? wireRecord(block.payload?.result)?.subagentType
+    ?? wireRecord(block.payload?.result)?.subagent_type
+    ?? wireRecord(block.payload?.taskSpec)?.subagentType
+    ?? wireRecord(block.payload?.taskSpec)?.subagent_type
 }
 
 function isQualityReviewSubagent(block: MessageBlock): boolean {
@@ -809,7 +813,7 @@ function HomeSubagentCard({
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => Promise<void>
   hiddenToolCalls: string[]
   submittingInteractionLabels: Record<string, string>
@@ -826,7 +830,7 @@ function HomeSubagentCard({
   const childBlocks = flattenSubagentChildBlocks(Array.isArray(block.children) ? block.children : [])
   const purpose = String(
     block.payload?.purpose
-    || block.payload?.result?.purpose
+    || wireRecord(block.payload?.result)?.purpose
     || block.label
     || block.payload?.label
     || '',
@@ -834,12 +838,10 @@ function HomeSubagentCard({
   const purposeLabel = getLocalizedSubagentPurpose(t, purpose, getSubagentType(block))
   const status = String(block.payload?.status || block.status || 'running')
   const summary = String(block.summary || block.payload?.summary || '').trim()
-  const objective = String(block.payload?.objective || block.payload?.taskSpec?.objective || '').trim()
-  const targetFiles = Array.isArray(block.payload?.taskSpec?.inputs?.targetFiles)
-    ? block.payload.taskSpec.inputs.targetFiles
-    : Array.isArray(block.payload?.taskSpec?.inputs?.target_files)
-      ? block.payload.taskSpec.inputs.target_files
-      : []
+  const objective = String(block.payload?.objective || wireRecord(block.payload?.taskSpec)?.objective || '').trim()
+  const taskInputs = wireRecord(wireRecord(block.payload?.taskSpec)?.inputs)
+  const targetFiles = Array.isArray(taskInputs?.targetFiles) ? taskInputs.targetFiles
+    : Array.isArray(taskInputs?.target_files) ? taskInputs.target_files : []
   const missingInputs = Array.isArray(block.payload?.missingInputs) ? block.payload.missingInputs : []
   const mismatchedInputs = Array.isArray(block.payload?.mismatchedInputs) ? block.payload.mismatchedInputs : []
   const reasonCode = String(block.payload?.reasonCode || '').trim()
@@ -1033,21 +1035,21 @@ function isTerminalPlanStatus(status: string): boolean {
   return normalized === 'failed' || normalized === 'blocked' || normalized === 'cancelled' || normalized === 'canceled'
 }
 
-function normalizePlanOutlineItems(items: unknown): Array<Record<string, any>> {
+function normalizePlanOutlineItems(items: unknown) {
   if (!Array.isArray(items)) {
     return []
   }
   return items
-    .filter((item): item is Record<string, any> => !!item && typeof item === 'object')
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
     .map((item, index) => ({
-      id: item.id ?? `item-${index + 1}`,
+      id: wireString(item.id) ?? `item-${index + 1}`,
       title: String(item.title || ''),
-      summary: item.summary ?? item.description ?? null,
-      description: item.description ?? item.summary ?? null,
+      summary: wireNullableString(item.summary ?? item.description),
+      description: wireNullableString(item.description ?? item.summary),
       order: typeof item.order === 'number' ? item.order : index + 1,
-      file_path: item.file_path ?? item.filePath ?? null,
-      file_name: item.file_name ?? item.fileName ?? null,
-      artifact_ref: item.artifact_ref ?? item.artifactRef ?? null,
+      file_path: wireNullableString(item.file_path ?? item.filePath),
+      file_name: wireNullableString(item.file_name ?? item.fileName),
+      artifact_ref: wireRecord(item.artifact_ref ?? item.artifactRef) ?? null,
     }))
 }
 
@@ -1123,7 +1125,7 @@ function formatPlanElapsedDuration(value: unknown): string | null {
 }
 
 function buildPlanStepFailureDetail(
-  step: Record<string, any>,
+  step: Record<string, unknown>,
   conversationRuntime?: HarnessConversationRead | null,
 ): string {
   const lastTool = normalizeHomepageToolName(conversationRuntime?.last_tool)
@@ -1145,7 +1147,7 @@ function buildPlanStepFailureDetail(
 }
 
 function buildPlanStepMetaLabel(
-  step: Record<string, any>,
+  step: Record<string, unknown>,
   options: {
     displayStatus: PlanStepDisplayStatus
     conversationRuntime?: HarnessConversationRead | null
@@ -1333,7 +1335,7 @@ type HomeMessageBlockRendererProps = {
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
 ) => Promise<void>
   onStartExecution?: () => Promise<void>
   onRevisePlan?: (instruction: string) => Promise<void>
@@ -1386,7 +1388,7 @@ function renderUserFacingHomeChatBlock(
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => Promise<void>,
   onStartExecution?: () => Promise<void>,
   onRevisePlan?: (instruction: string) => Promise<void>,
@@ -1525,8 +1527,8 @@ function RenderUserFacingHomeChatBlockBodyImpl({
     const elapsedMs = Number(
       block.payload?.elapsedMs
       ?? block.payload?.elapsed_ms
-      ?? block.payload?.result?.elapsedMs
-      ?? block.payload?.result?.elapsed_ms
+      ?? wireRecord(block.payload?.result)?.elapsedMs
+      ?? wireRecord(block.payload?.result)?.elapsed_ms
       ?? 0,
     )
     const elapsedLabel = elapsedMs > 0 ? `${(elapsedMs / 1000).toFixed(1)}s` : null
@@ -1566,23 +1568,23 @@ function RenderUserFacingHomeChatBlockBodyImpl({
   }
 
   if (block.uiKind === 'generation_task' || (presentationUiKind === 'artifact_card' && !hasDedicatedHomeArtifactRenderer(block.uiKind))) {
-    const result = (block.payload?.result || {}) as Record<string, any>
-    const args = (block.payload?.args || {}) as Record<string, any>
+    const result = (block.payload?.result || {}) as Record<string, unknown>
+    const args = (block.payload?.args || {}) as Record<string, unknown>
     return (
       <GenerationCard
         key={block.id}
         conversationId={conversationId}
-        taskId={block.payload?.taskId ?? block.payload?.task_id ?? result.taskId ?? result.task_id ?? ''}
+        taskId={wireId(block.payload?.taskId ?? block.payload?.task_id ?? result.taskId ?? result.task_id ?? '') ?? ''}
         status={String(block.payload?.status || result.status || block.status || 'running')}
-        resultUrl={block.payload?.resultUrl || block.payload?.result_url || result.resultUrl || result.result_url}
-        artifact={block.payload?.artifact || result.artifact}
+        resultUrl={wireString(block.payload?.resultUrl || block.payload?.result_url || result.resultUrl || result.result_url)}
+        artifact={wireArtifact(block.payload?.artifact || result.artifact)}
         prompt={String(block.payload?.prompt || result.prompt || '') || undefined}
         mediaType={String(block.payload?.mediaType || block.payload?.media_type || result.mediaType || result.media_type || '') || undefined}
         modelName={String(block.payload?.modelName || block.payload?.model_name || result.modelName || result.model_name || '') || undefined}
-        modelLabel={String(block.payload?.modelLabel || block.payload?.model_label || result.modelLabel || result.model_label || '') || undefined}
+        modelLabel={wireString(String(block.payload?.modelLabel || block.payload?.model_label || result.modelLabel || result.model_label || '') || undefined)}
         aspectRatio={String(block.payload?.aspectRatio || block.payload?.aspect_ratio || args.aspectRatio || args.aspect_ratio || result.aspectRatio || result.aspect_ratio || '') || undefined}
         resolution={String(block.payload?.resolution || args.resolution || result.resolution || '') || undefined}
-        duration={block.payload?.duration ?? args.duration ?? result.duration}
+        duration={wireId(block.payload?.duration ?? args.duration ?? result.duration)}
         quality={String(block.payload?.quality || args.quality || result.quality || '') || undefined}
         progress={Number(block.payload?.progress ?? result.progress ?? 0) || undefined}
         toolName={String(block.payload?.toolName || block.payload?.tool_name || '') || undefined}
@@ -1639,8 +1641,8 @@ function RenderUserFacingHomeChatBlockBodyImpl({
         fallbackContent={messageContent}
         language={language}
         phase={conversationPhase}
-        schema={block.payload?.schema || null}
-        answers={block.payload?.answers || null}
+        schema={normalizeInteractionSchema(block.payload?.schema)}
+        answers={wireRecord(block.payload?.answers) || null}
         status={formInteractionStatus}
         submittedLabel={String(block.payload?.submittedLabel || block.payload?.submitted_label || '')}
         isDark={isDark}
@@ -1798,7 +1800,7 @@ function RenderUserFacingHomeChatBlockBodyImpl({
           ) : null}
         </div>
         <div className="space-y-1">
-          {steps.map((step: Record<string, any>) => {
+          {steps.map((step: Record<string, unknown>) => {
             const stepId = String(step.id || step.order || '')
             const stepStatus = String(step.status || '')
             const isActive = stepStatus.toLowerCase() === 'in_progress'
@@ -1891,16 +1893,15 @@ function RenderUserFacingHomeChatBlockBodyImpl({
   if (block.uiKind === 'planning_draft_card') {
     const draftOutline = normalizePlanOutlineItems(block.payload?.draftOutline ?? block.payload?.draft_outline)
     const assumptions = Array.isArray(block.payload?.assumptions) ? block.payload.assumptions : []
-    const openQuestions = Array.isArray(block.payload?.openQuestions ?? block.payload?.open_questions)
-      ? (block.payload?.openQuestions ?? block.payload?.open_questions)
-      : []
+    const rawOpenQuestions = block.payload?.openQuestions ?? block.payload?.open_questions
+    const openQuestions = Array.isArray(rawOpenQuestions) ? rawOpenQuestions : []
     const confirmedInputs = (
       block.payload?.confirmedInputs && typeof block.payload.confirmedInputs === 'object'
         ? block.payload.confirmedInputs
         : block.payload?.confirmed_inputs && typeof block.payload.confirmed_inputs === 'object'
           ? block.payload.confirmed_inputs
           : {}
-    ) as Record<string, any>
+    ) as Record<string, unknown>
     const confirmedEntries = Object.entries(confirmedInputs).filter(([, value]) => (
       value !== null && value !== undefined && String(value).trim() !== ''
     ))
@@ -2008,17 +2009,17 @@ function RenderUserFacingHomeChatBlockBodyImpl({
 
   if (block.uiKind === 'user_plan_card') {
     const outline = Array.isArray(block.payload?.outline)
-      ? block.payload.outline as Array<Record<string, any>>
+      ? block.payload.outline as Array<Record<string, unknown>>
       : []
     const projectionState = (block.payload?.projectionState && typeof block.payload.projectionState === 'object')
-      ? block.payload.projectionState as Record<string, any>
+      ? block.payload.projectionState as Record<string, unknown>
       : (block.payload?.projection_state && typeof block.payload.projection_state === 'object')
-        ? block.payload.projection_state as Record<string, any>
+        ? block.payload.projection_state as Record<string, unknown>
         : null
     const executionState = (block.payload?.executionState && typeof block.payload.executionState === 'object')
-      ? block.payload.executionState as Record<string, any>
+      ? block.payload.executionState as Record<string, unknown>
       : (block.payload?.execution_state && typeof block.payload.execution_state === 'object')
-        ? block.payload.execution_state as Record<string, any>
+        ? block.payload.execution_state as Record<string, unknown>
         : null
     const blockItems = normalizePlanOutlineItems(block.payload?.items)
     const outlineItems = blockItems.length > 0
@@ -2151,7 +2152,7 @@ function RenderUserFacingHomeChatBlockBodyImpl({
             />
           ) : (
             <div className="space-y-2">
-              {outlineItems.map((item: Record<string, any>, index: number) => (
+              {outlineItems.map((item: Record<string, unknown>, index: number) => (
                 <div
                   key={String(item.id || index)}
                   className="app-card-muted rounded-2xl px-4 py-3"
@@ -2283,7 +2284,7 @@ function RenderUserFacingHomeChatBlockBodyImpl({
           ) : null}
         </div>
         <div className="space-y-2">
-          {previewSections.map((section: Record<string, any>, index: number) => (
+          {previewSections.map((section: Record<string, unknown>, index: number) => (
             <div
               key={`${block.id}-preview-${index}`}
               className="app-card-muted rounded-xl px-3 py-3"
@@ -2311,8 +2312,8 @@ function RenderUserFacingHomeChatBlockBodyImpl({
       const elapsedMs = Number(
         block.payload?.elapsedMs
         ?? block.payload?.elapsed_ms
-        ?? block.payload?.result?.elapsedMs
-        ?? block.payload?.result?.elapsed_ms
+        ?? wireRecord(block.payload?.result)?.elapsedMs
+        ?? wireRecord(block.payload?.result)?.elapsed_ms
         ?? 0,
       )
       return (
@@ -2331,18 +2332,18 @@ function RenderUserFacingHomeChatBlockBodyImpl({
       <GenerationCard
         key={block.id}
         conversationId={conversationId}
-        taskId={block.payload?.taskId ?? block.payload?.task_id ?? ''}
+        taskId={wireId(block.payload?.taskId ?? block.payload?.task_id ?? '') ?? ''}
         status={String(block.payload?.status || block.status || 'completed')}
         mediaType={mediaType === 'video_generation' ? 'video' : (mediaType || undefined)}
         toolName={String(block.payload?.toolName || block.payload?.tool_name || (mediaType === 'video_generation' ? 'generate_video' : 'generate_image'))}
-        resultUrl={block.payload?.resultUrl || block.payload?.result_url}
-        artifact={block.payload?.artifact}
+        resultUrl={wireString(block.payload?.resultUrl || block.payload?.result_url)}
+        artifact={wireArtifact(block.payload?.artifact)}
         prompt={String(block.payload?.prompt || '') || undefined}
         modelName={String(block.payload?.modelName || block.payload?.model_name || '') || undefined}
-        modelLabel={block.payload?.modelLabel || block.payload?.model_label}
+        modelLabel={wireString(block.payload?.modelLabel || block.payload?.model_label)}
         aspectRatio={String(block.payload?.aspectRatio || block.payload?.aspect_ratio || '') || undefined}
         resolution={String(block.payload?.resolution || '') || undefined}
-        duration={block.payload?.duration}
+        duration={wireId(block.payload?.duration)}
         quality={String(block.payload?.quality || '') || undefined}
         onUseAsReference={onUseGeneratedAsReference}
         isDark={isDark}
@@ -2418,7 +2419,7 @@ export const HomeHarnessMessageList = memo(function HomeHarnessMessageList({
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => {
     const nextLabel = String(displayLabel || answer || '').trim() || answer
     setSubmittingInteractionLabels((current) => ({
@@ -2485,7 +2486,7 @@ export const HomeHarnessMessageList = memo(function HomeHarnessMessageList({
                   <div className="flex min-w-0 max-w-full flex-col items-end gap-2">
                     {msg.attachments && msg.attachments.length > 0 ? (
                       <AttachmentCardStrip
-                        attachments={msg.attachments as AttachmentData[]}
+                        attachments={attachmentViews(msg.attachments)}
                         isDark={isDark}
                         className="justify-end"
                         conversationId={conversationId}

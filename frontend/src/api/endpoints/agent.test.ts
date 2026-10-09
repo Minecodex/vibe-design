@@ -1,3 +1,13 @@
+function streamResponse(read: () => Promise<ReadableStreamReadResult<Uint8Array>>): Response {
+  return new Response(new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      const chunk = await read()
+      if (chunk.done) controller.close()
+      else controller.enqueue(chunk.value)
+    },
+  }))
+}
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { toastError } = vi.hoisted(() => ({
@@ -47,11 +57,7 @@ describe('fetchSSE', () => {
   })
 
   it('surfaces backend detail messages for failed streaming requests', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      status: 402,
-      ok: false,
-      text: vi.fn().mockResolvedValue('{"detail":"积分不足，需要 40 积分"}'),
-    } as any)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"detail":"积分不足，需要 40 积分"}', { status: 402 }))
 
     const iterator = fetchSSE('/agent/harness/conversations/conv-1/messages', { content: 'hello' })
 
@@ -164,15 +170,7 @@ describe('fetchSSE', () => {
         value: undefined,
       })
 
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      status: 200,
-      ok: true,
-      body: {
-        getReader: () => ({
-          read,
-        }),
-      },
-    } as any)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamResponse(read))
 
     const iterator = streamHarnessConversationEvents('conv-home-1')
 
@@ -197,15 +195,7 @@ describe('fetchSSE', () => {
         value: undefined,
       })
 
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      status: 200,
-      ok: true,
-      body: {
-        getReader: () => ({
-          read,
-        }),
-      },
-    } as any)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamResponse(read))
 
     const iterator = streamHarnessConversationEvents('conv-home-1', 7)
 
@@ -219,15 +209,7 @@ describe('fetchSSE', () => {
   })
 
   it('appends durable sequence cursors to POST harness streams', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      status: 200,
-      ok: true,
-      body: {
-        getReader: () => ({
-          read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
-        }),
-      },
-    } as any)
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => streamResponse(async () => ({ done: true, value: undefined })))
 
     await streamHarnessSendMessage('conv-home-1', { content: 'hello' }, undefined, 7).next()
     await streamHarnessRespondToAgent('conv-home-1', { request_id: 'req-1', answer: 'ok' }, undefined, 8).next()

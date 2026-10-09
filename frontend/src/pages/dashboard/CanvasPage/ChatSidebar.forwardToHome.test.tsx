@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -61,7 +62,7 @@ vi.mock('@/store/authStore', () => ({
 }))
 
 vi.mock('@/store/appConfigStore', () => ({
-  useAppConfigStore: (selector: (state: any) => any) => selector({ appName: 'Test App', appNameEn: 'Test App' }),
+  useAppConfigStore: (selector: (state: unknown) => unknown) => selector({ appName: 'Test App', appNameEn: 'Test App' }),
 }))
 
 vi.mock('@/api/endpoints/providers', () => ({
@@ -99,20 +100,20 @@ vi.mock('../HomeHarnessAgent/homeForwardTransfer', () => ({
 }))
 
 vi.mock('./MessageList', () => ({
-  MessageList: ({ forwardSelectionMode, selectedForwardMessageIds, onEnterForwardSelectionMode, onToggleForwardMessage }: any) => (
+  MessageList: ({ forwardSelectionMode, selectedForwardMessageIds, onEnterForwardSelectionMode, onToggleForwardMessage }: ComponentProps<typeof import('./MessageList').MessageList>) => (
     <div data-testid="mock-message-list">
       {forwardSelectionMode ? (
         <label>
           <input
             type="checkbox"
             aria-label="mock-forward-checkbox"
-            checked={selectedForwardMessageIds.has('message:assistant-1:content')}
-            onChange={() => onToggleForwardMessage('message:assistant-1:content')}
+            checked={selectedForwardMessageIds?.has('message:assistant-1:content')}
+            onChange={() => onToggleForwardMessage?.('message:assistant-1:content')}
           />
           assistant-1
         </label>
       ) : (
-        <button type="button" onClick={() => onEnterForwardSelectionMode('message:assistant-1:content')}>
+        <button type="button" onClick={() => onEnterForwardSelectionMode?.('message:assistant-1:content')}>
           open-forward-mode
         </button>
       )}
@@ -121,7 +122,7 @@ vi.mock('./MessageList', () => ({
 }))
 
 vi.mock('./AssetLibraryModal', () => ({
-  AssetLibraryModal: ({ open, initialProject, allowEmptySelection, onSelect }: any) => (
+  AssetLibraryModal: ({ open, initialProject, allowEmptySelection, onSelect }: ComponentProps<typeof import('./AssetLibraryModal').AssetLibraryModal>) => (
     open ? (
       <div data-testid="forward-asset-library">
         <span>{`project-${initialProject?.project_id}`}</span>

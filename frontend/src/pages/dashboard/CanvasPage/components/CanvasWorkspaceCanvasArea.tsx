@@ -17,6 +17,7 @@ import type { ComponentProps, ComponentType, MouseEventHandler, RefObject } from
 import type { CanvasItem } from '@/api/endpoints/projects'
 import type { CanvasWebGLStage as CanvasWebGLStageView } from './CanvasWebGLStage'
 import type { BrushDraftState } from '../types'
+import type { CanvasCameraView } from '../hooks/useCanvasCamera'
 
 type StageProps = ComponentProps<typeof CanvasWebGLStageView>
 export type CanvasWorkspaceCanvasAreaProps = ComponentProps<typeof CanvasWorkspaceItemLayer>
@@ -37,7 +38,7 @@ export type CanvasWorkspaceCanvasAreaProps = ComponentProps<typeof CanvasWorkspa
     brushDraft: BrushDraftState | null
     clipboardItems?: CanvasItem[]
     clipboardSource?: 'internal' | 'external' | null
-    canvasCamera?: StageProps['canvasCamera']
+    canvasCamera?: CanvasCameraView | null
     interactionPreview?: StageProps['interactionPreview']
     webGLStageComponent?: ComponentType<StageProps>
     projectId?: number | null
@@ -491,7 +492,7 @@ export const CanvasWorkspaceCanvasArea = React.memo(function CanvasWorkspaceCanv
           offset={props.offset}
           isDark={props.isDark}
           getItemDims={props.getItemDims}
-          canvasCamera={props.canvasCamera}
+          canvasCamera={props.canvasCamera ?? undefined}
           onReadyChange={setIsSceneReady}
         />
       )}

@@ -57,17 +57,15 @@ export function HomeChatUniverSheetEditor({ snapshot, isDark = false }: HomeChat
             header: false,
             toolbar: false,
             formulaBar: false,
-            footer: true,
+            footer: {},
             contextMenu: false,
-            sheets: {
-              disableEdit: true,
-            },
-          } as any),
+          }),
         ],
       })
 
       const workbookPayload = toUniverWorkbookData(snapshot)
-      univerAPI.createWorkbook((workbookPayload || {}))
+      const workbook = univerAPI.createWorkbook(workbookPayload || {})
+      void workbook.getWorkbookPermission().setReadOnly()
       const resizeFrame = window.requestAnimationFrame(() => {
         window.dispatchEvent(new Event('resize'))
       })

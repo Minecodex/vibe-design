@@ -18,7 +18,7 @@ describe('canvasAgentBlockNormalize canvas revision meta', () => {
           },
         },
       },
-    } as any)
+    })
 
     expect(meta).toEqual({ canvasRevision: 54, canvasItemDeleted: true })
   })
@@ -32,7 +32,7 @@ describe('canvasAgentBlockNormalize canvas revision meta', () => {
           canvas_item_deleted: true,
         },
       },
-    } as any)
+    })
 
     expect(meta).toBeNull()
   })
@@ -51,7 +51,7 @@ describe('canvasAgentBlockNormalize canvas revision meta', () => {
           },
         },
       },
-    } as any)
+    })
 
     expect(meta).toEqual({ canvasRevision: 55, canvasItemDeleted: false })
   })

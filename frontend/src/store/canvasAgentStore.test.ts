@@ -1,3 +1,4 @@
+import { wireRecord } from './harnessWireFields'
 import type { AgentEvent, MediaReferenceData } from '@/api/endpoints/agent'
 // Legacy wire fixtures intentionally use retired tags to check replay and terminal-event guards.
 import { httpResponse, conversationDetail, runtimeState, conversationSession, artifactTask } from './testing/harnessStateFixtures'
@@ -1588,7 +1589,7 @@ describe('canvasAgentStore history replay', () => {
     expect(state.messages[0]?.blocks).toHaveLength(1)
     expect(state.messages[0]?.blocks?.[0]?.uiKind).toBe('interaction_form')
     expect(state.messages[0]?.blocks?.[0]?.payload?.content).toBe('### Gate A\n\n- 两岸人文融合\n- 第三空间定位')
-    expect(state.messages[0]?.blocks?.[0]?.payload?.schema?.title).toBe('青岛阿旭咖啡品牌战略确认')
+    expect(wireRecord(state.messages[0]?.blocks?.[0]?.payload?.schema)?.title).toBe('青岛阿旭咖啡品牌战略确认')
 
     getHarnessConversationMock.mockRestore()
     useChatStore.getState().reset()

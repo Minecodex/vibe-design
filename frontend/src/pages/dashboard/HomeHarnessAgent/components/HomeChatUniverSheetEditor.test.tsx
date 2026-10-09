@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { HomeChatOfficeSheetSnapshot } from './homeChatOfficeSnapshots'
 
 const createWorkbookMock = vi.fn()
+const setReadOnlyMock = vi.fn(async () => undefined)
 const addEventMock = vi.fn(() => ({ dispose: vi.fn() }))
 const disposeMock = vi.fn()
 function createFakeUniverSurface() { return {
@@ -34,6 +35,8 @@ vi.mock('./homeChatUniverSheetLocale', () => ({
 describe('HomeChatUniverSheetEditor', () => {
   beforeEach(() => {
     createWorkbookMock.mockReset()
+    setReadOnlyMock.mockClear()
+    createWorkbookMock.mockReturnValue({ getWorkbookPermission: () => ({ setReadOnly: setReadOnlyMock }) })
     addEventMock.mockReset()
     addEventMock.mockReturnValue({ dispose: vi.fn() })
     disposeMock.mockReset()
@@ -74,12 +77,10 @@ describe('HomeChatUniverSheetEditor', () => {
         header: false,
         toolbar: false,
         formulaBar: false,
-        footer: true,
+        footer: {},
         contextMenu: false,
-        sheets: {
-          disableEdit: true,
-        },
       })],
     }))
+    expect(setReadOnlyMock).toHaveBeenCalledTimes(1)
   })
 })

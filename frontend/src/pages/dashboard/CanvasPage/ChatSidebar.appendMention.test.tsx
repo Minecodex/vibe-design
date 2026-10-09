@@ -1,3 +1,8 @@
+import type { ComponentProps } from 'react'
+import type { AgentLazyMedia } from '../agentMedia/AgentLazyMedia'
+import type { CanvasItem, CanvasMark } from '@/api/endpoints/projects'
+import { httpResponse } from '@/store/testing/harnessStateFixtures'
+import { providerListResponse, providerRegistryResponse, providerModelsResponse } from '@/store/testing/providerFixtures'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -103,7 +108,7 @@ vi.mock('./SkillLibraryButton', () => ({
 }))
 
 vi.mock('../agentMedia/AgentLazyMedia', () => ({
-  AgentLazyMedia: ({ src, alt, className, mediaClassName, onClick }: any) => (
+  AgentLazyMedia: ({ src, alt, className, mediaClassName, onClick }: ComponentProps<typeof AgentLazyMedia>) => (
     <div className={className} onClick={onClick}>
       {src ? <img src={src} alt={alt || ''} className={mediaClassName} /> : null}
     </div>
@@ -114,7 +119,7 @@ const newChatMock = vi.fn()
 
 vi.mock('@/store/canvasAgentStore', () => ({
   useChatStore: Object.assign(
-    (selector?: (state: any) => any) => {
+    (selector?: (state: unknown) => unknown) => {
       return selector ? selector(chatStoreState) : chatStoreState
     },
     {
@@ -282,12 +287,12 @@ describe('ChatSidebar append mention behavior', () => {
         auto: false,
       },
     })
-    vi.mocked(providersApi.list).mockResolvedValueOnce({
+    vi.mocked(providersApi.list).mockResolvedValueOnce(providerListResponse({
       data: [
         { code: 'builtin', name: 'Builtin', status: 'authorized', is_builtin: true },
       ],
-    } as any)
-    vi.mocked(providersApi.getRegistry).mockResolvedValueOnce({
+    }))
+    vi.mocked(providersApi.getRegistry).mockResolvedValueOnce(providerRegistryResponse({
       data: {
         builtin: {
           models: {
@@ -307,14 +312,14 @@ describe('ChatSidebar append mention behavior', () => {
           },
         },
       },
-    } as any)
-    vi.mocked(providersApi.listModels).mockResolvedValueOnce({
+    }))
+    vi.mocked(providersApi.listModels).mockResolvedValueOnce(providerModelsResponse({
       data: [
         { model_name: 'image-live', model_type: 'text2image', is_enabled: true },
         { model_name: 'video-live', model_type: 'text2video', is_enabled: true },
         { model_name: 'kimi-k2.5', model_type: 'multimodal', is_enabled: true },
       ],
-    } as any)
+    }))
 
     render(
       <ChatSidebar
@@ -532,14 +537,14 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('appends the mention inside the existing last line container instead of creating a new root-level line', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-1',
         type: 'image',
         name: 'NanoBanana2',
         url: 'https://example.com/apple.png',
       },
-    ] as any
+    ]
 
     const { container, rerender } = render(
       <ChatSidebar
@@ -592,14 +597,14 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('keeps a manually selected @ mention inside the trailing line container instead of inserting a new root-level line', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-1',
         type: 'image',
         name: 'NanoBanana2',
         url: 'https://example.com/apple.png',
       },
-    ] as any
+    ]
 
     const { container } = render(
       <ChatSidebar
@@ -658,15 +663,15 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('sends canvas mention chips as deduped structured references', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-local-1',
         type: 'image',
         name: '本地上传图',
         url: '/api/v1/uploads/canvas/1/local-source.png',
         asset_origin: 'local_upload',
       },
-    ] as any
+    ]
 
     const { container, getByLabelText } = render(
       <ChatSidebar
@@ -722,16 +727,16 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('sends canvas mark chips as structured references with region metadata', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-local-1',
         type: 'image',
         name: '本地上传图',
         url: '/api/v1/uploads/canvas/1/local-source.png',
         asset_origin: 'local_upload',
       },
-    ] as any
-    const marks = [
+    ]
+    const marks: CanvasMark[] = [
       {
         id: 'mark-1',
         imageItemId: 'img-local-1',
@@ -744,7 +749,7 @@ describe('ChatSidebar append mention behavior', () => {
         aiLabels: ['葡萄'],
         isAnalyzing: false,
       },
-    ] as any
+    ]
 
     const { container, getByLabelText } = render(
       <ChatSidebar
@@ -806,12 +811,12 @@ describe('ChatSidebar append mention behavior', () => {
 
   it('keeps wheel scrolling inside the mention popup instead of bubbling to outer containers', async () => {
     const onWheel = vi.fn()
-    const canvasItems = Array.from({ length: 5 }, (_, index) => ({
+    const canvasItems: CanvasItem[] = Array.from({ length: 5 }, (_, index) => ({ x: 0, y: 0,
       id: `img-${index + 1}`,
       type: 'image',
       name: `Image ${index + 1}`,
       url: `https://example.com/image-${index + 1}.png`,
-    })) as any
+    }))
 
     const { container } = render(
       <div onWheel={onWheel}>
@@ -858,14 +863,14 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('prevents horizontal overflow in the mention popup for long item names', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-1',
         type: 'image',
         name: 'This is a very long image name that should never create a horizontal scrollbar in the mention popup',
         url: 'https://example.com/image-1.png',
       },
-    ] as any
+    ]
 
     const { container } = render(
       <ChatSidebar
@@ -913,14 +918,14 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('still inserts the selected mention when the live DOM selection was temporarily lost', async () => {
-    const canvasItems = [
-      {
+    const canvasItems: CanvasItem[] = [
+      { x: 0, y: 0,
         id: 'img-1',
         type: 'image',
         name: 'NanoBanana2',
         url: 'https://example.com/apple.png',
       },
-    ] as any
+    ]
 
     const { container } = render(
       <ChatSidebar
@@ -970,7 +975,7 @@ describe('ChatSidebar append mention behavior', () => {
 
   it('removes a trailing mark chip as one unit when pressing Backspace after it', async () => {
     const onRemoveMark = vi.fn()
-    const marks = [
+    const marks: CanvasMark[] = [
       {
         id: 'mark-1',
         imageItemId: 'img-1',
@@ -983,7 +988,7 @@ describe('ChatSidebar append mention behavior', () => {
         aiLabels: ['apple'],
         isAnalyzing: false,
       },
-    ] as any
+    ]
 
     const { container } = render(
       <ChatSidebar
@@ -1167,13 +1172,14 @@ describe('ChatSidebar append mention behavior', () => {
   })
 
   it('stages dropped image files locally and uploads them only after submit', async () => {
-    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValue({
+    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValue(httpResponse({
       data: {
         type: 'image',
         url: 'https://example.com/dropped-image.png',
         filename: 'dropped-image.png',
+        size: 0,
       },
-    } as any)
+    }))
 
     const { container } = render(
       <ChatSidebar
@@ -1351,27 +1357,30 @@ describe('ChatSidebar append mention behavior', () => {
       }),
     })
 
-    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValue({
+    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValue(httpResponse({
       data: {
         type: 'file',
         url: 'assets/inputs/upload_001/source.txt',
         filename: 'brief.txt',
+        size: 0,
       },
-    } as any)
-    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValueOnce({
+    }))
+    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValueOnce(httpResponse({
       data: {
         type: 'file',
         url: 'assets/inputs/upload_001/source.txt',
         filename: 'brief.txt',
+        size: 0,
       },
-    } as any)
-    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValueOnce({
+    }))
+    vi.mocked(agentApi.uploadHarnessAttachment).mockResolvedValueOnce(httpResponse({
       data: {
         type: 'file',
         url: 'assets/inputs/upload_002/source.docx',
         filename: 'brief.docx',
+        size: 0,
       },
-    } as any)
+    }))
 
     const { container } = render(
       <ChatSidebar

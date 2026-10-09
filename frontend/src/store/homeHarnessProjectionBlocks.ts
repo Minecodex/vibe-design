@@ -1,3 +1,5 @@
+import { wireString } from './harnessWireFields'
+import { wireRecord } from '@/store/harnessWireFields'
 import type { ChatMessage, MessageBlock } from './homeHarnessStore'
 
 const USER_VISIBLE_UI_KINDS = new Set([
@@ -45,22 +47,22 @@ export function camelizeBlockPayload(value: unknown): unknown {
   return next
 }
 
-export function normalizeBlock(raw: Record<string, any>): MessageBlock {
+export function normalizeBlock(raw: Record<string, unknown>): MessageBlock {
   const payload = (camelizeBlockPayload(raw.payload || {}) as Record<string, unknown>) || {}
   return {
     id: String(raw.id),
-    kind: raw.kind,
+    kind: raw.kind === 'tool' || raw.kind === 'interaction' || raw.kind === 'content' ? raw.kind : 'text',
     order: Number(raw.order ?? 0),
     status: String(raw.status ?? 'completed'),
     visible: raw.visible !== false,
-    userVisible: raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible,
+    userVisible: typeof (raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible) === 'boolean' ? Boolean(raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible) : undefined,
     debugOnly: Boolean(raw.debugOnly ?? raw.debug_only ?? payload.debugOnly ?? payload.debug_only ?? false),
     uiKind: String(raw.uiKind ?? raw.ui_kind ?? raw.kind ?? 'text'),
     payload,
-    renderKey: raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key,
-    taskId: raw.taskId ?? raw.task_id ?? raw.payload?.taskId ?? raw.payload?.task_id,
-    label: raw.label ?? raw.payload?.label ?? raw.payload?.result?.label,
-    summary: raw.summary ?? raw.payload?.summary,
+    renderKey: wireString(raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key),
+    taskId: wireString(raw.taskId ?? raw.task_id ?? wireRecord(raw.payload)?.taskId ?? wireRecord(raw.payload)?.task_id),
+    label: wireString(raw.label ?? wireRecord(raw.payload)?.label ?? wireRecord(wireRecord(raw.payload)?.result)?.label),
+    summary: wireString(raw.summary ?? wireRecord(raw.payload)?.summary),
     expanded: typeof raw.expanded === 'boolean' ? raw.expanded : undefined,
     children: normalizeBlocks(raw.children),
     revision: normalizePositiveNumber(raw.revision ?? payload.revision),
@@ -266,8 +268,8 @@ export function extractMessageText(blocks: MessageBlock[]): string | null {
 export function extractBlockCallId(block: MessageBlock): string | null {
   const payloadCallId = block.payload.callId
     ?? block.payload.call_id
-    ?? block.payload.result?.callId
-    ?? block.payload.result?.call_id
+    ?? wireRecord(block.payload.result)?.callId
+    ?? wireRecord(block.payload.result)?.call_id
   if (payloadCallId != null && String(payloadCallId)) {
     return String(payloadCallId)
   }
@@ -324,13 +326,13 @@ export function getBlockIdentityKeys(block: MessageBlock): string[] {
   const renderKey = block.renderKey ?? block.payload.renderKey ?? block.payload.render_key
   const artifactRef = block.payload.artifactRef
     ?? block.payload.artifact_ref
-    ?? block.payload.result?.artifactRef
-    ?? block.payload.result?.artifact_ref
+    ?? wireRecord(block.payload.result)?.artifactRef
+    ?? wireRecord(block.payload.result)?.artifact_ref
   const taskId = block.taskId
     ?? block.payload.taskId
     ?? block.payload.task_id
-    ?? block.payload.result?.taskId
-    ?? block.payload.result?.task_id
+    ?? wireRecord(block.payload.result)?.taskId
+    ?? wireRecord(block.payload.result)?.task_id
   const callId = extractBlockCallId(block)
 
   if (artifactRef != null && String(artifactRef)) {
@@ -520,7 +522,7 @@ function buildSubagentDesignJuryBlock(
     status,
     visible: true,
     uiKind: 'design_jury_card',
-    renderKey: `subagent:${subagentTaskId}:design-jury:${critiqueRunId}`,
+    renderKey: wireString(`subagent:${subagentTaskId}:design-jury:${critiqueRunId}`),
     payload: normalizedPayload,
     children: [],
   }
@@ -621,8 +623,8 @@ function isMatchingSubagentBlock(block: MessageBlock, taskId: string): boolean {
   if (block.taskId === taskId) {
     return true
   }
-  const payloadTaskId = block.payload.taskId ?? block.payload.result?.taskId
-    ?? block.payload.task_id ?? block.payload.result?.task_id
+  const payloadTaskId = block.payload.taskId ?? wireRecord(block.payload.result)?.taskId
+    ?? block.payload.task_id ?? wireRecord(block.payload.result)?.task_id
   return String(payloadTaskId || '') === taskId
 }
 

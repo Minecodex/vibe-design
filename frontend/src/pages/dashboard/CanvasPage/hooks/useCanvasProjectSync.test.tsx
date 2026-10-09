@@ -6,7 +6,10 @@ import { useCanvasProjectSync } from './useCanvasProjectSync'
 const { getProject, updateProject, listAssets } = vi.hoisted(() => ({
   getProject: vi.fn(), updateProject: vi.fn(), listAssets: vi.fn(),
 }))
-vi.mock('@/api/endpoints/projects', () => ({ projectsApi: { get: getProject, update: updateProject } }))
+vi.mock('@/api/endpoints/projects', async (importOriginal) => ({
+  ...await importOriginal<typeof import('@/api/endpoints/projects')>(),
+  projectsApi: { get: getProject, update: updateProject },
+}))
 vi.mock('@/api/endpoints/assets', () => ({ assetsApi: { list: listAssets } }))
 
 const image: CanvasItem = { id: 'image-1', type: 'image', url: '/image.png', x: 0, y: 0 }

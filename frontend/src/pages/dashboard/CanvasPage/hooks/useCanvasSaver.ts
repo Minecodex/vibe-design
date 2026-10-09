@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import type { MutableRefObject } from 'react'
 
-import { projectsApi } from '@/api/endpoints/projects'
+import { projectsApi, isCanvasItemRecord, type CanvasItem } from '@/api/endpoints/projects'
 
 import { createCoalescingRunner } from '../canvasSaveQueue'
 import {
@@ -14,12 +14,12 @@ interface UseCanvasSaverArgs {
   isGuest: boolean
   canvasItemsLoaded: boolean
   canvasLoadFailed: boolean
-  buildCanvasMeta: () => Record<string, any>
+  buildCanvasMeta: () => Record<string, unknown>
   deletedAgentMediaKeys: string[]
   canvasRevisionRef: MutableRefObject<number>
   isCanvasStaleRef: MutableRefObject<boolean>
   getDirtyEpoch?: () => number
-  onRevisionSaved: (revision: number, savedItems: any[], serverItems: any[] | undefined, meta: CanvasSaveMeta) => void
+  onRevisionSaved: (revision: number, savedItems: CanvasItem[], serverItems: CanvasItem[] | undefined, meta: CanvasSaveMeta) => void
   onRevisionConflict: (revision?: number) => void
   onObsoleteRevisionConflict?: (meta: CanvasObsoleteSaveConflict) => void
 }
@@ -34,8 +34,8 @@ export interface CanvasSaveOptions {
 }
 
 interface CanvasSavePayload extends CanvasSaveMeta {
-  items: any[]
-  metaOverrides: Record<string, any>
+  items: CanvasItem[]
+  metaOverrides: Record<string, unknown>
 }
 
 interface CanvasObsoleteSaveConflict extends CanvasSaveMeta {
@@ -68,7 +68,7 @@ export function useCanvasSaver({
   performSaveRef.current = async (payload: CanvasSavePayload) => {
     if (isCanvasStaleRef.current) return
     const meta = {
-      ...(buildCanvasMeta() as any),
+      ...(buildCanvasMeta()),
       deletedAgentMediaKeys,
       ...payload.metaOverrides,
     }
@@ -77,7 +77,7 @@ export function useCanvasSaver({
       canvas_base_revision: payload.baseRevision,
     })
     const serverItems = Array.isArray(response.data.canvas_data)
-      ? response.data.canvas_data.filter((item) => item?.id !== 'global_state')
+      ? response.data.canvas_data.filter(isCanvasItemRecord)
       : undefined
     onRevisionSaved(
       normalizeCanvasRevision(response.data.canvas_revision),
@@ -96,7 +96,7 @@ export function useCanvasSaver({
       (payload) => performSaveRef.current(payload),
       (error, payload) => {
         if (isCanvasRevisionConflictError(error)) {
-          const rawRevision = (error as any)?.response?.data?.detail?.canvas_revision
+          const rawRevision = (error)?.response?.data?.detail?.canvas_revision
           const revision = rawRevision === undefined ? undefined : normalizeCanvasRevision(rawRevision)
           const currentRevision = normalizeCanvasRevision(canvasRevisionRef.current)
           if (
@@ -121,8 +121,8 @@ export function useCanvasSaver({
 
   return useCallback(
     async (
-      currentItems: any[],
-      metaOverrides: Record<string, any> = {},
+      currentItems: CanvasItem[],
+      metaOverrides: Record<string, unknown> = {},
       options: CanvasSaveOptions = {},
     ) => {
       if (!id || isGuest || !canvasItemsLoaded || canvasLoadFailed || isCanvasStaleRef.current) return

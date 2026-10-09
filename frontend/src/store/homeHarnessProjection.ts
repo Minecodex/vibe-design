@@ -1,3 +1,4 @@
+import { wireRecord, wireNullableString } from './harnessWireFields'
 import type {
   AgentEvent,
   HarnessRuntimeStateRead,
@@ -10,6 +11,8 @@ import type {
   WorkspaceFileRead,
 } from '@/api/endpoints/agent'
 import i18n from '@/i18n'
+import { resolveHarnessPendingInteraction } from './harnessStreamLifecycle'
+import { normalizePendingInteraction } from '@/api/agentWireNormalization'
 import type { ChatMessage, MessageBlock, ToolCallInfo } from './homeHarnessStore'
 import { upsertVersionedFile } from './homeHarnessFileVersions'
 import {
@@ -127,7 +130,7 @@ function shouldProjectEvent(event: HomeHarnessProjectionEvent): boolean {
 
 function mergeRuntimeState(
   runtimeState: HarnessRuntimeStateRead | null,
-  patch: Record<string, any>,
+  patch: Record<string, unknown>,
 ): HarnessRuntimeStateRead | null {
   const current = runtimeState || ({
     conversation_id: String(patch.conversation_id || patch.conversationId || ''),
@@ -139,19 +142,19 @@ function mergeRuntimeState(
   return {
     ...current,
     ...patch,
-    workspace_runtime_session: (
+    workspace_runtime_session: wireRecord(
       patch.workspace_runtime_session
       ?? patch.workspaceRuntimeSession
       ?? current.workspace_runtime_session
       ?? null
-    ),
-    prepared_workspace: (
+    ) ?? null,
+    prepared_workspace: wireRecord(
       patch.prepared_workspace
       ?? patch.preparedWorkspace
       ?? current.prepared_workspace
       ?? null
-    ),
-    runtime_contract: patch.runtime_contract ?? patch.runtimeContract ?? current.runtime_contract ?? null,
+    ) ?? null,
+    runtime_contract: wireRecord(patch.runtime_contract ?? patch.runtimeContract ?? current.runtime_contract) ?? null,
   }
 }
 
@@ -653,7 +656,7 @@ function normalizeWorkspaceFileSource(data: Record<string, unknown>): WorkspaceF
 }
 
 function workspaceFileFromEventData(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   timestamp: string,
 ): WorkspaceFileRead | null {
   const path = String(data.path ?? data.file_path ?? data.filePath ?? data.url ?? '').trim()
@@ -679,11 +682,11 @@ function workspaceFileFromEventData(
     type: inferWorkspaceFileType(data),
     size: Number(data.size ?? 0),
     created_at: String(data.created_at ?? data.createdAt ?? timestamp),
-    updated_at: data.updated_at ?? data.updatedAt ?? null,
+    updated_at: wireNullableString(data.updated_at ?? data.updatedAt ?? null),
     current_version_id: String(data.current_version_id ?? data.currentVersionId ?? ''),
-    current_version_path: data.current_version_path ?? data.currentVersionPath ?? null,
-    artifact_kind: data.artifact_kind ?? data.artifactKind ?? null,
-    artifact_metadata: data.artifact_metadata ?? data.artifactMetadata ?? null,
+    current_version_path: wireNullableString(data.current_version_path ?? data.currentVersionPath ?? null),
+    artifact_kind: wireNullableString(data.artifact_kind ?? data.artifactKind ?? null),
+    artifact_metadata: wireRecord(data.artifact_metadata ?? data.artifactMetadata) ?? null,
     versions: Array.isArray(data.versions) ? data.versions : [],
     source: normalizeWorkspaceFileSource(data),
   }
@@ -918,7 +921,7 @@ export function applyHomeHarnessEvent(
             ? withOutlineRuntimeFailure(finalized.outlineRuntime, summary)
             : finalized.outlineRuntime,
           userInteraction: status === 'waiting_input'
-            ? (runtimeSnapshot.user_interaction as any) || finalized.userInteraction || state.userInteraction
+            ? normalizePendingInteraction(resolveHarnessPendingInteraction({ user_interaction: runtimeSnapshot.user_interaction })) || finalized.userInteraction || state.userInteraction
             : null,
         })
       }

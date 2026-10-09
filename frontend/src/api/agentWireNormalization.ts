@@ -44,7 +44,7 @@ export function normalizeAgentEvent(rawEvent: AgentEventWire): AgentEvent {
     }
 }
 
-function normalizeFailureRead(raw: unknown): FailureRead | null {
+export function normalizeFailureRead(raw: unknown): FailureRead | null {
     if (!raw || typeof raw !== 'object') {
         return null
     }
@@ -87,7 +87,7 @@ function normalizeInteractionOption(raw: unknown): InteractionOption | null {
     }
 }
 
-function normalizePendingInteraction(raw: unknown): PendingInteraction | null {
+export function normalizePendingInteraction(raw: unknown): PendingInteraction | null {
     if (!raw || typeof raw !== 'object') {
         return null
     }
@@ -156,7 +156,7 @@ function normalizeInteractionQuestion(raw: unknown): InteractionQuestion | null 
     }
 }
 
-function normalizeInteractionSchema(raw: unknown): InteractionSchema | null {
+export function normalizeInteractionSchema(raw: unknown): InteractionSchema | null {
     if (!raw || typeof raw !== 'object') {
         return null
     }

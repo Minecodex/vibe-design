@@ -209,7 +209,7 @@ describe('agentGeneratedMedia', () => {
         agent_group_key: 'ecommerce_white_background',
         agent_group_order: 1,
       },
-    ] as any)
+    ])
 
     const result = planAgentGeneratedMediaInsertion({
       currentState: hydrated,
@@ -475,7 +475,7 @@ describe('agentGeneratedMedia', () => {
         agent_message_id: 'message-canvas-1',
         agent_conversation_id: 'conv-canvas-1',
       },
-    ] as any)
+    ])
 
     const result = planAgentGeneratedMediaInsertion({
       currentState: hydrated,

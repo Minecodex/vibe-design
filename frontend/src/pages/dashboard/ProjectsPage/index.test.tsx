@@ -55,7 +55,7 @@ vi.mock('@/components/project/ShareModal', () => ({
 }))
 
 vi.mock('@/components/project/MembersModal', () => ({
-  MembersModal: (props: any) => props.open ? (
+  MembersModal: (props: import('react').ComponentProps<typeof import('@/components/project/MembersModal').MembersModal>) => props.open ? (
     <button
       type="button"
       onClick={() => props.onMembersChange?.([

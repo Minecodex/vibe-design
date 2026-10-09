@@ -127,7 +127,7 @@ export interface ProjectListItemRead {
 }
 
 export interface ProjectRead extends ProjectListItemRead {
-    canvas_data?: CanvasItem[] | null
+    canvas_data?: CanvasDataRecord[] | null
     canvas_revision?: number
 }
 
@@ -138,9 +138,20 @@ export interface ProjectCreate {
 
 export interface ProjectUpdate {
     title?: string
-    canvas_data?: CanvasItem[] | null
+    canvas_data?: Array<CanvasItem | Record<string, unknown>> | null
     canvas_base_revision?: number
     status?: string
+}
+
+export interface CanvasMetadataRecord {
+    id: 'global_state'
+    type?: 'meta'
+    [field: string]: unknown
+}
+export type CanvasDataRecord = CanvasItem | CanvasMetadataRecord
+
+export function isCanvasItemRecord(record: CanvasDataRecord): record is CanvasItem {
+    return record.id !== 'global_state' && record.type !== 'meta'
 }
 
 export const projectsApi = {

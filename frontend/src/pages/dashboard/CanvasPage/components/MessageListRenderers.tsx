@@ -1,6 +1,8 @@
+import { wireRecord, wireString } from '@/store/harnessWireFields'
 import { Loader2, CheckCircle2, XCircle, Wrench, Copy, Check, Film, Image as ImageIcon, ChevronDown, Sparkles } from 'lucide-react'
 import * as React from 'react'
 import type { TFunction } from 'i18next'
+import type { AttachmentData } from '@/api/endpoints/agent'
 import { useIsDarkMode } from '@/hooks/useTheme'
 import { useTranslation } from 'react-i18next'
 import { useChatStore, type ChatMessage, type MessageBlock, type ToolCallInfo } from '@/store/canvasAgentStore'
@@ -183,10 +185,16 @@ function MessageBubbleImpl({ message, isDark, onPreview, onDownload, onFocusItem
     const shouldRenderToolCall = React.useCallback((toolCall: ToolCallInfo) => {
         return !hiddenToolCalls.includes(toolCall.name)
     }, [hiddenToolCalls])
-    const attachmentNode = message.attachments && message.attachments.length > 0
+    const attachmentViews: AttachmentData[] = (message.attachments || []).map(attachment => ({
+        type: attachment.type === 'image' ? 'image' : 'file',
+        url: typeof attachment.url === 'string' ? attachment.url : '',
+        name: typeof attachment.name === 'string' ? attachment.name : undefined,
+        preview_url: typeof attachment.preview_url === 'string' ? attachment.preview_url : undefined,
+    }))
+    const attachmentNode = attachmentViews.length > 0
         ? (
             <ChatAttachmentStrip
-                attachments={message.attachments as any}
+                attachments={attachmentViews}
                 isDark={isDark}
                 conversationId={conversationId}
                 onPreview={onPreview}
@@ -764,7 +772,7 @@ function MessageBlockRendererBody({
                     </div>
                 ) : null}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-                    {steps.map((step: Record<string, any>) => {
+                    {steps.map((step: Record<string, unknown>) => {
                         const stepId = String(step.id || step.order || '')
                         const isActive = String(step.status || '').toLowerCase() === 'in_progress'
                         return (
@@ -1099,11 +1107,11 @@ function extractCanvasStreamPanelText(block: MessageBlock): string {
     return preferredText
 }
 
-function normalizeToolBlockResult(rawResult: Record<string, any> | null | undefined): Record<string, any> {
+function normalizeToolBlockResult(rawResult: unknown): Record<string, unknown> {
     if (!rawResult || typeof rawResult !== 'object') {
         return {}
     }
-    return rawResult
+    return wireRecord(rawResult) || {}
 }
 
 function toolCallFromBlock(block: MessageBlock): ToolCallInfo {
@@ -1124,9 +1132,9 @@ function toolCallFromBlock(block: MessageBlock): ToolCallInfo {
     return {
         callId: String(block.payload.call_id || block.id),
         name: toolName,
-        args: block.payload.args || {},
+        args: wireRecord(block.payload.args) || {},
         result,
-        error: block.payload.error_message || block.payload.result?.error,
+        error: wireString(block.payload.error_message || wireRecord(block.payload.result)?.error),
         status: block.status === 'streaming'
             ? 'running'
             : block.status === 'failed'
@@ -1134,7 +1142,7 @@ function toolCallFromBlock(block: MessageBlock): ToolCallInfo {
                 : block.status === 'completed'
                     ? 'completed'
                     : 'running',
-        streamingText: block.payload.stream_text,
+        streamingText: wireString(block.payload.stream_text),
     }
 }
 
@@ -1198,7 +1206,7 @@ function toolCallFromMediaCardBlock(block: MessageBlock): ToolCallInfo {
             prompt,
         },
         result,
-        error: block.payload.error_message,
+        error: wireString(block.payload.error_message),
         status: status === 'failed'
             ? 'failed'
             : status === 'completed'
@@ -1233,7 +1241,8 @@ function getToolLabel(
     return toolLabels[name] || name
 }
 
-function isCustomInteractionOption(option: any): boolean {
+function isCustomInteractionOption(raw: unknown): boolean {
+    const option = wireRecord(raw)
     const label = String(option?.label || '').trim().toLowerCase()
     const value = String(option?.value || '').trim().toLowerCase()
     const description = String(option?.description || '').trim().toLowerCase()
@@ -1281,7 +1290,7 @@ function normalizeInteractionFromBlock(block: MessageBlock): PendingInteraction 
             }],
         },
         answers: block.payload.answers && typeof block.payload.answers === 'object'
-            ? block.payload.answers as Record<string, any>
+            ? block.payload.answers as Record<string, unknown>
             : null,
         status: rawStatus === 'submitted'
             ? 'submitted'
@@ -1400,23 +1409,23 @@ function SubagentCardImpl({
         setExpanded(Boolean(block.expanded))
     }, [block.expanded, block.id])
 
-    const label = String(block.label || block.payload.label || block.payload.result?.label || '')
-    const purpose = String(block.payload.purpose || block.payload.result?.purpose || label || '').trim()
+    const label = String(block.label || block.payload.label || wireRecord(block.payload.result)?.label || '')
+    const purpose = String(block.payload.purpose || wireRecord(block.payload.result)?.purpose || label || '').trim()
     const purposeLabel = getLocalizedSubagentPurpose(
         t,
         purpose,
         block.payload.subagentType
         ?? block.payload.subagent_type
-        ?? block.payload.result?.subagentType
-        ?? block.payload.result?.subagent_type,
+        ?? wireRecord(block.payload.result)?.subagentType
+        ?? wireRecord(block.payload.result)?.subagent_type,
     )
     const status = String(block.payload.status || block.status || 'running').toLowerCase()
     const summary = String(
         block.summary
         || block.payload.summary
-        || block.payload.result?.result
-        || block.payload.result?.message
-        || block.payload.result?.error
+        || wireRecord(block.payload.result)?.result
+        || wireRecord(block.payload.result)?.message
+        || wireRecord(block.payload.result)?.error
         || '',
     )
     const statusIcon = {
@@ -1817,7 +1826,7 @@ function ToolCallCardImpl({
             <Wrench size={14} color="var(--app-foreground-subtle)" />
             <span>{getPreferredToolLabel(toolCall.name, t)}</span>
             {statusIcon[toolCall.status]}
-            {toolCall.result?.message && (
+            {typeof toolCall.result?.message === 'string' && toolCall.result.message && (
                 <span style={{ color: 'var(--app-foreground-subtle)', fontSize: 12, marginLeft: 4 }}>{toolCall.result.message}</span>
             )}
         </div>

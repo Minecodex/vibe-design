@@ -1,3 +1,4 @@
+import { errorName, errorMessage } from '@/utils/apiErrors'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import {
@@ -172,7 +173,7 @@ export interface ChatActions {
     rejectPlan: (planId: number, feedback?: string) => Promise<void>
 
     // Interaction response
-    respondToAgent: (requestId: string, answer: string, displayLabel?: string, answers?: Record<string, any> | null) => Promise<void>
+    respondToAgent: (requestId: string, answer: string, displayLabel?: string, answers?: Record<string, unknown> | null) => Promise<void>
 
     // Mode/skill
     setMode: (mode: 'plan' | 'fast') => void
@@ -191,13 +192,13 @@ export interface ChatActions {
     reset: () => void
 
     // Canvas item handler (set by CanvasPage)
-    onCanvasUpdate: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null
-    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null) => void
+    onCanvasUpdate: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null
+    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null) => void
 
     // Task & Tool update
     updateToolCall: (messageId: string | number, callId: string, updates: Partial<ToolCallInfo>) => void
     updateToolCallByGenerationTask: (conversationId: string, snapshot: CanvasGenerationTaskSnapshot) => void
-    updateCanvasItemByGenerationTask: (conversationId: string, canvasItem: Record<string, any>) => void
+    updateCanvasItemByGenerationTask: (conversationId: string, canvasItem: Record<string, unknown>) => void
     updateCanvasRevisionByAgentPatch: (canvasRevision: number, options?: { canvasItemDeleted?: boolean }) => void
 }
 
@@ -331,7 +332,7 @@ async function resumeHarnessConversationEventsAfterPostClose(
     return true
 }
 
-function parseOptimisticInteractionAnswer(answer: string): Record<string, any> | null {
+function parseOptimisticInteractionAnswer(answer: string): Record<string, unknown> | null {
     const normalizedAnswer = String(answer || '').trim()
     if (!normalizedAnswer) {
         return null
@@ -340,7 +341,7 @@ function parseOptimisticInteractionAnswer(answer: string): Record<string, any> |
     try {
         const parsed = JSON.parse(normalizedAnswer)
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-            return parsed as Record<string, any>
+            return parsed as Record<string, unknown>
         }
     } catch {
         // Plain string answers are expected for legacy interaction cards.
@@ -353,7 +354,7 @@ function buildOptimisticInteractionAnswers(
     block: MessageBlock,
     answer?: string,
     displayLabel?: string,
-): Record<string, any> | null {
+): Record<string, unknown> | null {
     if (answer === undefined) {
         return null
     }
@@ -404,7 +405,7 @@ function markInteractionSubmittedWithAnswer(
     requestId: string,
     answer?: string,
     displayLabel?: string,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
 ): ChatMessage[] {
     return messages.map((message) => {
         if (!message.blocks?.length) {
@@ -816,7 +817,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 })
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     // Strip _localFile from attachments before sending to API
                     const cleanAttachments = attachments?.map(stripTransientAttachmentFields)
@@ -851,15 +852,15 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         set((s) => applyConversationSessionUpdate(s, targetConversationId, (session) => ({
                             ...session,
                             messages: [...session.messages, {
                                 id: `error-${Date.now()}`,
                                 role: 'assistant',
-                                content: `Error: ${err.message}`,
+                                content: `Error: ${errorMessage(err)}`,
                                 createdAt: new Date().toISOString(),
                             }],
                         })))
@@ -1018,8 +1019,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
 
                 try {
                     void planId
-                } catch (err: any) {
-                    if (err.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         console.error('Plan execution error:', err)
                     }
                 } finally {
@@ -1073,7 +1074,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 }))
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const respondStream = withHarnessActiveRunRetry(
                         String(targetConversationId),
@@ -1096,8 +1097,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Agent resume error:', err)
                     }

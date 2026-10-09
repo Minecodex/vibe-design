@@ -1,3 +1,5 @@
+import type { HarnessConversationRead, PendingInteraction } from '@/api/endpoints/agent'
+import type { ConversationSessionState } from './canvasAgentSession'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createEmptyConversationSession } from './canvasAgentSession'
@@ -42,7 +44,7 @@ vi.mock('./homeHarnessProjection', () => ({
   finalizeHomeHarnessProjection: vi.fn(() => null),
 }))
 
-function conversationDetail(runtimeStatus: string, runState: string) {
+function conversationDetail(runtimeStatus: string, runState: string): HarnessConversationRead {
   return {
     id: 'conv-canvas-stuck',
     title: '会话',
@@ -74,11 +76,11 @@ function turnCompletedEvent(sequence: number) {
       error: null,
       completed_at: '2026-06-16T00:00:01.000Z',
     },
-  } as any
+  } as unknown
 }
 
-function seedActiveStreamingConversation(useChatStore: any) {
-  const session = {
+function seedActiveStreamingConversation(useChatStore: typeof import('./canvasAgentStore').useChatStore) {
+  const session: ConversationSessionState = {
     ...createEmptyConversationSession(),
     runStatus: 'running',
     isStreaming: true,
@@ -120,14 +122,14 @@ function seedActiveStreamingConversation(useChatStore: any) {
     conversationSessions: {
       'conv-canvas-stuck': session,
     },
-  } as any)
+  })
 }
 
 function seedDetachedConversation(
-  useChatStore: any,
-  options: { lastSequence: number; pendingInteraction?: Record<string, any> | null },
+  useChatStore: typeof import('./canvasAgentStore').useChatStore,
+  options: { lastSequence: number; pendingInteraction?: PendingInteraction | null },
 ) {
-  const session = {
+  const session: ConversationSessionState = {
     ...createEmptyConversationSession(),
     runStatus: options.pendingInteraction ? 'waiting_input' : 'idle',
     lastSequence: options.lastSequence,
@@ -147,7 +149,7 @@ function seedDetachedConversation(
     conversationSessions: {
       'conv-canvas-stuck': session,
     },
-  } as any)
+  })
 }
 
 describe('canvasAgentStore stop-then-send', () => {
@@ -183,8 +185,7 @@ describe('canvasAgentStore stop-then-send', () => {
     streamHarnessSendMessageMock
       .mockImplementationOnce(async function* () {
 
-        const err: any = new Error('Conversation already has an active run')
-        err.status = 409
+        const err = Object.assign(new Error('Conversation already has an active run'), { status: 409 })
         yield* [] // This fixture intentionally emits no events.
         throw err
       })
@@ -241,8 +242,7 @@ describe('canvasAgentStore stop-then-send', () => {
     streamHarnessRespondToAgentMock
       .mockImplementationOnce(async function* () {
 
-        const err: any = new Error('Conversation already has an active run')
-        err.status = 409
+        const err = Object.assign(new Error('Conversation already has an active run'), { status: 409 })
         yield* [] // This fixture intentionally emits no events.
         throw err
       })

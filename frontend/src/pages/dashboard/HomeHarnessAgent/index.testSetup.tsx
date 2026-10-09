@@ -1,3 +1,5 @@
+import type { ChatMessage, MessageBlock } from '@/store/homeHarnessStoreSession'
+import type { HarnessConversationRead, HarnessRuntimeStateRead, FailureRead, WorkspaceFileRead } from '@/api/endpoints/agent'
 import { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { beforeEach, vi } from 'vitest'
 import { Workbook } from 'exceljs'
@@ -7,12 +9,12 @@ import type { HomeChatOfficeSheetSnapshot } from './components/homeChatOfficeSna
 import { __homeHarnessMetadataLoaderTestUtils } from './homeHarnessMetadataLoader'
 
 export const storeState = {
-  conversationId: 42,
+  conversationId: 42 as number | string | null,
   projectId: 1,
-  messages: [],
+  messages: [] as ChatMessage[],
   isStreaming: false,
   runStatus: 'idle' as const,
-  streamingBlocks: [],
+  streamingBlocks: [] as MessageBlock[],
   mode: 'fast' as const,
   artifactMode: 'web' as const,
   setMode: vi.fn(),
@@ -25,9 +27,13 @@ export const storeState = {
   skillDecisionReason: null,
   activateSkill: vi.fn(),
   selectDesignSystem: vi.fn(),
-  conversations: [],
+  // Preserve old numeric IDs and top-level failure records as negative replay fixtures.
+  conversations: [] as Array<Omit<HarnessConversationRead, 'id'> & {
+    id: string | number; failure?: Partial<FailureRead> & { error_type?: string }
+  }>,
   conversationsHasMore: false,
-  workspaceFiles: [],
+  workspaceFiles: [] as WorkspaceFileRead[],
+  runtimeState: null as Partial<HarnessRuntimeStateRead> | null,
   engineVersion: 'harness' as const,
   userInteraction: null,
   sendMessage: vi.fn(),
@@ -515,13 +521,13 @@ export function setMockLanguage(language: string) {
       storeState.artifactMode = mode
     })
     storeState.activateSkill.mockImplementation((skillId) => {
-      storeState.activeSkillId = skillId as any
+      storeState.activeSkillId = skillId
     })
     storeState.selectDesignSystem.mockImplementation((designSystemId) => {
-      storeState.selectedDesignSystemId = designSystemId as any
+      storeState.selectedDesignSystemId = designSystemId
     })
     storeState.upsertWorkspaceFile.mockImplementation((conversationId, file) => {
-      const nextWorkspaceFiles = [...(storeState.workspaceFiles as any[]), file]
+      const nextWorkspaceFiles = [...(storeState.workspaceFiles as unknown[]), file]
       sharedStoreSetStateMock({
         conversationId: String(conversationId),
         workspaceFiles: nextWorkspaceFiles,

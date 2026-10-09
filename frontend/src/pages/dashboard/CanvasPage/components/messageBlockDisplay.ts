@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { MessageBlock } from '@/store/canvasAgentTypes'
 import { dedupeEcommerceInteractionBlocks } from '@/components/agent/ecommerceInteractionDedupe'
 
@@ -138,9 +139,9 @@ function mergeCanvasAnalyzeImageBlocks(blocks: MessageBlock[]): MessageBlock[] {
             )
             const elapsedMs = Number(
                 companionPanel?.payload.elapsed_ms
-                ?? companionPanel?.payload.result?.elapsed_ms
+                ?? wireRecord(companionPanel?.payload.result)?.elapsed_ms
                 ?? block.payload.elapsed_ms
-                ?? block.payload.result?.elapsed_ms
+                ?? wireRecord(block.payload.result)?.elapsed_ms
                 ?? 0,
             )
 

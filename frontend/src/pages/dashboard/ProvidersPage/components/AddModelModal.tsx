@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { providersApi } from '@/api/endpoints/providers'
-import type { ModelOption, ModelRead, CredentialRead } from '@/api/endpoints/providers'
+import type { ModelOption, CredentialRead } from '@/api/endpoints/providers'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -29,7 +29,7 @@ interface Props {
   logoUrl: string
   registry: Record<string, ModelOption[]>
   credentials: CredentialRead[]
-  existingModels: ModelRead[]
+  existingModels: Array<{ model_name: string; model_type: string }>
   requiresEndpoint?: boolean
 }
 
