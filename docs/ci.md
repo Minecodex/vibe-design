@@ -14,6 +14,10 @@ git push -u origin feature/your-change
 
 ## 自动检查范围
 
+每个 PR 还必须在隔离 SQLite 与真实后端上通过登录、创建项目、浏览器重载和持久化检查，覆盖桌面亮/暗主题。测试使用当前统一组件和管理员开通的测试账户，不调用真实提供商。
+
+每次 v* 发布执行 release.yml：先通过同一提交的基础 CI，再原生构建 CPU amd64、GPU 镜像 amd64 与 ARM64 三种既有部署镜像，按正式入口在真实 MySQL/Redis 上执行 Alembic heads 迁移并启动两个 worker，使用生产前端构建和 Chromium/Firefox/WebKit 检查登录及项目持久化。只接受实际启动和测试成功的候选镜像；失败、取消或跳过均阻止 Release CI。GPU 镜像的当前通用服务路径在 CI 中验收，不声称无 GPU 的 Runner 已验证 CUDA 计算或硬件吞吐。没有定时任务；手动运行或 ci:release 标签可检查完整候选，工作流不推送镜像或创建公开版本。
+
 Python 3.12 后端 pytest 全套；Node 24 前端 ESLint、Vitest 和 TypeScript/生产构建。使用明确的本地测试数据库与公开测试密钥，不读取生产环境文件或真实提供商凭证。
 
 前端测试环境固定 `Asia/Shanghai`，与包含 `+08:00` 的时间显示 fixture 一致，避免 Linux runner 默认 UTC 造成跨平台断言差异；产品仍按用户所在环境显示时间。
