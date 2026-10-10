@@ -68,7 +68,7 @@ jobs:
         working-directory: frontend
       - name: Build this native deployment profile from the exact source
         run: |
-          docker build -f docker/backend/Dockerfile.${{ matrix.profile }}.base -t vibe-ci-base:${{ github.run_id }} .
+          docker build -f docker/backend/Dockerfile.${{ matrix.profile }}.base --build-arg DEBIAN_MIRROR=https://deb.debian.org/debian --build-arg DEBIAN_SECURITY_MIRROR=https://security.debian.org/debian-security --build-arg NPM_REGISTRY=https://registry.npmjs.org -t vibe-ci-base:${{ github.run_id }} .
           docker build -f docker/backend/Dockerfile.${{ matrix.profile }}.app --build-arg BACKEND_BASE_IMAGE=vibe-ci-base:${{ github.run_id }} -t vibe-ci-candidate:${{ github.run_id }} .
       - name: Apply the actual deployment migrations and provision an isolated user
         run: |

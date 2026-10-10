@@ -4,6 +4,9 @@ FROM python:3.12-slim-bookworm AS base
 ARG PIP_INDEX_URL=https://pypi.org/simple
 ARG PIP_DEFAULT_TIMEOUT=180
 ARG PIP_RETRIES=10
+ARG DEBIAN_MIRROR=https://mirrors.aliyun.com/debian
+ARG DEBIAN_SECURITY_MIRROR=https://mirrors.aliyun.com/debian-security
+ARG NPM_REGISTRY=https://registry.npmmirror.com
 
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -19,13 +22,13 @@ RUN set -eux; \
     if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
         printf '%s\n' \
             'Types: deb' \
-            'URIs: https://mirrors.aliyun.com/debian' \
+            "URIs: $DEBIAN_MIRROR" \
             'Suites: bookworm bookworm-updates' \
             'Components: main' \
             'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
             '' \
             'Types: deb' \
-            'URIs: https://mirrors.aliyun.com/debian-security' \
+            "URIs: $DEBIAN_SECURITY_MIRROR" \
             'Suites: bookworm-security' \
             'Components: main' \
             'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
@@ -33,13 +36,13 @@ RUN set -eux; \
     fi; \
     if [ -f /etc/apt/sources.list ]; then \
         printf '%s\n' \
-            'deb https://mirrors.aliyun.com/debian bookworm main' \
-            'deb https://mirrors.aliyun.com/debian bookworm-updates main' \
-            'deb https://mirrors.aliyun.com/debian-security bookworm-security main' \
+            "deb $DEBIAN_MIRROR bookworm main" \
+            "deb $DEBIAN_MIRROR bookworm-updates main" \
+            "deb $DEBIAN_SECURITY_MIRROR bookworm-security main" \
             > /etc/apt/sources.list; \
     fi; \
     apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-        default-libmysqlclient-dev pkg-config gcc curl ripgrep \
+        default-libmysqlclient-dev pkg-config gcc curl ripgrep libvips42 \
         bubblewrap file \
         libreoffice libreoffice-impress poppler-utils pandoc nodejs npm \
         fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-color-emoji \
@@ -51,7 +54,7 @@ RUN set -eux; \
     && chown -R appuser:appgroup /opt/xscz /app /ms-playwright
 
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --registry=https://registry.npmmirror.com docx@^8.5.0 pptxgenjs
+    npm install -g --registry="$NPM_REGISTRY" docx@^8.5.0 pptxgenjs
 
 COPY backend/runtime ./runtime
 COPY backend/requirements.txt ./requirements.txt
