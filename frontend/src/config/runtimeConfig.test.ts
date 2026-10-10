@@ -29,6 +29,7 @@ describe('runtimeConfig', () => {
   })
 
   it('prefers runtime config values from window.__APP_CONFIG__', async () => {
+    vi.stubEnv('APP_API_BASE_URL', 'https://build.example.com/api/v1')
     window.__APP_CONFIG__ = {
       APP_API_BASE_URL: 'https://api.example.com/api/v1',
     }
@@ -59,5 +60,14 @@ describe('runtimeConfig', () => {
 
     expect(runtimeConfig.getApiBaseUrl()).toBe('http://localhost:8000/api/v1')
     expect(runtimeConfig.getApiOrigin()).toBe('http://localhost:8000')
+  })
+
+  it('keeps build configuration when the runtime script provides an empty object', async () => {
+    vi.stubEnv('APP_API_BASE_URL', '/api/v1')
+    window.__APP_CONFIG__ = {}
+
+    const runtimeConfig = await import('./runtimeConfig')
+
+    expect(runtimeConfig.getApiBaseUrl()).toBe('/api/v1')
   })
 })
