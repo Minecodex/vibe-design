@@ -20,16 +20,18 @@ for (const theme of ['light', 'dark']) {
     await expect(page).toHaveURL(/\/canvas\/\d+/)
     const projectId = page.url().match(/\/canvas\/(\d+)/)?.[1]
     expect(projectId).toBeTruthy()
+    await page.waitForLoadState('networkidle')
     const reloadResponse = page.waitForResponse(response =>
       response.request().method() === 'GET' && response.url().endsWith(`/api/v1/projects/${projectId}`)
-    )
+    ).then(async response => {
+      expect(response.ok()).toBeTruthy()
+      return response.json()
+    })
     await page.reload()
     await expect(page).toHaveURL(new RegExp(`/canvas/${projectId}$`))
-    const loaded = await reloadResponse
+    const record = await reloadResponse
     // The visible reload remains the primary browser assertion; the same
     // real API response must also identify the newly persisted project.
-    expect(loaded.ok()).toBeTruthy()
-    const record = await loaded.json()
     expect(String(record.id)).toBe(projectId)
     await page.goto('/dashboard/projects')
     await expect(page.getByPlaceholder('搜索项目...')).toBeVisible()
