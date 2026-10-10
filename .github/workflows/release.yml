@@ -47,6 +47,7 @@ jobs:
       REDIS_REQUIRED: 'true'
       SECRET_KEY: ci-only-public-test-secret-not-for-deployment
       VIBE_CI_PRODUCTION: 'true'
+      APP_API_BASE_URL: /api/v1
       VITE_PROXY_TARGET: http://127.0.0.1:8000
       TZ: Asia/Shanghai
     steps:

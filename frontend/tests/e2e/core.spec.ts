@@ -10,7 +10,11 @@ for (const theme of ['light', 'dark']) {
     await expect(page.getByPlaceholder('请输入用户名或邮箱')).toBeVisible()
     await page.getByPlaceholder('请输入用户名或邮箱').fill('ciadmin')
     await page.getByPlaceholder('请输入密码', { exact: true }).fill('CI-public-fixture-123!')
+    const loginResponse = page.waitForResponse(response =>
+      response.request().method() === 'POST' && response.url().endsWith('/api/v1/auth/login')
+    )
     await page.locator('button[type="submit"]').click()
+    expect((await loginResponse).ok()).toBeTruthy()
     await expect(page).toHaveURL(/\/dashboard\/projects/)
     await page.getByRole('button', { name: '新建项目', exact: true }).click()
     await expect(page).toHaveURL(/\/canvas\/\d+/)
