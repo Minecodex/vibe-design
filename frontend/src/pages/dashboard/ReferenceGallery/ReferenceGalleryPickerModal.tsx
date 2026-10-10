@@ -99,14 +99,7 @@ function imageLabels(image: ReferenceImageRead): string[] {
   ].filter(Boolean)
 }
 
-export function ReferenceGalleryPickerModal({
-  open,
-  onOpenChange,
-  isDark: _isDark,
-  selectionMode = 'multiple',
-  maxSelection = 0,
-  onSelect,
-}: ReferenceGalleryPickerModalProps) {
+export function ReferenceGalleryPickerModal({ open, onOpenChange, selectionMode = 'multiple', maxSelection = 0, onSelect }: ReferenceGalleryPickerModalProps) {
   const { t } = useTranslation()
   const [categories, setCategories] = useState<ReferenceTaxonomyRead[]>([])
   const [styles, setStyles] = useState<ReferenceTaxonomyRead[]>([])

@@ -1,4 +1,5 @@
 import { apiClient } from '../client'
+import { normalizeAgentEvent, normalizeHarnessConversationDetailRead, type AgentEventWire } from '../agentWireNormalization'
 import {
     extractApiErrorMessageFromText,
     isBillingInsufficientMessage,
@@ -105,7 +106,7 @@ export interface SendMessageRequest {
 export interface RespondToAgentRequest {
     request_id: string
     answer: string
-    answers?: Record<string, any>
+    answers?: Record<string, unknown>
     display_label?: string
     approved?: boolean
 }
@@ -133,13 +134,13 @@ export interface HarnessSkillRead {
     preview_type: string
     preview_entry?: string | null
     primary_output?: string | null
-    parameters?: Array<Record<string, any>>
-    outputs_secondary?: Array<Record<string, any> | string>
-    metadata_health?: Record<string, any>
+    parameters?: Array<Record<string, unknown>>
+    outputs_secondary?: Array<Record<string, unknown> | string>
+    metadata_health?: Record<string, unknown>
     protocol_provider?: string | null
     protocol_family?: string | null
-    protocol_metadata?: Record<string, any>
-    capabilities?: Record<string, any>
+    protocol_metadata?: Record<string, unknown>
+    capabilities?: Record<string, unknown>
     example_prompt?: string | null
     has_example_html?: boolean
 }
@@ -155,7 +156,7 @@ export interface HarnessDesignSystemRead {
     featured?: number | null
     is_default: boolean
     import_mode?: string | null
-    health?: Record<string, any> | null
+    health?: Record<string, unknown> | null
 }
 
 export interface HarnessDesignSystemDetailRead extends HarnessDesignSystemRead {
@@ -171,10 +172,10 @@ export interface HarnessMessageRead {
     id: string | null
     role: 'user' | 'assistant' | 'tool'
     content: string | null
-    blocks?: Record<string, any>[] | null
-    attachments?: Record<string, any>[] | null
-    tool_calls?: Record<string, any>[] | null
-    metadata?: Record<string, any> | null
+    blocks?: Record<string, unknown>[] | null
+    attachments?: Record<string, unknown>[] | null
+    tool_calls?: Record<string, unknown>[] | null
+    metadata?: Record<string, unknown> | null
     created_at: string | null
 }
 
@@ -184,7 +185,7 @@ export interface FailureRecoveryHintRead {
     preferred_tools?: string[]
     avoid_tools?: string[]
     ask_user_when?: string | null
-    context_patch?: Record<string, any> | null
+    context_patch?: Record<string, unknown> | null
 }
 
 export interface FailureRead {
@@ -204,7 +205,7 @@ export interface InteractionOption {
     value: string
     description?: string
     preview_url?: string
-    metadata?: Record<string, any> | null
+    metadata?: Record<string, unknown> | null
     option_type?: string | null
     is_custom_other?: boolean | null
 }
@@ -215,7 +216,7 @@ export interface InteractionField {
     type: 'radio' | 'checkbox' | 'text' | 'textarea' | 'select' | 'cards'
     required?: boolean
     placeholder?: string | null
-    default_value?: any
+    default_value?: unknown
     max_selections?: number | null
     allow_other?: boolean | null
     other_label?: string | null
@@ -247,12 +248,13 @@ export interface PendingInteraction {
     content?: string | null
     kind?: string
     schema?: InteractionSchema | null
-    answers?: Record<string, any> | null
+    answers?: Record<string, unknown> | null
     status?: 'pending' | 'submitted' | 'processing' | 'failed'
-    [key: string]: any
+    [key: string]: unknown
 }
 
 export interface HarnessRuntimeStateRead {
+    critique?: Record<string, unknown> | null
     conversation_id: string
     updated_at?: string | null
     phase: string
@@ -260,8 +262,8 @@ export interface HarnessRuntimeStateRead {
     current_item_id?: string | null
     current_action?: string | null
     activity?: string | null
-    item_progress?: Array<Record<string, any>>
-    artifacts?: Array<Record<string, any>>
+    item_progress?: Array<Record<string, unknown>>
+    artifacts?: Array<Record<string, unknown>>
     artifact_manifest?: {
         version?: number
         kind?: string
@@ -271,9 +273,9 @@ export interface HarnessRuntimeStateRead {
         exports?: string[]
         status?: string
         supporting_files?: string[]
-        validation?: Record<string, any> | null
-        publication?: Record<string, any> | null
-        metadata?: Record<string, any> | null
+        validation?: Record<string, unknown> | null
+        publication?: Record<string, unknown> | null
+        metadata?: Record<string, unknown> | null
     } | null
     failure?: FailureRead | null
     runtime_status?: string | null
@@ -284,12 +286,12 @@ export interface HarnessRuntimeStateRead {
     discovery_status?: string | null
     discovery_started_at?: string | null
     discovery_completed_at?: string | null
-    discovery_payload?: Record<string, any> | null
-    discovery_schema?: Array<Record<string, any>> | null
-    prepared_workspace?: Record<string, any> | null
-    workspace_runtime_session?: Record<string, any> | null
-    runtime_contract?: Record<string, any> | null
-    turn_route?: Record<string, any> | null
+    discovery_payload?: Record<string, unknown> | null
+    discovery_schema?: Array<Record<string, unknown>> | null
+    prepared_workspace?: Record<string, unknown> | null
+    workspace_runtime_session?: Record<string, unknown> | null
+    runtime_contract?: Record<string, unknown> | null
+    turn_route?: Record<string, unknown> | null
     user_interaction?: PendingInteraction | null
 }
 
@@ -317,7 +319,7 @@ export interface HarnessConversationRead {
     display_status?: string | null
     run_state?: string
     activity?: string | null
-    turn_route?: Record<string, any> | null
+    turn_route?: Record<string, unknown> | null
     stall_reason?: string | null
     last_tool?: string | null
     last_error_summary?: string | null
@@ -327,7 +329,7 @@ export interface HarnessConversationRead {
     run_id: string | null
     started_at: string | null
     finished_at: string | null
-    plan_state?: Record<string, any> | null
+    plan_state?: Record<string, unknown> | null
     planning_draft?: PlanningDraftRead | null
     outline_runtime?: OutlineRuntimeRead | null
     user_plan?: UserPlanRead | null
@@ -337,7 +339,7 @@ export interface HarnessConversationRead {
     // runtime_state copy is often absent, so consumers that need to detect a
     // pending form (e.g. the stream-reconnect gate) must read this field.
     user_interaction?: PendingInteraction | null
-    recovery_summary?: Record<string, any> | null
+    recovery_summary?: Record<string, unknown> | null
     created_at: string
     updated_at: string
 }
@@ -358,8 +360,8 @@ export interface HarnessConversationDetailRead extends HarnessConversationRead {
         limit?: number
     } | null
     workspace_files?: WorkspaceFileRead[]
-    projection?: Record<string, any> | null
-    event_stream?: Record<string, any> | null
+    projection?: Record<string, unknown> | null
+    event_stream?: Record<string, unknown> | null
 }
 
 export interface HarnessConversationMessagesPageRead {
@@ -394,7 +396,7 @@ export interface WorkspaceFileVersionRead {
     parent_input_asset_ids?: string[]
     referenced_asset_ids?: string[]
     note?: string | null
-    artifact_metadata?: Record<string, any>
+    artifact_metadata?: Record<string, unknown>
 }
 
 export interface WorkspaceFileRead {
@@ -408,7 +410,7 @@ export interface WorkspaceFileRead {
     current_version_id?: string
     current_version_path?: string | null
     artifact_kind?: string | null
-    artifact_metadata?: Record<string, any> | null
+    artifact_metadata?: Record<string, unknown> | null
     versions?: WorkspaceFileVersionRead[]
     source?: 'versioned_file' | 'input_asset' | 'reference_asset' | 'plan_asset' | string | null
 }
@@ -445,8 +447,8 @@ export interface WorkbookFreeze {
 export interface WorkbookSheet {
     id?: string | null
     name: string
-    rows?: Record<string, Record<string, any>> | null
-    cols?: Record<string, Record<string, any>> | null
+    rows?: Record<string, Record<string, unknown>> | null
+    cols?: Record<string, Record<string, unknown>> | null
     cells?: Record<string, WorkbookCellValue> | null
     merges?: WorkbookMerge[] | null
     freeze?: WorkbookFreeze | null
@@ -455,14 +457,14 @@ export interface WorkbookSheet {
 export interface WorkbookPayload {
     kind: 'sheet'
     sheets: WorkbookSheet[]
-    styles?: Record<string, Record<string, any>> | null
+    styles?: Record<string, Record<string, unknown>> | null
 }
 
 export interface WorkbookSnapshotSheet {
     id: string
     name: string
-    rows: Record<string, Record<string, any>>
-    cols: Record<string, Record<string, any>>
+    rows: Record<string, Record<string, unknown>>
+    cols: Record<string, Record<string, unknown>>
     cells: Record<string, WorkbookCellValue>
     merges: WorkbookMerge[]
     freeze: WorkbookFreeze | null
@@ -473,7 +475,7 @@ export interface WorkbookSnapshotPayload {
     sheetOrder: string[]
     activeSheetId: string
     sheets: Record<string, WorkbookSnapshotSheet>
-    styles?: Record<string, Record<string, any>> | null
+    styles?: Record<string, Record<string, unknown>> | null
     warning?: string | null
 }
 
@@ -500,7 +502,7 @@ export interface OpenWorkspaceOfficeSessionResponse {
     source_mime_type?: string | null
     source_encoding?: 'base64' | null
     warnings?: string[]
-    capabilities?: Record<string, any> | null
+    capabilities?: Record<string, unknown> | null
     readonly?: boolean
 }
 
@@ -535,9 +537,9 @@ export interface MessageRead {
     id: number
     role: 'user' | 'assistant' | 'tool'
     content: string | null
-    attachments: Record<string, any>[] | null
-    tool_calls: Record<string, any>[] | null
-    metadata: Record<string, any> | null
+    attachments: Record<string, unknown>[] | null
+    tool_calls: Record<string, unknown>[] | null
+    metadata: Record<string, unknown> | null
     created_at: string
 }
 
@@ -551,7 +553,7 @@ export interface PlanStepRead {
     last_activity_at?: string | null
     completed_at?: string | null
     elapsed_ms?: number | null
-    result: Record<string, any> | null
+    result: Record<string, unknown> | null
     error_message: string | null
     generation_task_id: number | null
     created_at: string
@@ -575,7 +577,7 @@ export interface UserPlanOutlineItemRead {
     order?: number | null
     file_path?: string | null
     file_name?: string | null
-    artifact_ref?: Record<string, any> | null
+    artifact_ref?: Record<string, unknown> | null
 }
 
 export interface ExecutionStepRead {
@@ -631,14 +633,14 @@ export interface UserPlanRead {
     outline_id?: string | null
     version?: number | null
     readonly?: boolean
-    outline_state?: Record<string, any> | null
+    outline_state?: Record<string, unknown> | null
     projection_state?: OutlineProjectionRead | null
     execution_state?: ExecutionPlanRead | null
 }
 
 export interface PlanningDraftRead {
     summary?: string | null
-    confirmed_inputs?: Record<string, any>
+    confirmed_inputs?: Record<string, unknown>
     assumptions?: string[]
     draft_outline?: UserPlanOutlineItemRead[]
     open_questions?: string[]
@@ -649,8 +651,8 @@ export interface OutlineRuntimeRead {
     current_outline?: UserPlanRead | null
     execution_state?: ExecutionPlanRead | null
     projection_state?: OutlineProjectionRead | null
-    execution_run?: Record<string, any> | null
-    last_revision?: Record<string, any> | null
+    execution_run?: Record<string, unknown> | null
+    last_revision?: Record<string, unknown> | null
 }
 
 export interface UserProgressRead {
@@ -722,12 +724,14 @@ type AgentRuntimeEventType =
 
 export interface AgentEvent {
     type: AgentRuntimeEventType | PresentationEventType
+    transient?: boolean
+    payload?: Record<string, unknown>
     lane?: 'user' | 'internal'
     sequence?: number
     event_id?: number | string | null
     idempotency_key?: string | null
     run_id?: string | null
-    data: Record<string, any>
+    data: Record<string, unknown>
 }
 
 export interface AgentUiConfigRead {
@@ -769,303 +773,6 @@ export function resolveHarnessWorkspaceUrl(
         return normalized
     }
     return agentApi.getWorkspaceFileUrl(String(conversationId), normalized)
-}
-
-function normalizeAgentEvent(rawEvent: Record<string, any>): AgentEvent {
-    const eventType = String(rawEvent.type || rawEvent.event_type || '')
-    const sequence = Number(rawEvent.sequence ?? rawEvent.seq)
-    const lane = rawEvent.lane === 'internal' ? 'internal' : (rawEvent.lane === 'user' ? 'user' : undefined)
-    const sourcePayload = rawEvent.data && typeof rawEvent.data === 'object'
-        ? rawEvent.data
-        : (rawEvent.payload && typeof rawEvent.payload === 'object' ? rawEvent.payload : {})
-    const payload = { ...(sourcePayload as Record<string, any>) }
-    const timestamp = rawEvent.timestamp ?? rawEvent.ts
-    if (
-        typeof timestamp === 'string'
-        && timestamp.trim().length > 0
-        && payload.created_at == null
-        && payload.createdAt == null
-    ) {
-        payload.created_at = timestamp
-    }
-
-    return {
-        type: eventType as AgentEvent['type'],
-        lane,
-        sequence: Number.isFinite(sequence) ? sequence : undefined,
-        event_id: rawEvent.event_id ?? rawEvent.id ?? null,
-        idempotency_key: rawEvent.idempotency_key ?? null,
-        run_id: rawEvent.run_id ?? null,
-        data: payload as AgentEvent['data'],
-    }
-}
-
-function normalizeFailureRead(raw: unknown): FailureRead | null {
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    return {
-        failure_kind: source.failure_kind ?? source.failureKind ?? null,
-        failure_stage: source.failure_stage ?? source.failureStage ?? null,
-        user_visible: source.user_visible ?? source.userVisible ?? true,
-        summary: source.summary ?? null,
-        root_cause_hint: source.root_cause_hint ?? source.rootCauseHint ?? null,
-        required_next_action: source.required_next_action ?? source.requiredNextAction ?? null,
-        recovery_hint: source.recovery_hint ?? source.recoveryHint ?? null,
-        failure_signature: source.failure_signature ?? source.failureSignature ?? null,
-        retryable: typeof source.retryable === 'boolean' ? source.retryable : null,
-    }
-}
-
-function normalizeInteractionOption(raw: unknown): InteractionOption | null {
-    if (typeof raw === 'string') {
-        const normalized = raw.trim()
-        return normalized ? { label: normalized, value: normalized } : null
-    }
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    const label = String(source.label ?? source.value ?? '').trim()
-    const value = String(source.value ?? source.label ?? '').trim()
-    if (!label || !value) {
-        return null
-    }
-    return {
-        label,
-        value,
-        description: source.description ? String(source.description) : undefined,
-        preview_url: source.preview_url ? String(source.preview_url) : undefined,
-        metadata: source.metadata && typeof source.metadata === 'object' ? source.metadata as Record<string, any> : null,
-        option_type: source.option_type ?? source.optionType ?? null,
-        is_custom_other: source.is_custom_other ?? source.isCustomOther ?? null,
-    }
-}
-
-function normalizePendingInteraction(raw: unknown): PendingInteraction | null {
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    return {
-        ...source,
-        request_id: String(source.request_id ?? source.tool_call_id ?? ''),
-        question: typeof source.question === 'string' ? source.question : undefined,
-        content: typeof source.content === 'string' ? source.content : null,
-        kind: source.kind ? String(source.kind) : undefined,
-        schema: normalizeInteractionSchema(source.schema),
-        answers: source.answers && typeof source.answers === 'object' ? source.answers as Record<string, any> : null,
-        status: String(source.status || 'pending') === 'submitted' ? 'submitted' : 'pending',
-    }
-}
-
-function normalizeInteractionField(raw: unknown): InteractionField | null {
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    const id = String(source.id ?? '').trim()
-    const label = String(source.label ?? '').trim()
-    const type = String(source.type ?? '').trim() as InteractionField['type']
-    if (!id || !label || !type) {
-        return null
-    }
-    return {
-        id,
-        label,
-        type,
-        required: source.required === true,
-        placeholder: source.placeholder ? String(source.placeholder) : null,
-        default_value: source.default_value ?? source.defaultValue,
-        max_selections: typeof source.max_selections === 'number' ? source.max_selections : (typeof source.maxSelections === 'number' ? source.maxSelections : null),
-        allow_other: source.allow_other === true || source.allowOther === true,
-        other_label: source.other_label ? String(source.other_label) : (source.otherLabel ? String(source.otherLabel) : null),
-        other_placeholder: source.other_placeholder ? String(source.other_placeholder) : (source.otherPlaceholder ? String(source.otherPlaceholder) : null),
-        options: Array.isArray(source.options)
-            ? source.options.map(normalizeInteractionOption).filter((option): option is InteractionOption => !!option)
-            : [],
-    }
-}
-
-function normalizeInteractionQuestion(raw: unknown): InteractionQuestion | null {
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    const id = String(source.id ?? '').trim()
-    const header = String(source.header ?? '').trim()
-    const question = String(source.question ?? '').trim()
-    const type = String(source.type ?? '').trim() as InteractionQuestion['type']
-    if (!id || !header || !question || (type !== 'single' && type !== 'multiple' && type !== 'input')) {
-        return null
-    }
-    return {
-        id,
-        header,
-        question,
-        type,
-        max_selections: typeof source.max_selections === 'number' ? source.max_selections : (typeof source.maxSelections === 'number' ? source.maxSelections : null),
-        options: Array.isArray(source.options)
-            ? source.options.map(normalizeInteractionOption).filter((option): option is InteractionOption => !!option)
-            : [],
-    }
-}
-
-function normalizeInteractionSchema(raw: unknown): InteractionSchema | null {
-    if (!raw || typeof raw !== 'object') {
-        return null
-    }
-    const source = raw as Record<string, any>
-    const title = String(source.title ?? '').trim()
-    if (!title) {
-        return null
-    }
-    return {
-        title,
-        description: source.description ? String(source.description) : null,
-        submit_label: source.submit_label ? String(source.submit_label) : (source.submitLabel ? String(source.submitLabel) : null),
-        fields: Array.isArray(source.fields)
-            ? source.fields.map(normalizeInteractionField).filter((field): field is InteractionField => !!field)
-            : [],
-        questions: Array.isArray(source.questions)
-            ? source.questions.map(normalizeInteractionQuestion).filter((question): question is InteractionQuestion => !!question)
-            : [],
-    }
-}
-
-function normalizeRuntimeState(raw: unknown): HarnessRuntimeStateRead | null {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-        return null
-    }
-    const source = raw as Record<string, any>
-    const conversationId = String(source.conversation_id ?? source.conversationId ?? '').trim()
-    const phase = String(source.phase ?? '').trim()
-    const runStatus = String(source.run_status ?? source.runStatus ?? '').trim()
-    if (!conversationId || !phase || !runStatus) {
-        return null
-    }
-    return {
-        conversation_id: conversationId,
-        updated_at: source.updated_at ?? source.updatedAt ?? null,
-        phase,
-        run_status: runStatus,
-        current_item_id: source.current_item_id ?? source.currentItemId ?? null,
-        current_action: source.current_action ?? source.currentAction ?? null,
-        item_progress: Array.isArray(source.item_progress ?? source.itemProgress)
-            ? (source.item_progress ?? source.itemProgress) as Array<Record<string, any>>
-            : [],
-        artifacts: Array.isArray(source.artifacts) ? source.artifacts as Array<Record<string, any>> : [],
-        artifact_manifest: source.artifact_manifest ?? source.artifactManifest ?? null,
-        failure: normalizeFailureRead(source.failure),
-        runtime_status: source.runtime_status ?? source.runtimeStatus ?? null,
-        turn_status: source.turn_status ?? source.turnStatus ?? null,
-        run_state: source.run_state ?? source.runState ?? null,
-        run_id: source.run_id ?? source.runId ?? null,
-        last_tool: source.last_tool ?? source.lastTool ?? null,
-        prepared_workspace: source.prepared_workspace ?? source.preparedWorkspace ?? null,
-        workspace_runtime_session: source.workspace_runtime_session ?? source.workspaceRuntimeSession ?? null,
-        runtime_contract: source.runtime_contract ?? source.runtimeContract ?? null,
-        user_interaction: normalizePendingInteraction(source.user_interaction ?? source.userInteraction),
-    }
-}
-
-function normalizeHarnessConversationDetailRead(
-    raw: HarnessConversationDetailRead | Record<string, any>,
-): HarnessConversationDetailRead {
-    const runtimeState = normalizeRuntimeState(raw.runtime_state)
-    const runtimeContract = runtimeState?.runtime_contract
-    const designSystemId = String(
-        raw.design_system_id
-        ?? (runtimeContract && typeof runtimeContract === 'object' ? runtimeContract.design_system_id : '')
-        ?? '',
-    ).trim() || null
-    return {
-        id: String(raw.id || ''),
-        title: String(raw.title || ''),
-        runtime_profile: raw.runtime_profile === 'canvas' ? 'canvas' : 'home',
-        interaction_profile: raw.interaction_profile === 'canvas_live_interaction'
-            ? 'canvas_live_interaction'
-            : 'home_blocking_preflight',
-        skill_id: raw.skill_id ?? null,
-        resolved_skill_id: raw.resolved_skill_id ?? null,
-        skill_resolution_source: raw.skill_resolution_source ?? null,
-        skill_selection_mode: raw.skill_selection_mode === 'manual' ? 'manual' : 'auto',
-        artifact_mode: String(raw.artifact_mode || 'web'),
-        design_system_id: designSystemId,
-        last_skill_decision_reason: raw.last_skill_decision_reason ?? null,
-        last_skill_decision_confidence: raw.last_skill_decision_confidence ?? null,
-        phase: raw.phase === 'skill_resolving'
-            ? 'skill_resolving'
-            : raw.phase === 'discovery'
-                ? 'discovery'
-                : raw.phase === 'visual_lock'
-                    ? 'visual_lock'
-                    : raw.phase === 'planning'
-            ? 'planning'
-            : raw.phase === 'planning_ready'
-                ? 'planning_ready'
-                : raw.phase === 'awaiting_plan_review'
-                    ? 'awaiting_plan_review'
-                : raw.phase === 'revising_plan'
-                    ? 'revising_plan'
-                    : raw.phase === 'completed'
-                        ? 'completed'
-                        : raw.phase === 'failed'
-                            ? 'failed'
-                            : raw.phase === 'blocked'
-                                ? 'blocked'
-                                : 'executing',
-        mode: String(raw.mode || ''),
-        web_search_enabled: raw.web_search_enabled ?? true,
-        model_preferences: ((raw as Record<string, any>).model_preferences ?? null) as ModelPreferencesPayload | null,
-        protocol_version: typeof (raw as Record<string, any>).protocol_version === 'number'
-            ? (raw as Record<string, any>).protocol_version as number
-            : null,
-        status: String(raw.status || ''),
-        runtime_status: String(raw.runtime_status || ''),
-        display_status: raw.display_status ?? null,
-        run_state: raw.run_state ?? undefined,
-        stall_reason: raw.stall_reason ?? null,
-        last_tool: raw.last_tool ?? null,
-        last_error_summary: raw.last_error_summary ?? null,
-        last_activity_at: raw.last_activity_at ?? null,
-        last_activity_source: raw.last_activity_source ?? null,
-        engine_version: 'harness',
-        run_id: raw.run_id ?? null,
-        started_at: raw.started_at ?? null,
-        finished_at: raw.finished_at ?? null,
-        plan_state: (raw.plan_state as Record<string, any> | null | undefined) ?? null,
-        planning_draft: (raw.planning_draft as PlanningDraftRead | null | undefined) ?? null,
-        outline_runtime: (raw.outline_runtime as OutlineRuntimeRead | null | undefined) ?? null,
-        user_plan: (raw.user_plan as UserPlanRead | null | undefined) ?? null,
-        user_progress: (raw.user_progress as UserProgressRead | null | undefined) ?? null,
-        runtime_state: runtimeState,
-        // Preserve the top-level pending interaction (dropped otherwise). Prefer
-        // the nested runtime_state copy when present, else fall back to the
-        // top-level field the workflow actually persists.
-        user_interaction: runtimeState?.user_interaction
-            ?? normalizePendingInteraction((raw as Record<string, any>).user_interaction),
-        recovery_summary: (raw.recovery_summary as Record<string, any> | null | undefined) ?? null,
-        created_at: String(raw.created_at || ''),
-        updated_at: String(raw.updated_at || ''),
-        messages: Array.isArray(raw.messages)
-            ? raw.messages
-                .filter((message): message is HarnessMessageRead => !!message && typeof message === 'object')
-                .map((message) => ({
-                    ...message,
-                    blocks: Array.isArray((message as Record<string, any>).blocks)
-                        ? (message as Record<string, any>).blocks as Record<string, any>[]
-                        : undefined,
-                }))
-            : [],
-        workspace_files: Array.isArray((raw as Record<string, any>).workspace_files)
-            ? (raw as Record<string, any>).workspace_files as WorkspaceFileRead[]
-            : [],
-        messages_page: (raw as Record<string, any>).messages_page ?? null,
-        projection: (raw as Record<string, any>).projection ?? null,
-        event_stream: (raw as Record<string, any>).event_stream ?? null,
-    } as HarnessConversationDetailRead
 }
 
 // ── API Client ─────────────────────────────────────────────────
@@ -1315,12 +1022,12 @@ export const agentApi = {
             model_name?: string | null
             model_label?: string | null
             prompt?: string | null
-            params?: Record<string, any> | null
+            params?: Record<string, unknown> | null
             provider_code?: string | null
             resolution?: string | null
             duration?: string | number | null
             quality?: string | null
-            canvas_item?: Record<string, any> | null
+            canvas_item?: Record<string, unknown> | null
         }>(
             `/agent/harness/conversations/${conversationId}/generation-artifacts/${encodeURIComponent(artifactRef)}/task`,
         ),
@@ -1334,7 +1041,7 @@ export const agentApi = {
             manual_retry_count: number
             status: string
             error_message: string | null
-            canvas_item?: Record<string, any> | null
+            canvas_item?: Record<string, unknown> | null
             result_url?: string | null
             model_name?: string | null
             model_label?: string | null
@@ -1363,7 +1070,7 @@ function getBaseUrl(): string {
  */
 export async function* fetchSSE(
     path: string,
-    body: Record<string, any> | null,
+    body: object | null,
     signal?: AbortSignal,
     options?: { method?: 'GET' | 'POST' },
 ): AsyncGenerator<AgentEvent> {
@@ -1414,7 +1121,7 @@ export async function* fetchSSE(
         const text = await response.text()
         const message = extractApiErrorMessageFromText(text, `SSE request failed: ${response.status}`)
         const error = new Error(message)
-        ;(error as any).status = response.status
+        Object.assign(error, { status: response.status })
         if (isBillingInsufficientMessage(message)) {
             toast.error(message)
             markApiErrorToastShown(error)
@@ -1443,7 +1150,7 @@ export async function* fetchSSE(
                 const trimmed = line.trim()
                 if (trimmed.startsWith('data: ')) {
                     try {
-                        yield normalizeAgentEvent(JSON.parse(trimmed.slice(6)) as Record<string, any>)
+                        yield normalizeAgentEvent(JSON.parse(trimmed.slice(6)) as AgentEventWire)
                     } catch {
                         // Skip malformed events
                     }
@@ -1454,8 +1161,10 @@ export async function* fetchSSE(
         // Process remaining buffer
         if (buffer.trim().startsWith('data: ')) {
             try {
-                yield normalizeAgentEvent(JSON.parse(buffer.trim().slice(6)) as Record<string, any>)
-            } catch { }
+                yield normalizeAgentEvent(JSON.parse(buffer.trim().slice(6)) as AgentEventWire)
+            } catch {
+                // Ignore a malformed trailing SSE fragment, as for complete lines above.
+            }
         }
     } finally {
         try {

@@ -5,7 +5,7 @@ import { Terminal, ChevronDown, ChevronRight, Copy, Check } from 'lucide-react'
 interface CodeExecutionBlockProps {
     toolName: string
     callId: string
-    args?: Record<string, any>
+    args?: Record<string, unknown>
     output?: string
     isError?: boolean
     elapsedMs?: number
@@ -25,14 +25,15 @@ export function CodeExecutionBlock({
     const [expanded, setExpanded] = useState(false)
     const [copied, setCopied] = useState(false)
 
-    const displayName = toolName === 'bash' ? (args?.command?.split('\n')[0] || 'bash') : toolName
+    const command = typeof args?.command === 'string' ? args.command : ''
+    const displayName = toolName === 'bash' ? (command?.split('\n')[0] || 'bash') : toolName
     const isRunning = output === undefined
     const elapsedLabel = typeof elapsedMs === 'number' && Number.isFinite(elapsedMs)
         ? `${elapsedMs}ms`
         : null
 
     const handleCopy = () => {
-        const text = output || args?.command || ''
+        const text = output || command || ''
         navigator.clipboard.writeText(text)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
@@ -87,14 +88,14 @@ export function CodeExecutionBlock({
                     </button>
 
                     {/* Command */}
-                    {toolName === 'bash' && args?.command && (
+                    {toolName === 'bash' && command && (
                         <div className="mb-2">
                             <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">command</div>
                             <pre className={cn(
                                 'text-xs font-mono whitespace-pre-wrap break-all max-h-40 overflow-y-auto',
                                 isDark ? 'text-zinc-300' : 'text-zinc-700',
                             )}>
-                                {args.command}
+                                {command}
                             </pre>
                         </div>
                     )}

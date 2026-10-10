@@ -1,7 +1,9 @@
+import { wireRecord, wireString } from '@/store/harnessWireFields'
 import type {
   HomeChatOfficeSheetSnapshot,
   HomeChatOfficeWorkbookCellSnapshot,
   HomeChatOfficeWorkbookSheetSnapshot,
+  HomeChatOfficeWorkbookSheetDataSnapshot,
 } from './homeChatOfficeSnapshots'
 
 const DEFAULT_WORKBOOK_ID = 'workbook-1'
@@ -61,7 +63,7 @@ export function getLegacyFirstSheet(snapshot: HomeChatOfficeSheetSnapshot | null
   return snapshot.sheets[0] || null
 }
 
-export function toUniverWorkbookData(snapshot: HomeChatOfficeSheetSnapshot | null | undefined): Record<string, any> | null {
+export function toUniverWorkbookData(snapshot: HomeChatOfficeSheetSnapshot | null | undefined): Record<string, unknown> | null {
   if (!isWorkbookSheetSnapshot(snapshot)) {
     return null
   }
@@ -77,13 +79,13 @@ export function toUniverWorkbookData(snapshot: HomeChatOfficeSheetSnapshot | nul
     locale: DEFAULT_LOCALE,
     sheetOrder,
     styles: snapshot.styles,
-    sheets: sheetOrder.reduce<Record<string, any>>((accumulator, sheetId) => {
+    sheets: sheetOrder.reduce<Record<string, unknown>>((accumulator, sheetId) => {
       const sheet = snapshot.sheets[sheetId]
       if (!sheet) {
         return accumulator
       }
 
-      const cellData = Object.entries(sheet.cells || {}).reduce<Record<string, Record<string, any>>>((rows, [cellKey, cell]) => {
+      const cellData = Object.entries(sheet.cells || {}).reduce<Record<string, Record<string, unknown>>>((rows, [cellKey, cell]) => {
         const [rowIndexText, columnIndexText] = cellKey.split(':')
         const rowIndex = Number(rowIndexText)
         const columnIndex = Number(columnIndexText)
@@ -93,9 +95,9 @@ export function toUniverWorkbookData(snapshot: HomeChatOfficeSheetSnapshot | nul
 
         rows[rowIndex] ||= {}
         rows[rowIndex][columnIndex] = {
-          ...(cell.v !== undefined ? { v: cell.v } : {}),
+          ...(cell.v !== undefined ? { v: cell.v === null || typeof cell.v === 'string' || typeof cell.v === 'number' || typeof cell.v === 'boolean' ? cell.v : String(cell.v) } : {}),
           ...(cell.t ? { t: mapPayloadTypeToCellType(cell.t) } : {}),
-          ...(cell.f ? { f: cell.f } : {}),
+          ...(typeof cell.f === 'string' && cell.f ? { f: cell.f } : {}),
           ...(cell.styleId ? { s: cell.styleId } : {}),
         }
         return rows
@@ -146,17 +148,18 @@ export function toUniverWorkbookData(snapshot: HomeChatOfficeSheetSnapshot | nul
 }
 
 export function univerSheetToWorkbookPayload(workbook: {
-  getSnapshot?: () => Record<string, any> | null | undefined
+  getSnapshot?: () => unknown
   getActiveSheet?: (allowNull?: boolean) => { getSheetId?: () => string } | null | undefined
 } | null | undefined): HomeChatOfficeWorkbookSheetSnapshot {
-  const snapshot = workbook?.getSnapshot?.() || {}
-  const styles = Object.entries(snapshot.styles || {}).reduce<Record<string, Record<string, unknown>>>((accumulator, [styleId, style]) => {
+  const snapshot = wireRecord(workbook?.getSnapshot?.()) || {}
+  const sourceSheets = wireRecord(snapshot.sheets) || {}
+  const styles = Object.entries(wireRecord(snapshot.styles) || {}).reduce<Record<string, Record<string, unknown>>>((accumulator, [styleId, style]) => {
     if (style && typeof style === 'object') {
       accumulator[styleId] = style as Record<string, unknown>
     }
     return accumulator
   }, {})
-  const sheetOrder = Array.isArray(snapshot.sheetOrder) ? snapshot.sheetOrder : Object.keys(snapshot.sheets || {})
+  const sheetOrder = Array.isArray(snapshot.sheetOrder) ? snapshot.sheetOrder.filter((id): id is string => typeof id === 'string') : Object.keys(sourceSheets)
   const activeSheetId = workbook?.getActiveSheet?.(true)?.getSheetId?.()
     || sheetOrder[0]
     || 'sheet-1'
@@ -166,19 +169,20 @@ export function univerSheetToWorkbookPayload(workbook: {
     sheetOrder,
     activeSheetId,
     styles,
-    sheets: sheetOrder.reduce<Record<string, any>>((accumulator, sheetId) => {
-      const sheet = snapshot.sheets?.[sheetId]
+    sheets: sheetOrder.reduce<Record<string, HomeChatOfficeWorkbookSheetDataSnapshot>>((accumulator, sheetId) => {
+      const sheet = wireRecord(sourceSheets[sheetId])
       if (!sheet) {
         return accumulator
       }
 
-      const cells = Object.entries(sheet.cellData || {}).reduce<Record<string, HomeChatOfficeWorkbookCellSnapshot>>((cellAccumulator, [rowIndexText, row]) => {
+      const cells = Object.entries(wireRecord(sheet.cellData) || {}).reduce<Record<string, HomeChatOfficeWorkbookCellSnapshot>>((cellAccumulator, [rowIndexText, row]) => {
         const rowIndex = Number(rowIndexText)
         if (Number.isNaN(rowIndex) || !row || typeof row !== 'object') {
           return cellAccumulator
         }
 
-        Object.entries(row as Record<string, any>).forEach(([columnIndexText, cell]) => {
+        Object.entries(wireRecord(row) || {}).forEach(([columnIndexText, rawCell]) => {
+          const cell = wireRecord(rawCell)
           const columnIndex = Number(columnIndexText)
           if (Number.isNaN(columnIndex) || !cell || typeof cell !== 'object') {
             return
@@ -190,8 +194,8 @@ export function univerSheetToWorkbookPayload(workbook: {
             : null
 
           cellAccumulator[`${rowIndex}:${columnIndex}`] = {
-            ...(cell.v !== undefined ? { v: cell.v } : {}),
-            ...(cell.f ? { f: cell.f } : {}),
+            ...(cell.v !== undefined ? { v: cell.v === null || typeof cell.v === 'string' || typeof cell.v === 'number' || typeof cell.v === 'boolean' ? cell.v : String(cell.v) } : {}),
+            ...(typeof cell.f === 'string' && cell.f ? { f: cell.f } : {}),
             ...(styleId ? { styleId } : {}),
             ...(numFmt ? { numFmt } : {}),
             t: mapCellTypeToPayloadType(cell.t),
@@ -201,16 +205,19 @@ export function univerSheetToWorkbookPayload(workbook: {
         return cellAccumulator
       }, {})
 
+      const freeze = wireRecord(sheet.freeze)
+      const xSplit = Number(freeze?.xSplit) || 0
+      const ySplit = Number(freeze?.ySplit) || 0
       accumulator[sheetId] = {
-        id: sheet.id || sheetId,
-        name: sheet.name || sheetId,
-        rows: Object.entries(sheet.rowData || {}).reduce<Record<string, { h: number }>>((rows, [rowIndex, row]) => {
+        id: wireString(sheet.id) || sheetId,
+        name: wireString(sheet.name) || sheetId,
+        rows: Object.entries(wireRecord(sheet.rowData) || {}).reduce<Record<string, { h: number }>>((rows, [rowIndex, row]) => {
           if (row && typeof row === 'object' && typeof (row as { h?: unknown }).h === 'number') {
             rows[rowIndex] = { h: (row as { h: number }).h }
           }
           return rows
         }, {}),
-        cols: Object.entries(sheet.columnData || {}).reduce<Record<string, { w: number }>>((cols, [columnIndex, column]) => {
+        cols: Object.entries(wireRecord(sheet.columnData) || {}).reduce<Record<string, { w: number }>>((cols, [columnIndex, column]) => {
           if (column && typeof column === 'object' && typeof (column as { w?: unknown }).w === 'number') {
             cols[columnIndex] = { w: (column as { w: number }).w }
           }
@@ -218,17 +225,17 @@ export function univerSheetToWorkbookPayload(workbook: {
         }, {}),
         cells,
         merges: Array.isArray(sheet.mergeData)
-          ? sheet.mergeData.map((merge: Record<string, any>) => ({
+          ? sheet.mergeData.map((merge: Record<string, unknown>) => ({
               startRow: Number(merge.startRow) || 0,
               startCol: Number(merge.startColumn) || 0,
               endRow: Number(merge.endRow) || 0,
               endCol: Number(merge.endColumn) || 0,
             }))
           : [],
-        freeze: sheet.freeze && ((sheet.freeze.xSplit || 0) > 0 || (sheet.freeze.ySplit || 0) > 0)
+        freeze: (xSplit > 0 || ySplit > 0)
           ? {
-              rowSplit: sheet.freeze.ySplit || 0,
-              colSplit: sheet.freeze.xSplit || 0,
+              rowSplit: ySplit,
+              colSplit: xSplit,
             }
           : null,
       }

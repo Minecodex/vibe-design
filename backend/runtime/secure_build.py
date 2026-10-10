@@ -24,10 +24,10 @@ BOOTSTRAP_PYTHON_SOURCES = {
 # that scripts are missing.
 #
 # Prefix match is intentional: any NEW skill folder added under
-# `app/services/agent_harness/skills/` is covered automatically — no code
+# `app/services/agent_harness/capabilities/skills/` is covered automatically — no code
 # change required when introducing a new skill.
 SOURCE_PRESERVED_PREFIXES = (
-    "app/services/agent_harness/skills/",
+    "app/services/agent_harness/capabilities/skills/",
 )
 
 

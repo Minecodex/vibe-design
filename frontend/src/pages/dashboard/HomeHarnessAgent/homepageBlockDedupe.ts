@@ -1,11 +1,12 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { ChatMessage, MessageBlock } from '@/store/homeHarnessStore'
 
 export function extractHomepageBlockCallId(block: MessageBlock): string | null {
   const explicitCallId = String(
     block.payload?.callId
     || block.payload?.call_id
-    || block.payload?.result?.callId
-    || block.payload?.result?.call_id
+    || wireRecord(block.payload?.result)?.callId
+    || wireRecord(block.payload?.result)?.call_id
     || '',
   ).trim()
   if (explicitCallId) {
@@ -36,8 +37,8 @@ export function extractHomepageBlockCallId(block: MessageBlock): string | null {
 export function extractHomepageBlockTaskId(block: MessageBlock): string | null {
   const rawTaskId = block.payload?.taskId
     ?? block.payload?.task_id
-    ?? block.payload?.result?.taskId
-    ?? block.payload?.result?.task_id
+    ?? wireRecord(block.payload?.result)?.taskId
+    ?? wireRecord(block.payload?.result)?.task_id
     ?? block.taskId
   const taskId = String(rawTaskId || '').trim()
   return taskId || null
@@ -46,8 +47,8 @@ export function extractHomepageBlockTaskId(block: MessageBlock): string | null {
 export function extractHomepageBlockArtifactRef(block: MessageBlock): string | null {
   const rawArtifactRef = block.payload?.artifactRef
     ?? block.payload?.artifact_ref
-    ?? block.payload?.result?.artifactRef
-    ?? block.payload?.result?.artifact_ref
+    ?? wireRecord(block.payload?.result)?.artifactRef
+    ?? wireRecord(block.payload?.result)?.artifact_ref
   const artifactRef = String(rawArtifactRef || '').trim()
   return artifactRef || null
 }

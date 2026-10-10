@@ -1,3 +1,4 @@
+import { installCanvas2dContextFixture } from '@/store/testing/canvas2dContextFixture'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -528,7 +529,7 @@ describe('useCanvasController media detail flow', () => {
   })
 
   it('clears the erase session immediately after submit while the generation task is still pending', async () => {
-    let resolveGeneration: ((value: any) => void) | null = null
+    let resolveGeneration: ((value: unknown) => void) | null = null
     generateImageErase.mockImplementation(() => new Promise((resolve) => {
       resolveGeneration = resolve
     }))
@@ -548,7 +549,7 @@ describe('useCanvasController media detail flow', () => {
       getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(4) })),
     }
 
-    const getContextSpy = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(canvasContext as any)
+    const getContextSpy = installCanvas2dContextFixture(canvasContext)
     const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((callback) => {
       callback?.(new Blob(['erase'], { type: 'image/png' }))
     })
@@ -566,7 +567,7 @@ describe('useCanvasController media detail flow', () => {
     }
 
     const restoreImage = globalThis.Image
-    vi.stubGlobal('Image', MockImage as any)
+    vi.stubGlobal('Image', MockImage as unknown)
 
     try {
       const initialSession = {
@@ -586,8 +587,8 @@ describe('useCanvasController media detail flow', () => {
       }
 
       const { result } = renderHook(() => {
-        const [imageEraseSession, setImageEraseSession] = useState<any>(initialSession)
-        const imageEraseSessionRef = useRef<any>(imageEraseSession)
+        const [imageEraseSession, setImageEraseSession] = useState<unknown>(initialSession)
+        const imageEraseSessionRef = useRef<unknown>(imageEraseSession)
 
         return {
           ...useCanvasControllerMedia(createMediaHookArgs({
@@ -622,7 +623,7 @@ describe('useCanvasController media detail flow', () => {
   })
 
   it('preserves the brush mask in the exported composite even after the UI session is cleared', async () => {
-    let resolveGeneration: ((value: any) => void) | null = null
+    let resolveGeneration: ((value: unknown) => void) | null = null
     generateImageErase.mockImplementation(() => new Promise((resolve) => {
       resolveGeneration = resolve
     }))
@@ -691,8 +692,8 @@ describe('useCanvasController media detail flow', () => {
     const createElementSpy = vi.spyOn(document, 'createElement').mockImplementation(((tagName: string) => {
       if (tagName === 'canvas') {
         canvasCreateCount += 1
-        if (canvasCreateCount === 1) return exportCanvas as any
-        if (canvasCreateCount === 2) return patternCanvas as any
+        if (canvasCreateCount === 1) return exportCanvas as unknown
+        if (canvasCreateCount === 2) return patternCanvas as unknown
       }
       return originalCreateElement(tagName)
     }) as typeof document.createElement)
@@ -709,7 +710,7 @@ describe('useCanvasController media detail flow', () => {
       }
     }
 
-    vi.stubGlobal('Image', MockImage as any)
+    vi.stubGlobal('Image', MockImage as unknown)
 
     try {
       const initialSession = {
@@ -729,16 +730,16 @@ describe('useCanvasController media detail flow', () => {
       }
 
       const { result } = renderHook(() => {
-        const [imageEraseSession, setImageEraseSession] = useState<any>(initialSession)
-        const imageEraseSessionRef = useRef<any>(imageEraseSession)
+        const [imageEraseSession, setImageEraseSession] = useState<unknown>(initialSession)
+        const imageEraseSessionRef = useRef<unknown>(imageEraseSession)
 
         return useCanvasControllerMedia(createMediaHookArgs({
           user: { balance_cents: 100 },
           imageEraseSession,
           setImageEraseSession,
           imageEraseSessionRef,
-          imageEraseCanvasRef: { current: displayCanvas as any },
-          imageEraseBrushCanvasRef: { current: brushCanvas as any },
+          imageEraseCanvasRef: { current: displayCanvas as unknown },
+          imageEraseBrushCanvasRef: { current: brushCanvas as unknown },
         }))
       })
 
@@ -768,8 +769,8 @@ describe('useCanvasController media detail flow', () => {
   })
 
   it('tracks text redraw extraction status per item so multiple images can extract in parallel', async () => {
-    let resolveFirst: ((value: any) => void) | null = null
-    let resolveSecond: ((value: any) => void) | null = null
+    let resolveFirst: ((value: unknown) => void) | null = null
+    let resolveSecond: ((value: unknown) => void) | null = null
 
     extractTextRedraw
       .mockImplementationOnce(() => new Promise((resolve) => {
@@ -780,7 +781,7 @@ describe('useCanvasController media detail flow', () => {
       }))
 
     const { result } = renderHook(() => {
-      const [textRedrawState, setTextRedrawState] = useState<any>(null)
+      const [textRedrawState, setTextRedrawState] = useState<unknown>(null)
       const [textRedrawExtractingItemIds, setTextRedrawExtractingItemIds] = useState<Set<string>>(new Set())
 
       return useCanvasControllerMedia(createMediaHookArgs({

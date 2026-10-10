@@ -7,7 +7,7 @@ type PerfHarnessMessage = {
   id: string
   content: string
   attachments?: Array<Record<string, unknown>>
-  blocks: Array<Record<string, any>>
+  blocks: Array<{ id: string; uiKind: string; status: string; payload: Record<string, unknown> }>
 }
 
 export interface AgentHistoryPerfHarnessResult {

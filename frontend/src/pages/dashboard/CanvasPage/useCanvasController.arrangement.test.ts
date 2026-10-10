@@ -168,9 +168,9 @@ describe('copySingleCanvasImageToSystemClipboard', () => {
     const [clipboardItems] = write.mock.calls[0]
     expect(Array.isArray(clipboardItems)).toBe(true)
     expect(clipboardItems).toHaveLength(1)
-    expect(Object.keys((clipboardItems[0] as any).items)).toContain(CANVAS_CLIPBOARD_MIME)
-    expect(Object.keys((clipboardItems[0] as any).items)).toContain('text/plain')
-    expect(Object.keys((clipboardItems[0] as any).items)).toContain('image/png')
+    expect(Object.keys((clipboardItems[0]).items)).toContain(CANVAS_CLIPBOARD_MIME)
+    expect(Object.keys((clipboardItems[0]).items)).toContain('text/plain')
+    expect(Object.keys((clipboardItems[0]).items)).toContain('image/png')
   })
 
   it('calls clipboard.write before the image fetch resolves so the browser keeps the user gesture', async () => {
@@ -241,6 +241,6 @@ describe('writeCanvasClipboardToSystemClipboard', () => {
     const [clipboardItems] = write.mock.calls[0]
     expect(Array.isArray(clipboardItems)).toBe(true)
     expect(clipboardItems).toHaveLength(1)
-    expect(Object.keys((clipboardItems[0] as any).items)).toEqual([CANVAS_CLIPBOARD_MIME, 'text/plain'])
+    expect(Object.keys((clipboardItems[0]).items)).toEqual([CANVAS_CLIPBOARD_MIME, 'text/plain'])
   })
 })

@@ -15,10 +15,10 @@ describe('CanvasWorkspaceMultiSelectToolbar', () => {
       <CanvasWorkspaceMultiSelectToolbar
         selectedItems={['image-1', 'image-2']}
         canvasItems={[
-          { id: 'image-1', type: 'image', x: 10, y: 10, width: 120, height: 90 },
-          { id: 'image-2', type: 'image', x: 180, y: 20, width: 140, height: 120 },
+          { id: 'image-1', type: 'image', url: '', x: 10, y: 10, width: 120, height: 90 },
+          { id: 'image-2', type: 'image', url: '', x: 180, y: 20, width: 140, height: 120 },
         ]}
-        getItemDims={(item: any) => ({ width: item.width, height: item.height })}
+        getItemDims={(item) => ({ width: item.width ?? 0, height: item.height ?? 0 })}
         canvasRef={{ current: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }) } }}
         zoom={100}
         offset={{ x: 0, y: 0 }}
@@ -59,9 +59,9 @@ describe('CanvasWorkspaceMultiSelectToolbar', () => {
       <CanvasWorkspaceMultiSelectToolbar
         selectedItems={['group-1']}
         canvasItems={[
-          { id: 'group-1', type: 'group', x: 10, y: 10, width: 120, height: 90 },
+          { id: 'group-1', type: 'group', url: '', x: 10, y: 10, width: 120, height: 90 },
         ]}
-        getItemDims={(item: any) => ({ width: item.width, height: item.height })}
+        getItemDims={(item) => ({ width: item.width ?? 0, height: item.height ?? 0 })}
         canvasRef={{ current: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }) } }}
         zoom={150}
         offset={{ x: 0, y: 0 }}

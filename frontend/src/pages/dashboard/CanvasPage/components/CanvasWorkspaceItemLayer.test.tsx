@@ -3,8 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { canvasViewportFixture } from '@/store/testing/canvasViewportFixture'
+import { createTranslationFixture } from '@/store/testing/translationFixture'
+import { canvasRenderFixture } from '@/store/testing/canvasRenderFixture'
 import type { CanvasItem } from '@/api/endpoints/projects'
 
+import type { CanvasWorkspaceItemLayerProps } from './canvasRenderContracts'
+import { normalizeReferenceImages } from '../generatorCapabilities'
 import { CanvasWorkspaceItemLayer } from './CanvasWorkspaceItemLayer'
 
 describe('CanvasWorkspaceItemLayer', () => {
@@ -14,22 +19,22 @@ describe('CanvasWorkspaceItemLayer', () => {
     overrides: Partial<React.ComponentProps<typeof CanvasWorkspaceItemLayer>> = {},
   ) {
     return render(
-      <CanvasWorkspaceItemLayer
+      <TestItemLayer
         canvasItems={[item]}
-        clampCanvasStackZIndex={(value: number) => value}
+        clampCanvasStackZIndex={(value?: number) => value ?? 0}
         isHoverOnlyFailedVideoTask={() => false}
         getItemDims={(currentItem: CanvasItem) => ({ width: currentItem.width || 1, height: currentItem.height || 1 })}
         activeDropdown={null}
         hoveredMarkableImageId={null}
         isTransientMarkModeActive={() => false}
         activeTool="select"
-        markModifierState={{}}
+        markModifierState={{ altKey: false, metaKey: false, ctrlKey: false }}
         cropState={null}
         selectedItems={selectedItems}
         getMediaSelectionOverlayMetrics={() => ({ handleSize: 12, handleOffset: 6, borderWidth: 5 })}
         zoom={100}
         offset={{ x: 0, y: 0 }}
-        canvasRef={{ current: { clientWidth: 1200, clientHeight: 800 } }}
+        canvasRef={canvasViewportFixture()}
         selectedSingleItemRect={null}
         getResolvedImageCapability={() => null}
         getResolvedVideoCapability={() => null}
@@ -42,7 +47,7 @@ describe('CanvasWorkspaceItemLayer', () => {
         videoProvider=""
         getItemReferenceImages={() => []}
         shouldDisableVideoAspectRatio={() => false}
-        getVideoGeneratorCapability={() => null}
+        getVideoGeneratorCapability={() => ({ supportsReferenceImages: false, maxReferenceImages: 0, supportsFirstFrame: false, supportsTailFrame: false, disableAspectRatioWhenImages: false, imageModesConflict: false })}
         getCanvasSelectionBorder={(width: number) => `${width}px solid rgb(59, 130, 246)`}
         textEditingItemId={null}
         handleStartTextEdit={vi.fn()}
@@ -76,7 +81,7 @@ describe('CanvasWorkspaceItemLayer', () => {
         updateItem={vi.fn()}
         getMediaDisplayInitializationUpdate={() => null}
         getTextRedrawExtractingBadgeStyle={vi.fn(() => ({}))}
-        t={(key: string, fallbackOrOptions?: unknown) => typeof fallbackOrOptions === 'string' ? fallbackOrOptions : key}
+        t={createTranslationFixture()}
         cropDragState={null}
         handleCropMoveMouseDown={vi.fn()}
         handleCropHandleMouseDown={vi.fn()}
@@ -85,6 +90,7 @@ describe('CanvasWorkspaceItemLayer', () => {
         setActiveDropdown={vi.fn()}
         referenceImageInputRef={{ current: null }}
         openGeneratorAssetLibrary={vi.fn()}
+        openGeneratorReferenceGallery={vi.fn()}
         firstFrameImageInputRef={{ current: null }}
         tailFrameImageInputRef={{ current: null }}
         handleGenerateImage={vi.fn()}
@@ -95,9 +101,9 @@ describe('CanvasWorkspaceItemLayer', () => {
         imageRes="1K"
         videoQuality="720p"
         videoDuration="5"
-        normalizeReferenceImages={(value: string[]) => value}
-        withReferenceImages={(currentItem: CanvasItem) => currentItem}
-        getImageGeneratorCapability={() => ({ maxReferenceImages: 0 })}
+        normalizeReferenceImages={normalizeReferenceImages}
+        withReferenceImages={(reference_images) => ({ reference_images })}
+        getImageGeneratorCapability={() => ({ supportsReferenceImages: false, maxReferenceImages: 0 })}
         imageRatio="1:1"
         videoAspect="16:9"
         ratioHintLabels={{ square: 'square', landscape: 'landscape', portrait: 'portrait' }}
@@ -106,7 +112,7 @@ describe('CanvasWorkspaceItemLayer', () => {
         handleCropDimensionChange={vi.fn()}
         CROP_PRESET_GROUPS={[]}
         setCropExpandedGroups={vi.fn()}
-        cropExpandedGroups={new Set<string>()}
+        cropExpandedGroups={{}}
         handleSelectCropPreset={vi.fn()}
         setCropState={vi.fn()}
         handleApplyCrop={vi.fn()}
@@ -149,22 +155,22 @@ describe('CanvasWorkspaceItemLayer', () => {
     }
 
     const { container } = render(
-      <CanvasWorkspaceItemLayer
+      <TestItemLayer
         canvasItems={[item]}
-        clampCanvasStackZIndex={(value: number) => value}
+        clampCanvasStackZIndex={(value?: number) => value ?? 0}
         isHoverOnlyFailedVideoTask={() => false}
         getItemDims={(currentItem: CanvasItem) => ({ width: currentItem.width || 1, height: currentItem.height || 1 })}
         activeDropdown={null}
         hoveredMarkableImageId={null}
         isTransientMarkModeActive={() => false}
         activeTool="select"
-        markModifierState={{}}
+        markModifierState={{ altKey: false, metaKey: false, ctrlKey: false }}
         cropState={null}
         selectedItems={['brush-1']}
         getMediaSelectionOverlayMetrics={() => ({ handleSize: 12, handleOffset: 6, borderWidth: 2 })}
         zoom={100}
         offset={{ x: 0, y: 0 }}
-        canvasRef={{ current: { clientWidth: 1200, clientHeight: 800 } }}
+        canvasRef={canvasViewportFixture()}
         selectedSingleItemRect={null}
         getResolvedImageCapability={() => null}
         getResolvedVideoCapability={() => null}
@@ -175,7 +181,7 @@ describe('CanvasWorkspaceItemLayer', () => {
         videoModel=""
         getItemReferenceImages={() => []}
         shouldDisableVideoAspectRatio={() => false}
-        getVideoGeneratorCapability={() => null}
+        getVideoGeneratorCapability={() => ({ supportsReferenceImages: false, maxReferenceImages: 0, supportsFirstFrame: false, supportsTailFrame: false, disableAspectRatioWhenImages: false, imageModesConflict: false })}
         getCanvasSelectionBorder={(width: number) => `${width}px solid rgb(59, 130, 246)`}
         textEditingItemId={null}
         handleStartTextEdit={vi.fn()}
@@ -255,7 +261,7 @@ describe('CanvasWorkspaceItemLayer', () => {
     const { container } = renderItemLayer(item)
 
     const generatorCard = container.querySelector('#item-generator-border-1 > div > div') as HTMLElement
-    expect(generatorCard.style.border).toBe('1px solid rgb(203, 213, 225)')
+    expect(generatorCard.style.border).toBe('1px solid var(--app-border)')
   })
 
   it('does not show a price badge in the selected generator action button', () => {
@@ -357,7 +363,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           ? { width: 3840, height: 2160 }
           : { width: 2880, height: 2880 }
       ),
-      formatAspectRatioOptionLabelWithDimensions: (value: string, _labels: any, dims: { width: number; height: number }) =>
+      formatAspectRatioOptionLabelWithDimensions: (value: string, _labels: unknown, dims: { width: number; height: number }) =>
         `${value} ${dims.width} × ${dims.height}`,
       updateItem,
     })
@@ -439,28 +445,28 @@ describe('CanvasWorkspaceItemLayer', () => {
           prompt: 'test prompt',
         },
       ])
-      const [activeDropdown, setActiveDropdown] = useState<any>(null)
+      const [activeDropdown, setActiveDropdown] = useState<CanvasWorkspaceItemLayerProps['activeDropdown']>(null)
 
       return (
-        <CanvasWorkspaceItemLayer
+        <TestItemLayer
           canvasItems={items}
-          clampCanvasStackZIndex={(value: number) => value}
+          clampCanvasStackZIndex={(value?: number) => value ?? 0}
           isHoverOnlyFailedVideoTask={() => false}
           getItemDims={(currentItem: CanvasItem) => ({ width: currentItem.width || 1, height: currentItem.height || 1 })}
           activeDropdown={activeDropdown}
           hoveredMarkableImageId={null}
           isTransientMarkModeActive={() => false}
           activeTool="select"
-          markModifierState={{}}
+          markModifierState={{ altKey: false, metaKey: false, ctrlKey: false }}
           cropState={null}
           selectedItems={[itemId]}
           getMediaSelectionOverlayMetrics={() => ({ handleSize: 12, handleOffset: 6, borderWidth: 5 })}
           zoom={100}
           offset={{ x: 0, y: 0 }}
-          canvasRef={{ current: { clientWidth: 1200, clientHeight: 800 } }}
+          canvasRef={canvasViewportFixture()}
           selectedSingleItemRect={{ left: 20, top: 30, width: 960, height: 540 }}
           getResolvedImageCapability={() => null}
-          getResolvedVideoCapability={() => ({
+          getResolvedVideoCapability={() => ({ disableAspectRatioWhenImages: false, 
             supportsReferenceImages: false,
             maxReferenceImages: 0,
             supportsFirstFrame: false,
@@ -502,7 +508,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           videoModel="seedance-1.0"
           getItemReferenceImages={() => []}
           shouldDisableVideoAspectRatio={() => false}
-          getVideoGeneratorCapability={() => ({
+          getVideoGeneratorCapability={() => ({ disableAspectRatioWhenImages: false, 
             supportsReferenceImages: false,
             maxReferenceImages: 0,
             supportsFirstFrame: false,
@@ -539,12 +545,12 @@ describe('CanvasWorkspaceItemLayer', () => {
           isMarkModifierPressed={() => false}
           addMark={vi.fn()}
           handleAppendImageMentionToChat={vi.fn()}
-          updateItem={(targetItemId: string, updates: any) => {
+          updateItem={(targetItemId: string, updates: Partial<CanvasItem>) => {
             setItems(prev => prev.map(item => item.id === targetItemId ? { ...item, ...updates } : item))
           }}
           getMediaDisplayInitializationUpdate={() => null}
           getTextRedrawExtractingBadgeStyle={vi.fn(() => ({}))}
-          t={(key: string, fallbackOrOptions?: unknown) => typeof fallbackOrOptions === 'string' ? fallbackOrOptions : key}
+          t={createTranslationFixture()}
           cropDragState={null}
           handleCropMoveMouseDown={vi.fn()}
           handleCropHandleMouseDown={vi.fn()}
@@ -553,6 +559,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           setActiveDropdown={setActiveDropdown}
           referenceImageInputRef={{ current: null }}
           openGeneratorAssetLibrary={vi.fn()}
+        openGeneratorReferenceGallery={vi.fn()}
           firstFrameImageInputRef={{ current: null }}
           tailFrameImageInputRef={{ current: null }}
           handleGenerateImage={vi.fn()}
@@ -574,7 +581,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           handleCropDimensionChange={vi.fn()}
           CROP_PRESET_GROUPS={[]}
           setCropExpandedGroups={vi.fn()}
-          cropExpandedGroups={new Set<string>()}
+          cropExpandedGroups={{}}
           handleSelectCropPreset={vi.fn()}
           setCropState={vi.fn()}
           handleApplyCrop={vi.fn()}
@@ -634,37 +641,37 @@ describe('CanvasWorkspaceItemLayer', () => {
           reference_images: ['https://example.com/reference-1.png'],
         },
       ])
-      const [activeDropdown, setActiveDropdown] = useState<any>(null)
+      const [activeDropdown, setActiveDropdown] = useState<CanvasWorkspaceItemLayerProps['activeDropdown']>(null)
 
       return (
-        <CanvasWorkspaceItemLayer
+        <TestItemLayer
           canvasItems={items}
-          clampCanvasStackZIndex={(value: number) => value}
+          clampCanvasStackZIndex={(value?: number) => value ?? 0}
           isHoverOnlyFailedVideoTask={() => false}
           getItemDims={(currentItem: CanvasItem) => ({ width: currentItem.width || 1, height: currentItem.height || 1 })}
           activeDropdown={activeDropdown}
           hoveredMarkableImageId={null}
           isTransientMarkModeActive={() => false}
           activeTool="select"
-          markModifierState={{}}
+          markModifierState={{ altKey: false, metaKey: false, ctrlKey: false }}
           cropState={null}
           selectedItems={[itemId]}
           getMediaSelectionOverlayMetrics={() => ({ handleSize: 12, handleOffset: 6, borderWidth: 5 })}
           zoom={100}
           offset={{ x: 0, y: 0 }}
-          canvasRef={{ current: { clientWidth: 1200, clientHeight: 800 } }}
+          canvasRef={canvasViewportFixture()}
           selectedSingleItemRect={{ left: 20, top: 30, width: 960, height: 540 }}
           getResolvedImageCapability={() => null}
           getResolvedVideoCapability={(item: CanvasItem) => (
             item.model_name === 'doubao-seedance-1-5-pro'
-              ? {
+              ? { disableAspectRatioWhenImages: false, 
                   supportsReferenceImages: false,
                   maxReferenceImages: 0,
                   supportsFirstFrame: true,
                   supportsTailFrame: true,
                   imageModesConflict: false,
                 }
-              : {
+              : { disableAspectRatioWhenImages: false, 
                   supportsReferenceImages: true,
                   maxReferenceImages: 9,
                   supportsFirstFrame: true,
@@ -709,7 +716,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           videoModel="doubao-seedance-2.0"
           getItemReferenceImages={(item: CanvasItem) => item.reference_images || []}
           shouldDisableVideoAspectRatio={() => false}
-          getVideoGeneratorCapability={() => ({
+          getVideoGeneratorCapability={() => ({ disableAspectRatioWhenImages: false, 
             supportsReferenceImages: true,
             maxReferenceImages: 9,
             supportsFirstFrame: true,
@@ -746,12 +753,12 @@ describe('CanvasWorkspaceItemLayer', () => {
           isMarkModifierPressed={() => false}
           addMark={vi.fn()}
           handleAppendImageMentionToChat={vi.fn()}
-          updateItem={(targetItemId: string, updates: any) => {
+          updateItem={(targetItemId: string, updates: Partial<CanvasItem>) => {
             setItems(prev => prev.map(item => item.id === targetItemId ? { ...item, ...updates } : item))
           }}
           getMediaDisplayInitializationUpdate={() => null}
           getTextRedrawExtractingBadgeStyle={vi.fn(() => ({}))}
-          t={(key: string, fallbackOrOptions?: unknown) => typeof fallbackOrOptions === 'string' ? fallbackOrOptions : key}
+          t={createTranslationFixture()}
           cropDragState={null}
           handleCropMoveMouseDown={vi.fn()}
           handleCropHandleMouseDown={vi.fn()}
@@ -760,6 +767,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           setActiveDropdown={setActiveDropdown}
           referenceImageInputRef={{ current: null }}
           openGeneratorAssetLibrary={vi.fn()}
+        openGeneratorReferenceGallery={vi.fn()}
           firstFrameImageInputRef={{ current: null }}
           tailFrameImageInputRef={{ current: null }}
           handleGenerateImage={vi.fn()}
@@ -781,7 +789,7 @@ describe('CanvasWorkspaceItemLayer', () => {
           handleCropDimensionChange={vi.fn()}
           CROP_PRESET_GROUPS={[]}
           setCropExpandedGroups={vi.fn()}
-          cropExpandedGroups={new Set<string>()}
+          cropExpandedGroups={{}}
           handleSelectCropPreset={vi.fn()}
           setCropState={vi.fn()}
           handleApplyCrop={vi.fn()}
@@ -881,3 +889,8 @@ describe('CanvasWorkspaceItemLayer', () => {
     expect(screen.getByText('canvas.generator.generating_progress')).toBeInTheDocument()
   })
 })
+
+function TestItemLayer(props: Partial<CanvasWorkspaceItemLayerProps> & Pick<CanvasWorkspaceItemLayerProps, 'canvasItems'>) {
+const item = props.canvasItems[0] ?? {id:'fixture',type:'image',url:'',x:0,y:0}
+return <CanvasWorkspaceItemLayer {...canvasRenderFixture(item)} {...props} />
+}

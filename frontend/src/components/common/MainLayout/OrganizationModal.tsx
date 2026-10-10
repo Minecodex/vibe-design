@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Pencil, Ban, CheckCircle, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { usersApi, User } from '@/api/endpoints/users'
@@ -48,7 +48,7 @@ export function OrganizationModal({ open, onCancel }: OrganizationModalProps) {
     const [formModalOpen, setFormModalOpen] = useState(false)
     const [editingUser, setEditingUser] = useState<User | null>(null)
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true)
         try {
             const res = await usersApi.getUsers({ page, page_size: pageSize, search: search || undefined })
@@ -59,13 +59,13 @@ export function OrganizationModal({ open, onCancel }: OrganizationModalProps) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [page, pageSize, search, t])
 
     useEffect(() => {
         if (open) {
             fetchData()
         }
-    }, [open, page, pageSize, search])
+    }, [open, fetchData])
 
     const handleSearch = (value: string) => {
         setSearch(value)

@@ -23,7 +23,7 @@
 Pixel Reorganization connects AI conversation, artifact creation, media generation, visual editing, and asset management in one self-hosted workspace. Instead of moving results between disconnected tools, teams can keep the prompt, agent run, generated files, canvas state, and reusable assets inside the same project.
 
 > [!NOTE]
-> The project is under active development. APIs, configuration, and data contracts may change before a stable release. Some capabilities depend on the configured provider and deployment license edition.
+> The project is under active development. APIs, configuration, and data contracts may change before a stable release. Features are available without license activation; model requests require the user's configured provider credentials and sufficient balance.
 
 ## What you can do
 
@@ -294,3 +294,8 @@ Use [GitHub Issues](https://github.com/kakj-go/ai-code/issues) to start a discus
 ## License
 
 This project is licensed under the [Apache License 2.0](./LICENSE). Third-party components included in the repository remain subject to their respective licenses and attribution requirements.
+
+
+## Contributing and CI
+
+Changes to the default branch require a pull request and passing CI. See [the branch protection and CI policy](docs/ci.md).

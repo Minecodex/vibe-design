@@ -1,8 +1,9 @@
-// @ts-nocheck
-import {
-    Plus, History, X, Paperclip, Bot, Lightbulb, Zap, ArrowUp, Film, Square, Trash2, Globe, Box, Check, Loader2, Image as ImageIcon, Layers, MessageSquare, FileText, Presentation, TableProperties, LayoutTemplate, SlidersHorizontal,
-} from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Plus, History, X, Paperclip, Bot, Lightbulb, Zap, ArrowUp, Film, Square, Trash2, Globe, Box, Check, Loader2, Image as ImageIcon, Layers, MessageSquare, SlidersHorizontal } from 'lucide-react';
+import { useEffect, useState, type SyntheticEvent } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import type { ChatSidebarShellProps } from '../hooks/useChatSidebar'
+
+type PendingAttachmentPreview = { src: string; alt: string; ownedUrl?: string }
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ImagePreviewDialog } from '@/components/common/ZoomableImageViewer'
@@ -19,7 +20,7 @@ import { ChatAttachmentStrip } from './ChatAttachmentStrip'
 const MENTION_POPUP_MAX_HEIGHT = 280
 const MENTION_POPUP_ITEM_HEIGHT = 56
 
-export function ChatSidebarShell(props: any) {
+export function ChatSidebarShell(props: ChatSidebarShellProps) {
     const {
         isOpen, isDark, t, cleanTitle, conversations, conversationId, activeView, setActiveView, activeSkillId, skills, handleSkillClick, activateSkill, toolsButtonRef, toolsRef, handleNewChat, loadConversations, projectId, setPendingDeleteConversationId, historyButtonRef, historyRef, hoveredConvId, setHoveredConvId, pendingDeleteConversationId, loadConversation, deleteConversation, formatConversationUpdatedAt, hasMessages, messages, streamingBlocks, isStreaming, runStatus, onFocusItem, canvasItems, deletedAgentMediaKeys, canvasItemsLoaded, forwardSelectionMode, selectedForwardMessageIds, handleEnterForwardSelectionMode, handleToggleForwardMessage, activePlan, approvePlan, rejectPlan, uploadedAttachments, setUploadedAttachments, clearForwardSelection, forwardModeOptions, hasSelectedForwardText, handleOpenForwardAssetLibrary, hasInput, isBusy, textareaRef, handleEditorInput, handleKeyDown, saveEditorSelection, handlePaste, handleComposerDragEnter, handleComposerDragOver, handleComposerDragLeave, handleComposerDrop, isComposerDragActive, mentionPopupVisible, filteredMentionItems, mentionListRef, handleScrollableWheel, setMentionPopupScrollTop, mentionPopupTopSpacerHeight, visibleMentionItems, getGroupChildren, selectedMentionId, setSelectedMentionId, restoreEditorSelection, selectMention, mentionPopupBottomSpacerHeight, markDropdown, marks, onUpdateMarkLabel, updateMarkChipInDom, setMarkDropdown, fileInputRef, handleFileUpload, onOpenAttachmentLibrary, onOpenReferenceGallery, onRequestEcommerceReferenceImages, onUploadEcommerceReferenceImage, maxEcommerceReferenceImages, mode, setMode, availableMultimodalModels, pickDefaultMultimodalModel, getModeSwitchTargetMultimodalModel, setModelPreferences, modelPreferences, modelsButtonRef, hoveredIcon, setHoveredIcon, currentImageModelName, currentVideoModelName, currentMultimodalModelName, modelsRef, modelTab, setModelTab, availableImageModels, availableVideoModels, filterMultimodalModelsForMode, webSearchEnabled, setWebSearchEnabled, stopStreaming, handleSend, isForwardAssetLibraryOpen, setIsForwardAssetLibraryOpen, setForwardMode, handleForwardAssetsSelected, onClose, thinkingModeAvailable, showPluginsTab, attachmentAccept, pauseThinkingAnimation,
     } = props
@@ -29,11 +30,11 @@ export function ChatSidebarShell(props: any) {
         ? t('canvas.chat.modes.thinking_unavailable', 'Current model does not support thinking mode')
         : t('canvas.chat.modes.thinking_desc')
     const showStopButton = isStreaming || runStatus === 'running'
-    const stopDeletePopoverEvent = (event: any) => {
+    const stopDeletePopoverEvent = (event: SyntheticEvent) => {
         event.stopPropagation()
     }
-    const [pendingAttachmentPreview, setPendingAttachmentPreview] = useState(null)
-    const [expandedGenerationSettingsKey, setExpandedGenerationSettingsKey] = useState(null)
+    const [pendingAttachmentPreview, setPendingAttachmentPreview] = useState<PendingAttachmentPreview | null>(null)
+    const [expandedGenerationSettingsKey, setExpandedGenerationSettingsKey] = useState<string | null>(null)
     const attachmentPreviewLabel = t('canvas.chat.attachment_preview', 'Attachment preview')
 
     useEffect(() => {
@@ -46,33 +47,34 @@ export function ChatSidebarShell(props: any) {
         }
     }, [activeView])
 
+    const ownedPreviewUrl = pendingAttachmentPreview?.ownedUrl
     useEffect(() => () => {
-        if (pendingAttachmentPreview?.ownedUrl) {
-            URL.revokeObjectURL(pendingAttachmentPreview.ownedUrl)
+        if (ownedPreviewUrl) {
+            URL.revokeObjectURL(ownedPreviewUrl)
         }
-    }, [pendingAttachmentPreview?.ownedUrl])
+    }, [ownedPreviewUrl])
 
     const handlePendingAttachmentPreview = (url: string) => {
-        const attachment = uploadedAttachments.find((candidate: any) => (
+        const attachment = uploadedAttachments.find((candidate) => (
             candidate.url === url || candidate.preview_url === url || candidate._previewObjectUrl === url
         ))
         const localFile = attachment?._localFile
         if (localFile) {
             const objectUrl = URL.createObjectURL(localFile)
-            setPendingAttachmentPreview((current: any) => {
+            setPendingAttachmentPreview((current) => {
                 if (current?.ownedUrl) {
                     URL.revokeObjectURL(current.ownedUrl)
                 }
                 return {
                     src: objectUrl,
-                    alt: attachment.name || localFile.name || attachmentPreviewLabel,
+                    alt: attachment?.name || localFile.name || attachmentPreviewLabel,
                     ownedUrl: objectUrl,
                 }
             })
             return
         }
         if (url) {
-            setPendingAttachmentPreview((current: any) => {
+            setPendingAttachmentPreview((current) => {
                 if (current?.ownedUrl) {
                     URL.revokeObjectURL(current.ownedUrl)
                 }
@@ -84,7 +86,7 @@ export function ChatSidebarShell(props: any) {
         }
     }
 
-    const IconButton = ({ icon: Icon, id, label, onClick }: { icon: any, id: string, label: string, onClick?: () => void }) => (
+    const IconButton = ({ icon: Icon, id, label, onClick }: { icon: LucideIcon, id: string, label: string, onClick?: () => void }) => (
         <TooltipProvider delayDuration={0}>
             <Tooltip>
                 <TooltipTrigger asChild>
@@ -1407,7 +1409,7 @@ export function ChatSidebarShell(props: any) {
                 open={!!pendingAttachmentPreview}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setPendingAttachmentPreview((current: any) => {
+                        setPendingAttachmentPreview((current) => {
                             if (current?.ownedUrl) {
                                 URL.revokeObjectURL(current.ownedUrl)
                             }

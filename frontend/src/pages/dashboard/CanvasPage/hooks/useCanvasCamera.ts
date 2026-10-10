@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import {
@@ -9,6 +8,9 @@ export type CanvasCamera = {
   offset: { x: number; y: number }
   zoom: number
 }
+
+export type CanvasCameraView = Partial<Pick<ReturnType<typeof useCanvasCamera>,
+  'getCamera' | 'getCommittedCamera' | 'subscribe'>>
 
 type CameraUpdate = Partial<CanvasCamera> & {
   offset?: { x: number; y: number }
@@ -127,7 +129,7 @@ export function useCanvasCamera(args: {
     offsetRef.current = nextCamera.offset
     applyCanvasViewportTransform(canvasContentRef.current, nextCamera.offset, zoom)
     notify(nextCamera, { committed: true, reason: 'initial-sync' })
-  }, [canvasContentRef, notify, offset.x, offset.y, offsetRef, zoom, zoomRef])
+  }, [canvasContentRef, notify, offset, offsetRef, zoom, zoomRef])
 
   return useMemo(() => ({
     cameraRef,

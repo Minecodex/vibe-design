@@ -1,4 +1,6 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { normalizeReferenceImages, getVideoGeneratorCapability } from '../generatorCapabilities'
 
 import type { CanvasItem } from '@/api/endpoints/projects'
 
@@ -28,6 +30,7 @@ function createHarnessItems(count: number): CanvasItem[] {
 const noop = () => {}
 
 export function CanvasPerfHarnessPage() {
+  const { t } = useTranslation()
   const canvasRef = React.useRef<HTMLDivElement | null>(null)
   const canvasContentRef = React.useRef<HTMLDivElement | null>(null)
   const [zoom, setZoom] = React.useState(100)
@@ -106,12 +109,12 @@ export function CanvasPerfHarnessPage() {
         activeDropdown={null}
         hoveredMarkableImageId={null}
         setHoveredMarkableImageId={() => {}}
-        markModifierState={{}}
+        markModifierState={{ altKey: false, ctrlKey: false, metaKey: false }}
         isTransientMarkModeActive={() => false}
         isMarkModifierPressed={() => false}
         addMark={() => {}}
         handleAppendImageMentionToChat={() => {}}
-        clampCanvasStackZIndex={(value: number) => value}
+        clampCanvasStackZIndex={(value?: number) => value ?? 0}
         isHoverOnlyFailedVideoTask={() => false}
         getMediaSelectionOverlayMetrics={() => ({ handleSize: 12, handleOffset: 6, borderWidth: 2 })}
         getResolvedImageCapability={() => null}
@@ -125,7 +128,7 @@ export function CanvasPerfHarnessPage() {
         videoProvider=""
         getItemReferenceImages={() => []}
         shouldDisableVideoAspectRatio={() => false}
-        getVideoGeneratorCapability={() => null}
+        getVideoGeneratorCapability={getVideoGeneratorCapability}
         getImageGeneratorCapability={() => ({ maxReferenceImages: 0, supportsReferenceImages: false })}
         getCanvasSelectionBorder={(width: number) => `${width}px solid var(--app-primary)`}
         getCanvasSelectionHandleAppearance={() => ({ border: '2px solid var(--app-primary)', backgroundColor: 'var(--app-control-thumb)' })}
@@ -138,6 +141,16 @@ export function CanvasPerfHarnessPage() {
         updateItem={noop}
         beginTransaction={noop}
         setActiveGuides={() => {}}
+        setResizingGroupId={noop}
+        handleUngroup={noop}
+        setMultiSelectToolsOpen={noop}
+        multiSelectToolsOpen={null}
+        setGroupBackgroundColor={noop}
+        handleCreateGroup={noop}
+        handleMergeLayers={noop}
+        handleAlign={noop}
+        handleAutoArrange={noop}
+        handleSpacing={noop}
         movingItemIdsRef={{ current: new Set<string>() }}
         setMediaResizeState={noop}
         setBrushResizeState={noop}
@@ -159,7 +172,7 @@ export function CanvasPerfHarnessPage() {
         imageRes="1K"
         videoQuality="720p"
         videoDuration="5s"
-        normalizeReferenceImages={(item: CanvasItem) => item.reference_images || []}
+        normalizeReferenceImages={normalizeReferenceImages}
         withReferenceImages={(referenceImages: string[]) => ({ reference_images: referenceImages })}
         imageRatio="1:1"
         videoAspect="16:9"
@@ -172,7 +185,7 @@ export function CanvasPerfHarnessPage() {
         handleCropDimensionChange={noop}
         CROP_PRESET_GROUPS={[]}
         setCropExpandedGroups={noop}
-        cropExpandedGroups={new Set<string>()}
+        cropExpandedGroups={{}}
         handleSelectCropPreset={noop}
         setCropState={noop}
         handleApplyCrop={noop}
@@ -227,7 +240,7 @@ export function CanvasPerfHarnessPage() {
         handleGenerateAnchoredVideo={noop}
         handleContextMenuAction={() => {}}
         handleCanvasPaste={() => {}}
-        t={((key: string) => key) as any}
+        t={t}
       />
     </div>
   )

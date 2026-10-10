@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { CachedImage, resetCachedImageStateForTests } from './CachedImage'
+import { CachedImage } from './CachedImage'
+import { resetCachedImageStateForTests } from './cachedImageState'
 
 describe('CachedImage', () => {
   afterEach(() => {

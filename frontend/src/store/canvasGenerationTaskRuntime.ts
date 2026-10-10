@@ -1,3 +1,4 @@
+import { wireRecord, wireNullableString, wireId } from './harnessWireFields'
 import { agentApi, type AgentEvent } from '@/api/endpoints/agent'
 import { generationApi } from '@/api/endpoints/generation'
 import type { ChatMessage, MessageBlock, ToolCallInfo } from './canvasAgentTypes'
@@ -11,7 +12,7 @@ const ERROR_RETRY_INTERVAL_MS = 5000
 
 export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
   conversation_id?: string | null
-  params?: Record<string, any> | null
+  params?: Record<string, unknown> | null
   kind?: string | null
   media_type?: string | null
   provider_code?: string | null
@@ -21,12 +22,12 @@ export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
   duration?: string | number | null
   quality?: string | null
   result_urls?: string[] | null
-  canvas_item?: Record<string, any> | null
+  canvas_item?: Record<string, unknown> | null
   canvas_item_deleted?: boolean | null
   canvas_revision?: number | null
   suppress_standard_media_card?: boolean | null
   presentation_surface?: string | null
-  presentation_scope?: Record<string, any> | null
+  presentation_scope?: Record<string, unknown> | null
   presentation_message_key?: string | null
   presentation_parent_block_key?: string | null
   presentation_order?: number | null
@@ -35,13 +36,13 @@ export type CanvasGenerationTaskSnapshot = GenerationTaskSnapshotLike & {
 export type CanvasGenerationRuntimeState = {
   conversationId: string | number | null
   engineVersion?: 'harness' | string
-  onCanvasUpdate?: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null
+  onCanvasUpdate?: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null
 }
 
 export type CanvasGenerationRuntimeAdapter = {
   getState: () => CanvasGenerationRuntimeState
   updateToolCallByGenerationTask: (conversationId: string, snapshot: CanvasGenerationTaskSnapshot) => void
-  updateCanvasItemByGenerationTask?: (conversationId: string, canvasItem: Record<string, any>) => void
+  updateCanvasItemByGenerationTask?: (conversationId: string, canvasItem: Record<string, unknown>) => void
   updateCanvasRevisionByAgentPatch?: (canvasRevision: number, options?: { canvasItemDeleted?: boolean }) => void
   saveCanvasItems?: (conversationId: string) => void
 }
@@ -97,9 +98,13 @@ export function upsertGenerationTaskFromItemEvent(
     return null
   }
   const state = adapter.getState()
+  const payload = event.data?.payload
+  const nestedConversationId = payload && typeof payload === 'object'
+    ? (payload as Record<string, unknown>).conversation_id
+    : undefined
   const conversationId = String(
     event.data?.conversation_id
-    || (event.data?.payload && event.data.payload.conversation_id)
+    || nestedConversationId
     || state.conversationId
     || '',
   ).trim()
@@ -301,10 +306,10 @@ export function updateBlocksByGenerationTask(
   let didChange = false
   const nextBlocks = blocks.map((block) => {
     const payload = block.payload || {}
-    const result = payload.result && typeof payload.result === 'object' ? payload.result : payload
-    const matches = idsMatch(result.task_id, snapshot.task_id)
-      || idsMatch(result.id, snapshot.task_id)
-      || idsMatch(result.artifact_ref, snapshot.artifact_ref)
+    const result = wireRecord(payload.result) || payload
+    const matches = idsMatch(wireRecord(result)?.task_id, snapshot.task_id)
+      || idsMatch(wireRecord(result)?.id, snapshot.task_id)
+      || idsMatch(wireRecord(result)?.artifact_ref, snapshot.artifact_ref)
       || idsMatch(payload.artifact_ref, snapshot.artifact_ref)
     const children = block.children?.length ? updateBlocksByGenerationTask(block.children, snapshot) : block.children
     if (!matches && children === block.children) {
@@ -392,17 +397,16 @@ function isGenerationTaskItemEvent(event: AgentEvent): boolean {
   )
 }
 
-function normalizeItemPayload(event: AgentEvent): Record<string, any> {
+function normalizeItemPayload(event: AgentEvent): Record<string, unknown> {
   const payload = event.data?.payload
-  return payload && typeof payload === 'object' ? payload : {}
+  return wireRecord(payload) || {}
 }
 
-function normalizeGenerationSnapshot(snapshot: Record<string, any>): CanvasGenerationTaskSnapshot {
+function normalizeGenerationSnapshot(snapshot: Record<string, unknown>): CanvasGenerationTaskSnapshot {
   const status = normalizeSnapshotStatus(snapshot.status)
   const messageId = presentationMessageIdFromSnapshot(snapshot)
-  const canvasItem = snapshot.canvas_item && typeof snapshot.canvas_item === 'object'
-    ? { ...snapshot.canvas_item }
-    : undefined
+  const sourceItem = wireRecord(snapshot.canvas_item)
+  const canvasItem: Record<string, unknown> | undefined = sourceItem ? { ...sourceItem } : undefined
   if (canvasItem) {
     canvasItem.status = status === 'completed'
       ? 'completed'
@@ -433,12 +437,12 @@ function normalizeGenerationSnapshot(snapshot: Record<string, any>): CanvasGener
   }
   return {
     ...snapshot,
-    task_id: snapshot.task_id ?? snapshot.id,
-    artifact_ref: snapshot.artifact_ref ?? canvasItem?.artifact_ref,
+    task_id: wireId(snapshot.task_id ?? snapshot.id),
+    artifact_ref: wireNullableString(snapshot.artifact_ref ?? canvasItem?.artifact_ref),
     status,
-    progress: typeof snapshot.progress === 'number' ? snapshot.progress : status === 'completed' ? 100 : snapshot.progress,
-    result_url: snapshot.result_url ?? canvasItem?.url,
-    error_message: snapshot.error_message ?? snapshot.error,
+    progress: typeof snapshot.progress === 'number' ? snapshot.progress : status === 'completed' ? 100 : null,
+    result_url: wireNullableString(snapshot.result_url ?? canvasItem?.url),
+    error_message: wireNullableString(snapshot.error_message ?? snapshot.error),
     canvas_item_deleted: snapshot.canvas_item_deleted === true || snapshot.canvasItemDeleted === true,
     canvas_revision: normalizeCanvasRevision(snapshot.canvas_revision ?? snapshot.canvasRevision),
     canvas_item: canvasItem,
@@ -466,9 +470,9 @@ function normalizeCanvasRevision(value: unknown): number | null {
   return Number.isFinite(numeric) && numeric >= 0 ? Math.trunc(numeric) : null
 }
 
-function presentationMessageIdFromSnapshot(snapshot: Record<string, any>): string | null {
+function presentationMessageIdFromSnapshot(snapshot: Record<string, unknown>): string | null {
   const scope = snapshot.presentation_scope && typeof snapshot.presentation_scope === 'object'
-    ? snapshot.presentation_scope as Record<string, any>
+    ? snapshot.presentation_scope as Record<string, unknown>
     : null
   const value = snapshot.presentation_message_key
     ?? snapshot.presentationMessageKey
@@ -478,7 +482,7 @@ function presentationMessageIdFromSnapshot(snapshot: Record<string, any>): strin
   return text || null
 }
 
-function agentGroupKeyFromSnapshot(snapshot: Record<string, any>): string | null {
+function agentGroupKeyFromSnapshot(snapshot: Record<string, unknown>): string | null {
   void snapshot
   return null
 }
@@ -498,10 +502,10 @@ function normalizeRuntimeStatus(status: unknown): string {
 }
 
 function shouldSuppressStandardMediaCard(snapshot: CanvasGenerationTaskSnapshot): boolean {
-  if ((snapshot as Record<string, any>).suppress_standard_media_card === true) {
+  if ((snapshot as Record<string, unknown>).suppress_standard_media_card === true) {
     return true
   }
-  const params = (snapshot as Record<string, any>).params
+  const params = wireRecord((snapshot as Record<string, unknown>).params)
   return !!(params && typeof params === 'object' && params.suppress_standard_media_card === true)
 }
 
@@ -510,7 +514,7 @@ function isTerminalStatus(status: unknown): boolean {
   return raw === 'completed' || raw === 'failed' || raw === 'cancelled'
 }
 
-function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<string, any> | null {
+function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<string, unknown> | null {
   const item = snapshot.canvas_item
   return item && typeof item === 'object' ? item : null
 }
@@ -518,7 +522,7 @@ function normalizeCanvasItem(snapshot: CanvasGenerationTaskSnapshot): Record<str
 function buildCanvasPlaceholderFromSnapshot(
   snapshot: CanvasGenerationTaskSnapshot,
   conversationId: string | number,
-): Record<string, any> | null {
+): Record<string, unknown> | null {
   const taskId = String(snapshot.task_id ?? snapshot.id ?? '').trim()
   const artifactRef = String(snapshot.artifact_ref ?? '').trim()
   if (!taskId && !artifactRef) {
@@ -534,7 +538,7 @@ function buildCanvasPlaceholderFromSnapshot(
     artifact_ref: artifactRef || null,
     status: status === 'completed' ? 'completed' : status === 'failed' ? 'failed' : 'generating',
     progress: typeof snapshot.progress === 'number' ? snapshot.progress : status === 'completed' ? 100 : 0,
-    error_message: snapshot.error_message ?? snapshot.error,
+    error_message: wireNullableString(snapshot.error_message ?? snapshot.error),
     failure_kind: status === 'failed' ? 'task_failed' : undefined,
     conversationId,
     messageId: presentationMessageIdFromSnapshot(snapshot),
@@ -550,7 +554,7 @@ function publishCanvasPlaceholderUpdate(
   adapter: CanvasGenerationRuntimeAdapter,
   conversationId: string,
   snapshot: CanvasGenerationTaskSnapshot,
-  canvasItem: Record<string, any>,
+  canvasItem: Record<string, unknown>,
 ): void {
   if (isTerminalStatus(snapshot.status)) {
     return
@@ -572,7 +576,7 @@ function publishCanvasTerminalUpdate(
   adapter: CanvasGenerationRuntimeAdapter,
   conversationId: string,
   snapshot: CanvasGenerationTaskSnapshot,
-  canvasItem: Record<string, any>,
+  canvasItem: Record<string, unknown>,
 ): void {
   const state = adapter.getState()
   if (state.conversationId == null || String(state.conversationId) !== String(conversationId)) {
@@ -649,7 +653,7 @@ function pushBlockSnapshot(target: CanvasGenerationTaskSnapshot[], block: Messag
   const payload = block.payload || {}
   const result = payload.result && typeof payload.result === 'object' ? payload.result : payload
   const update = buildGenerationProjectionUpdateFromTaskSnapshot(result)
-  if (update && !isTerminalStatus(result.status || block.status)) {
+  if (update && !isTerminalStatus(wireRecord(result)?.status || block.status)) {
     target.push(result as CanvasGenerationTaskSnapshot)
   }
   for (const child of block.children || []) {
@@ -691,7 +695,7 @@ function mergeToolCallSnapshot(toolCall: ToolCallInfo, snapshot: CanvasGeneratio
   }
 }
 
-function mergeResultSnapshot(result: Record<string, any>, snapshot: CanvasGenerationTaskSnapshot): Record<string, any> {
+function mergeResultSnapshot(result: Record<string, unknown>, snapshot: CanvasGenerationTaskSnapshot): Record<string, unknown> {
   const canvasItem = snapshot.canvas_item
     ? {
       ...(result.canvas_item || {}),
@@ -734,10 +738,10 @@ function idsMatch(left: unknown, right: unknown): boolean {
   return Boolean(a && b && a === b)
 }
 
-function inferKind(snapshot: Record<string, any>): string | null {
+function inferKind(snapshot: Record<string, unknown>): string | null {
   const kind = String(snapshot.kind || snapshot.media_type || '').trim().toLowerCase()
   if (kind === 'image' || kind === 'video') return kind
-  const canvasType = String(snapshot.canvas_item?.type || '').trim().toLowerCase()
+  const canvasType = String(wireRecord(snapshot.canvas_item)?.type || '').trim().toLowerCase()
   if (canvasType.includes('video')) return 'video'
   if (canvasType.includes('image')) return 'image'
   return null

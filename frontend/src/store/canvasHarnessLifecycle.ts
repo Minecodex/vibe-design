@@ -290,7 +290,7 @@ export function normalizeRunId(value: unknown): string {
 }
 
 export function getCanvasEventRunId(event: AgentEvent): string {
-    return normalizeRunId((event as any).run_id ?? event.data?.run_id ?? event.data?.runId)
+    return normalizeRunId((event).run_id ?? event.data?.run_id ?? event.data?.runId)
 }
 
 export function getCanvasConversationRunId(
@@ -300,7 +300,7 @@ export function getCanvasConversationRunId(
     const conversation = conversations.find((entry) => isSameConversationId(entry.id, conversationId))
     const runtimeState = conversation?.runtime_state
     const runtimeStateRunId = runtimeState && typeof runtimeState === 'object' && !Array.isArray(runtimeState)
-        ? (runtimeState as Record<string, any>).run_id
+        ? (runtimeState).run_id
         : null
     return normalizeRunId(conversation?.run_id ?? runtimeStateRunId)
 }
@@ -324,7 +324,7 @@ export function updateCanvasConversationMetaForRunStarted(
                 conversation.runtime_state
                 && typeof conversation.runtime_state === 'object'
                 && !Array.isArray(conversation.runtime_state)
-            ) ? conversation.runtime_state as Record<string, any> : null
+            ) ? conversation.runtime_state : null
             const nextRunId = eventRunId || conversation.run_id
             const nextRuntimeStateRunId = eventRunId || runtimeState?.run_id
             const nextRuntimeState = runtimeState && nextRuntimeStateRunId !== runtimeState.run_id
@@ -348,7 +348,7 @@ export function updateCanvasConversationMetaForRunStarted(
             conversation.runtime_state
             && typeof conversation.runtime_state === 'object'
             && !Array.isArray(conversation.runtime_state)
-        ) ? conversation.runtime_state as Record<string, any> : null
+        ) ? conversation.runtime_state : null
         const nextRuntimeStateRunId = eventRunId || runtimeState?.run_id
         const runtimeStateChanged = Boolean(runtimeState) && (
             nextRuntimeStateRunId !== runtimeState?.run_id
@@ -409,7 +409,7 @@ export function updateCanvasConversationMetaFromTerminalEvent(
             conversation.runtime_state
             && typeof conversation.runtime_state === 'object'
             && !Array.isArray(conversation.runtime_state)
-        ) ? conversation.runtime_state as Record<string, any> : null
+        ) ? conversation.runtime_state : null
         const runtimeStateChanged = Boolean(runtimeState) && (
             runtimeState?.runtime_status !== terminal.status
             || runtimeState?.run_state !== terminal.status

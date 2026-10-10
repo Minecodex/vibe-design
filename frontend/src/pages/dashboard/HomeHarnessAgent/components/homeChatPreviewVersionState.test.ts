@@ -13,7 +13,7 @@ describe('findRuntimePreviewFile', () => {
         size: 1,
         created_at: '2026-05-06T00:00:00Z',
       },
-    ] as any)
+    ])
 
     expect(file?.path).toBe('project/html-ppt-prepared/index.html')
   })

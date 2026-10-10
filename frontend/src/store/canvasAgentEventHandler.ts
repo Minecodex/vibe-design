@@ -1,8 +1,8 @@
 import type {
     AgentEvent,
-    WorkspaceFileRead,
 } from '@/api/endpoints/agent'
 import i18n from '@/i18n'
+import { normalizeLegacyWorkspaceFileEvent } from './canvasWorkspaceFileEvent'
 import { applyCanvasGenerationEvent } from './canvasGenerationProjection'
 import {
     createCanvasGenerationRuntimeAdapter,
@@ -59,7 +59,7 @@ function isActiveCanvasConversation(
 function dispatchCanvasUpdateForActiveConversation(
     get: () => ChatState & ChatActions,
     conversationId: number | string | null | undefined,
-    canvasUpdate: { action: string; item: Record<string, any>; meta?: Record<string, any> },
+    canvasUpdate: { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> },
 ): void {
     const state = get()
     if (!isActiveCanvasConversation(state, conversationId)) {
@@ -89,7 +89,7 @@ function syncCanvasRevisionForActiveConversation(
 }
 
 export function getDurableCanvasEventSequence(event: AgentEvent): number | null {
-    if ((event as any).transient === true) {
+    if ('transient' in event && event.transient === true) {
         return null
     }
     const sequence = typeof event.sequence === 'number' ? event.sequence : null
@@ -109,8 +109,8 @@ export function handleAgentEventV2(
         ? getConversationSession(_get(), scopedConversationId)
         : null
     syncCanvasRevisionForActiveConversation(_get, scopedConversationId, event)
-    if (isPresentationOpEvent(event as any)) {
-        const conversationPatch = extractPresentationConversationPatch(event as any)
+    if (isPresentationOpEvent(event)) {
+        const conversationPatch = extractPresentationConversationPatch(event)
         if (!scopedConversationId) {
             set((s) => {
                 const nextSession = applyPresentationOpToSession({
@@ -118,7 +118,7 @@ export function handleAgentEventV2(
                     streamingBlocks: s.streamingBlocks,
                     lastSequence: 0,
                     appliedPresentationOps: [],
-                }, event as any)
+                }, event)
                 return {
                     messages: nextSession.messages,
                     streamingBlocks: nextSession.streamingBlocks,
@@ -137,7 +137,7 @@ export function handleAgentEventV2(
                 }
                 : {}
             const sessionPatch = applyConversationSessionUpdate(s, scopedConversationId, (session) => (
-                    applyPresentationOpToSession(session, event as any)
+                    applyPresentationOpToSession(session, event)
             ))
             const conversationsPatch = conversationPatch
                 ? {
@@ -340,7 +340,7 @@ export function handleAgentEventV2(
         || event.type === 'generation_completed'
         || event.type === 'generation_failed'
     ) {
-        let canvasUpdate: { action: string; item: Record<string, any>; meta?: Record<string, any> } | undefined
+        let canvasUpdate: { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> } | undefined
         if (scopedConversationId) {
             set((s) => applyConversationSessionUpdate(s, scopedConversationId, (session) => {
                 const projected = applyCanvasGenerationEvent(
@@ -360,16 +360,11 @@ export function handleAgentEventV2(
 
     switch (eventType) {
         case 'file_created':
-        case 'file_updated':
+        case 'file_updated': {
+            const file = normalizeLegacyWorkspaceFileEvent(event.data)
+            if (!file) break
             if (!scopedConversationId) {
                 set((s) => {
-                    const file: WorkspaceFileRead = {
-                        name: event.data.file_path?.split('/').pop() || '',
-                        path: event.data.file_path || '',
-                        type: event.data.type || 'other',
-                        size: event.data.size || 0,
-                        created_at: new Date().toISOString(),
-                    }
                     const existing = s.workspaceFiles.findIndex(f => f.path === file.path)
                     const files = [...s.workspaceFiles]
                     if (existing >= 0) {
@@ -382,13 +377,6 @@ export function handleAgentEventV2(
                 break
             }
             set((s) => applyConversationSessionUpdate(s, scopedConversationId, (session) => {
-                const file: WorkspaceFileRead = {
-                    name: event.data.file_path?.split('/').pop() || '',
-                    path: event.data.file_path || '',
-                    type: event.data.type || 'other',
-                    size: event.data.size || 0,
-                    created_at: new Date().toISOString(),
-                }
                 const existing = session.workspaceFiles.findIndex(f => f.path === file.path)
                 const files = [...session.workspaceFiles]
                 if (existing >= 0) {
@@ -402,6 +390,7 @@ export function handleAgentEventV2(
                 }
             }))
             break
+        }
 
     }
 }
@@ -448,7 +437,7 @@ function shouldReplaySameSequenceTurnCompleted(
 function terminalFailureSummary(event: AgentEvent): string {
     const error = event.data?.error
     if (error && typeof error === 'object') {
-        return String((error as Record<string, any>).summary || '').trim()
+        return String((error as Record<string, unknown>).summary || '').trim()
     }
     return String(event.data?.summary || event.data?.message || '').trim()
 }

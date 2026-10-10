@@ -1,3 +1,4 @@
+import { wireRecord } from './harnessWireFields'
 import {
   applyGenerationProjectionUpdate,
   createGenerationProjectionState,
@@ -14,7 +15,7 @@ import {
 type GenerationEventLike = {
   type: string
   sequence?: number | null
-  data?: Record<string, any> | null
+  data?: Record<string, unknown> | null
 }
 
 export type CanvasGenerationProjectionSession = {
@@ -23,7 +24,7 @@ export type CanvasGenerationProjectionSession = {
 
 export type CanvasGenerationProjectionResult<T extends CanvasGenerationProjectionSession> = {
   session: T & { generationProjection: GenerationProjectionState }
-  canvasUpdate?: { action: string; item: Record<string, any>; meta?: Record<string, any> }
+  canvasUpdate?: { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> }
   handled: boolean
 }
 
@@ -86,7 +87,7 @@ export function applyCanvasGenerationEvent<T extends CanvasGenerationProjectionS
 
 function hasDeletedCanvasItem(event: GenerationEventLike): boolean {
   const data = event.data || {}
-  const payload = data.payload && typeof data.payload === 'object' ? data.payload : {}
-  const result = data.result && typeof data.result === 'object' ? data.result : {}
+  const payload = wireRecord(data.payload) || {}
+  const result = wireRecord(data.result) || {}
   return data.canvas_item_deleted === true || payload.canvas_item_deleted === true || result.canvas_item_deleted === true
 }

@@ -56,7 +56,10 @@ def _schema_violations(node, path: list[str]) -> list[str]:
 
 
 def test_clean_schema_removes_const_from_literal_fields():
-    raw_schema = WriteFileTool().input_model.model_json_schema()
+    raw_schema = {
+        "type": "object",
+        "properties": {"kind": {"type": "string", "const": "file"}},
+    }
 
     assert _walk_for_key(raw_schema, "const")
 
@@ -114,25 +117,23 @@ def test_prepare_tools_for_model_normalizes_annotation_only_write_file_content()
     assert prepared_tools is not None
     content_schema = prepared_tools[0]["function"]["parameters"]["properties"]["content"]
     assert content_schema["type"] == "string"
-    assert content_schema["description"] == "要写入的文件内容"
+    assert "内容" in content_schema["description"]
     assert "title" not in content_schema
     assert "default" not in content_schema
 
 
-def test_prepare_tools_for_model_normalizes_ask_user_default_value():
+def test_prepare_tools_for_model_normalizes_choice_question_schema():
     tools = [AskUserTool().to_api_schema(fmt="openai", language="zh")]
 
     prepared_tools = prepare_tools_for_model("claude-opus-4-7", tools)
 
     assert prepared_tools is not None
     parameters = prepared_tools[0]["function"]["parameters"]
-    default_value_schema = parameters["properties"]["schema"]["properties"]["fields"]["items"][
-        "properties"
-    ]["default_value"]
-    assert default_value_schema["type"] == "string"
-    assert default_value_schema["description"] == "可选默认值；类型必须与字段类型匹配"
-    assert "title" not in default_value_schema
-    assert "default" not in default_value_schema
+    question_schema = parameters["properties"]["questions"]["items"]
+    assert question_schema["properties"]["question"]["type"] == "string"
+    assert question_schema["properties"]["options"]["type"] == "array"
+    assert "schema" not in parameters["properties"]
+    assert "default_value" not in question_schema["properties"]
     assert _schema_violations(parameters, ["ask_user", "parameters"]) == []
 
 

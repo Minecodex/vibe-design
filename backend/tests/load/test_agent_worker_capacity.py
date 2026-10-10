@@ -28,7 +28,7 @@ async def test_agent_worker_runs_ten_light_requests_with_eight_active_slots(monk
             return None
         return pending.pop(0)
 
-    async def _execute_step(self, step):
+    async def _execute_step(self, step, *, wake_source=None):
         del self
         nonlocal active, max_active
         active += 1

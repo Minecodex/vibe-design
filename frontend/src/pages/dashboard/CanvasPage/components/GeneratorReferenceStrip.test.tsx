@@ -2,7 +2,8 @@ import { createRef, useState, type MutableRefObject } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 
-import { GeneratorReferenceStrip, useGeneratorReferenceChips } from './GeneratorReferenceStrip'
+import { GeneratorReferenceStrip } from './GeneratorReferenceStrip'
+import { useGeneratorReferenceChips } from './useGeneratorReferenceChips'
 
 describe('GeneratorReferenceStrip', () => {
   test('reuses generated chip objects when image urls are unchanged by content', () => {

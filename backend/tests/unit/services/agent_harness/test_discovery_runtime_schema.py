@@ -10,6 +10,16 @@ from app.services.agent_harness.authoring.planning.discovery_runtime import (
 from app.services.agent_harness.prompt_runtime import Phase, PromptMode, PromptRuntime, TurnSpec
 
 
+@pytest.fixture(autouse=True)
+def _planning_user_key(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.authoring.planning.discovery_runtime.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
+
+
 def _base_field(index: int) -> dict:
     return {
         "id": f"field_{index}",
@@ -246,6 +256,7 @@ async def test_discovery_schema_model_accepts_tool_call_payload(monkeypatch):
         system_prompt="system",
         user_prompt="user",
         model_name="model",
+                       api_key="test-key",
     )
 
     assert result.payload == {
@@ -291,6 +302,7 @@ async def test_discovery_schema_model_accepts_normalized_tool_call_payload(monke
         system_prompt="system",
         user_prompt="user",
         model_name="model",
+                       api_key="test-key",
     )
 
     assert result.payload == {

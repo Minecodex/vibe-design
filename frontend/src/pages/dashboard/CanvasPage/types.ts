@@ -35,7 +35,7 @@ export interface CanvasContextMenuState {
   type?: 'item' | 'canvas'
 }
 
-export type ActiveDropdownType = 'model' | 'res' | 'ratio' | 'frame_start' | 'frame_end'
+export type ActiveDropdownType = 'model' | 'res' | 'video_res' | 'duration' | 'ratio' | 'frame_start' | 'frame_end'
 
 export interface ActiveDropdownState {
   itemId: string

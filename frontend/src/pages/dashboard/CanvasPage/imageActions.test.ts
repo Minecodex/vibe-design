@@ -123,6 +123,7 @@ describe('imageActions', () => {
     const details = formatImageDetails({
       ...baseItem,
       asset_origin: 'ai_generated',
+      source_asset_id: undefined,
       prompt: 'golden hour city street with reflective rain',
       model_label: 'Nano Banana 2',
       created_at: '2026-04-16T08:00:00Z',

@@ -27,7 +27,7 @@ def test_fixed_settings_ignore_env_and_dotenv_overrides(monkeypatch, tmp_path):
     assert settings.BUILTIN_PROVIDER_API_KEY == ""
     assert settings.BUILTIN_PROVIDER_CODE == "apimart"
     assert settings.BUILTIN_PROVIDER_BILLING_UNIT_PER_YUAN == 500000
-    assert settings.LICENSE_ENVELOPE_KEY == "kakjzzw123!@#"
+    assert settings.LICENSE_ENVELOPE_KEY == ""
     assert settings.DEPLOY_TYPE == "private"
 
 

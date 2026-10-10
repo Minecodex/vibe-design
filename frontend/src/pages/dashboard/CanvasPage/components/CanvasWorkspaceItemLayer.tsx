@@ -1,6 +1,7 @@
-// @ts-nocheck
 
 import { useMemo } from 'react'
+import type { CanvasRenderNode } from '../canvasRenderModel'
+import type { CanvasWorkspaceItemLayerProps } from './canvasRenderContracts'
 import { CanvasBrushItem } from './CanvasBrushItem'
 import { ImageAnchoredImagePanel } from './ImageAnchoredImagePanel'
 import { ImageAnchoredVideoPanel } from './ImageAnchoredVideoPanel'
@@ -19,71 +20,16 @@ import { getViewportSidePanelPosition } from '../floatingPanelPosition'
 import { getAllowedImageRatiosForResolution } from '../imageModelConfig'
 import { isGeneratorModelOptionSelected } from '../generatorModelIdentity'
 
-export function CanvasWorkspaceItemLayer(props: any) {
-  const {
-    canvasItems,
-    clampCanvasStackZIndex,
-    isHoverOnlyFailedVideoTask,
-    getItemDims,
-    activeDropdown,
-    hoveredMarkableImageId,
-    isTransientMarkModeActive,
-    activeTool,
-    markModifierState,
-    cropState,
-    selectedItems,
-    getMediaSelectionOverlayMetrics,
-    zoom,
-    offset,
-    canvasRef,
-    selectedSingleItemRect,
-    getResolvedImageCapability,
-    getResolvedVideoCapability,
-    getResolvedVideoDurations,
-    availableImageModels,
-    availableVideoModels,
-    imageModel,
-    imageProvider,
-    videoModel,
-    videoProvider,
-    getItemReferenceImages,
-    shouldDisableVideoAspectRatio,
-    getVideoGeneratorCapability,
-    getCanvasSelectionBorder,
-    textEditingItemId,
-    handleStartTextEdit,
-    handleCommitTextEdit,
-    handleCancelTextEdit,
-    handleItemMouseDown,
-    setSelectedItems,
-    setContextMenu,
-    setActiveContextMenuItem,
-    beginTransaction,
-    setActiveGuides,
-    movingItemIdsRef,
-    setMediaResizeState,
-    resizingHandle,
-    dragItemStart,
-    resizingStart,
-    getCanvasSelectionHandleAppearance,
-    isDark,
-    setBrushResizeState,
-    setHoveredMarkableImageId,
-    marks,
-    textRedrawExtractingItemIds,
-    isSceneReady,
-    renderSnapshot,
-    useWebGLRenderer,
-    interactionPreview,
-  } = props
+export function CanvasWorkspaceItemLayer(props: CanvasWorkspaceItemLayerProps) {
+  const { canvasItems, clampCanvasStackZIndex, isHoverOnlyFailedVideoTask, getItemDims, activeDropdown, hoveredMarkableImageId, isTransientMarkModeActive, activeTool, markModifierState, cropState, selectedItems, getMediaSelectionOverlayMetrics, zoom, offset, canvasRef, selectedSingleItemRect, getResolvedImageCapability, getResolvedVideoCapability, getResolvedVideoDurations, availableImageModels, availableVideoModels, imageModel, imageProvider, videoModel, videoProvider, getItemReferenceImages, shouldDisableVideoAspectRatio, getVideoGeneratorCapability, getCanvasSelectionBorder, handleItemMouseDown, setSelectedItems, setContextMenu, setActiveContextMenuItem, beginTransaction, setActiveGuides, movingItemIdsRef, setMediaResizeState, resizingHandle, dragItemStart, resizingStart, getCanvasSelectionHandleAppearance, isDark, setBrushResizeState, setHoveredMarkableImageId, marks, textRedrawExtractingItemIds, isSceneReady, renderSnapshot, useWebGLRenderer, interactionPreview } = props
   const selectedItemIdSet = useMemo(() => new Set(selectedItems), [selectedItems])
   const activeDropdownState = useMemo(() => ({
     itemId: activeDropdown?.itemId ?? null,
     type: activeDropdown?.type ?? null,
   }), [activeDropdown])
   const overlayNodeById = useMemo(() => {
-    if (!useWebGLRenderer || !renderSnapshot) return new Map()
-    return new Map(renderSnapshot.overlayNodes.map((node: any) => [node.id, node]))
+    if (!useWebGLRenderer || !renderSnapshot) return new Map<string, CanvasRenderNode>()
+    return new Map<string, CanvasRenderNode>(renderSnapshot.overlayNodes.map((node) => [node.id, node]))
   }, [renderSnapshot, useWebGLRenderer])
   const selectedItemCount = selectedItems.length
   const viewportBounds = useMemo(() => getCanvasViewportCullBounds({
@@ -98,12 +44,12 @@ export function CanvasWorkspaceItemLayer(props: any) {
   // Viewport culling + z-sort: memoized to avoid recalculation on unrelated prop changes
   const visibleItems = useMemo(() => {
     if (useWebGLRenderer && renderSnapshot) {
-      const overlayIds = new Set(renderSnapshot.overlayNodes.map((node: any) => node.id))
+      const overlayIds = new Set(renderSnapshot.overlayNodes.map((node) => node.id))
       return [...canvasItems]
-        .filter((item: any) => item.type !== 'group' && overlayIds.has(item.id))
-        .sort((a: any, b: any) => (a.z_index || 0) - (b.z_index || 0))
+        .filter((item) => item.type !== 'group' && overlayIds.has(item.id))
+        .sort((a, b) => (a.z_index || 0) - (b.z_index || 0))
     }
-    return [...canvasItems].filter((item: any) => {
+    return [...canvasItems].filter((item) => {
       if (item.type === 'group') return false
       if (selectedItemIdSet.has(item.id)) return true
       if (item.is_hidden) return false
@@ -111,7 +57,7 @@ export function CanvasWorkspaceItemLayer(props: any) {
         viewportBounds,
         getItemDims,
       })
-    }).sort((a: any, b: any) => (a.z_index || 0) - (b.z_index || 0))
+    }).sort((a, b) => (a.z_index || 0) - (b.z_index || 0))
   }, [canvasItems, getItemDims, selectedItemIdSet, viewportBounds, renderSnapshot, useWebGLRenderer])
 
   // Hoist zoom-dependent metrics outside the per-item loop (same value for all items)
@@ -137,8 +83,8 @@ export function CanvasWorkspaceItemLayer(props: any) {
 
   return (
     <>
-      {visibleItems.map((item: any) => {
-        const isHidden = item.is_hidden
+      {visibleItems.map((item) => {
+        const isHidden = Boolean(item.is_hidden)
         const isImageGroup = item.type === 'image' || item.type === 'image_generator'
         const isMediaAsset = item.type === 'image' || item.type === 'video'
         const isGenerator = item.type === 'image_generator' || item.type === 'video_generator'
@@ -195,7 +141,7 @@ export function CanvasWorkspaceItemLayer(props: any) {
             top: 0,
           }
 
-        const currentModel = (isImageGroup ? availableImageModels : availableVideoModels).find((m: any) => (
+        const currentModel = (isImageGroup ? availableImageModels : availableVideoModels).find((m) => (
           isGeneratorModelOptionSelected(
             m,
             item.model_name || (isImageGroup ? imageModel : videoModel),
@@ -236,14 +182,14 @@ export function CanvasWorkspaceItemLayer(props: any) {
         const anchoredImagePanel = item.type === 'image' && props.imageAnchoredImageDraft && props.imageAnchoredImageDraft.sourceImageItemId === item.id && selectedItems.includes(item.id) && selectedItems.length === 1 && props.imageAnchoredImageDraftItem
           ? (
             <div style={{ position: 'absolute', top: actualHeight + (12 * 100 / zoom), left: actualWidth / 2, transform: `translateX(-50%) scale(${100 / zoom})`, transformOrigin: 'top center', zIndex: 2147483500 }}>
-              <ImageAnchoredImagePanel draft={props.imageAnchoredImageDraft} availableImageModels={availableImageModels} isDark={isDark} t={props.t as any} amountCents={props.getItemAmountCents(props.imageAnchoredImageDraftItem)} referenceInputRef={props.anchoredImageReferenceInputRef} onUpdateDraft={props.updateImageAnchoredImageDraft} onPreviewImage={props.setPreviewImageUrl} onGenerate={props.handleGenerateAnchoredImage} onPickReferenceFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-image', target: 'reference' })} onPickReferenceFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-image', target: 'reference' })} />
+              <ImageAnchoredImagePanel draft={props.imageAnchoredImageDraft} availableImageModels={availableImageModels} isDark={isDark} t={(key, fallback) => fallback === undefined ? props.t(key) : props.t(key, fallback)} amountCents={props.getItemAmountCents(props.imageAnchoredImageDraftItem)} referenceInputRef={props.anchoredImageReferenceInputRef} onUpdateDraft={props.updateImageAnchoredImageDraft} onPreviewImage={props.setPreviewImageUrl} onGenerate={props.handleGenerateAnchoredImage} onPickReferenceFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-image', target: 'reference' })} onPickReferenceFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-image', target: 'reference' })} />
             </div>
           )
           : null
         const anchoredVideoPanel = item.type === 'image' && props.imageAnchoredVideoDraft && props.imageAnchoredVideoDraft.sourceImageItemId === item.id && selectedItems.includes(item.id) && selectedItems.length === 1 && props.imageAnchoredVideoDraftItem && props.imageAnchoredVideoCapability
           ? (
             <div style={{ position: 'absolute', top: actualHeight + (12 * 100 / zoom), left: actualWidth / 2, transform: `translateX(-50%) scale(${100 / zoom})`, transformOrigin: 'top center', zIndex: 2147483500 }}>
-              <ImageAnchoredVideoPanel draft={props.imageAnchoredVideoDraft} draftItem={props.imageAnchoredVideoDraftItem} capability={props.imageAnchoredVideoCapability} allowedDurations={props.imageAnchoredVideoAllowedDurations} availableVideoModels={availableVideoModels} isDark={isDark} t={props.t as any} amountCents={props.getItemAmountCents(props.imageAnchoredVideoDraftItem)} referenceInputRef={props.anchoredReferenceImageInputRef} firstFrameInputRef={props.anchoredFirstFrameImageInputRef} tailFrameInputRef={props.anchoredTailFrameImageInputRef} onUpdateDraft={props.updateImageAnchoredVideoDraft} onMoveSourcePlacement={props.handleMoveAnchoredVideoSourcePlacement} onPreviewImage={props.setPreviewImageUrl} onGenerate={props.handleGenerateAnchoredVideo} onPickReferenceFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'tail_frame' })} onPickReferenceFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'tail_frame' })} showSourceDragHint />
+              <ImageAnchoredVideoPanel draft={props.imageAnchoredVideoDraft} draftItem={props.imageAnchoredVideoDraftItem} capability={props.imageAnchoredVideoCapability} allowedDurations={props.imageAnchoredVideoAllowedDurations} availableVideoModels={availableVideoModels} isDark={isDark} t={(key, fallback) => fallback === undefined ? props.t(key) : props.t(key, fallback)} amountCents={props.getItemAmountCents(props.imageAnchoredVideoDraftItem)} referenceInputRef={props.anchoredReferenceImageInputRef} firstFrameInputRef={props.anchoredFirstFrameImageInputRef} tailFrameInputRef={props.anchoredTailFrameImageInputRef} onUpdateDraft={props.updateImageAnchoredVideoDraft} onMoveSourcePlacement={props.handleMoveAnchoredVideoSourcePlacement} onPreviewImage={props.setPreviewImageUrl} onGenerate={props.handleGenerateAnchoredVideo} onPickReferenceFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromLibrary={() => props.openGeneratorAssetLibrary({ type: 'anchored-video', target: 'tail_frame' })} onPickReferenceFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromReferenceGallery={() => props.openGeneratorReferenceGallery({ type: 'anchored-video', target: 'tail_frame' })} showSourceDragHint />
             </div>
           )
           : null
@@ -270,7 +216,7 @@ export function CanvasWorkspaceItemLayer(props: any) {
           const renderMode = useWebGLRenderer && overlayNode
             ? overlayNode.overlayKind
             : getCanvasSceneItemRenderMode({
-              useSceneRenderer: useSceneRenderer || (useWebGLRenderer && !isItemSelected),
+              useSceneRenderer: Boolean(useSceneRenderer || (useWebGLRenderer && !isItemSelected)),
               item,
               selectedItems,
               marks,
@@ -424,7 +370,7 @@ export function CanvasWorkspaceItemLayer(props: any) {
         const renderMode = useWebGLRenderer && overlayNode
           ? overlayNode.overlayKind
           : getCanvasSceneItemRenderMode({
-            useSceneRenderer: useSceneRenderer || (useWebGLRenderer && !isItemSelected),
+            useSceneRenderer: Boolean(useSceneRenderer || (useWebGLRenderer && !isItemSelected)),
             item,
             selectedItems,
             marks,
@@ -465,7 +411,7 @@ export function CanvasWorkspaceItemLayer(props: any) {
                   if (isMarkableImage) setHoveredMarkableImageId(item.id)
                 }}
                 onMouseLeave={() => {
-                  setHoveredMarkableImageId((prev: any) => (prev === item.id ? null : prev))
+                  setHoveredMarkableImageId((prev) => (prev === item.id ? null : prev))
                 }}
                 onClick={(e) => {
                   e.stopPropagation()

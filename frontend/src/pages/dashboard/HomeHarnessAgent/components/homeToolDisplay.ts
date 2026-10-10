@@ -55,8 +55,8 @@ export function getHomeToolActionLabel(
   }
 }
 
-function asArgs(args: unknown): Record<string, any> {
-  return args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, any>) : {}
+function asArgs(args: unknown): Record<string, unknown> {
+  return args && typeof args === 'object' && !Array.isArray(args) ? (args as Record<string, unknown>) : {}
 }
 
 function relPath(value: unknown): string {

@@ -1,16 +1,9 @@
-import base64
-import hashlib
-import json
-import os
-from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from unittest.mock import ANY, AsyncMock
 
 import pytest
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import pytest_asyncio
 
-from app.core.config import settings
 from app.core.security import create_access_token, get_password_hash
 from app.models.photoshop_edit_job import PhotoshopEditJob
 from app.models.project import Project
@@ -18,59 +11,21 @@ from app.models.project_user_canvas import ProjectUserCanvas
 from app.models.user import User
 
 
-def _b64url_encode(raw: bytes) -> str:
-    return base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
+@pytest_asyncio.fixture(autouse=True)
+async def _ready_catalog(monkeypatch):
+    """Feature access tests own their catalog and do not depend on test order."""
+    from app.core.config import Settings
+    from app.core.redis_coordination import InProcessRedisCoordinator
+    from app.services.agent_harness import catalog
 
-
-def _build_license_code(
-    private_key,
-    *,
-    expires_at: datetime,
-    builtin_provider_api_key: str,
-    edition: str,
-) -> str:
-    payload = {
-        "expires_at": expires_at.isoformat(),
-        "builtin_provider_api_key": builtin_provider_api_key,
-        "edition": edition,
-    }
-    payload_bytes = json.dumps(payload, separators=(",", ":")).encode()
-    signature = private_key.sign(
-        payload_bytes,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH,
-        ),
-        hashes.SHA256(),
-    )
-    envelope_bytes = json.dumps(
-        {
-            "version": 2,
-            "payload": _b64url_encode(payload_bytes),
-            "signature": _b64url_encode(signature),
-        },
-        separators=(",", ":"),
-    ).encode()
-    aesgcm = AESGCM(hashlib.sha256(settings.LICENSE_ENVELOPE_KEY.encode()).digest())
-    nonce = os.urandom(12)
-    return _b64url_encode(nonce + aesgcm.encrypt(nonce, envelope_bytes, None))
-
-
-@pytest.fixture
-def license_keypair(monkeypatch):
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    public_pem = private_key.public_key().public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    )
-    monkeypatch.setattr(settings, "DEPLOY_TYPE", "private")
-    monkeypatch.setattr(
-        settings,
-        "REDEMPTION_PUBLIC_KEY",
-        public_pem.decode().replace("\n", "\\n"),
-    )
-    monkeypatch.setattr(settings, "LICENSE_ENVELOPE_KEY", "license-capabilities-envelope-key")
-    return private_key
+    coordinator = InProcessRedisCoordinator(settings=Settings(
+        _env_file=None, REDIS_ENABLED=True, REDIS_REQUIRED=False,
+    ))
+    coordinator.health = AsyncMock(return_value={"status": "healthy", "enabled": True})
+    monkeypatch.setattr(catalog, "get_redis_coordinator", lambda: coordinator)
+    monkeypatch.setattr(catalog, "_LOCAL_SKILL_SNAPSHOT", None)
+    monkeypatch.setattr(catalog, "_LOCAL_DESIGN_SYSTEM_SNAPSHOT", None)
+    await catalog.warmup_agent_catalog()
 
 
 async def _create_user(client, db_session, *, suffix: str = "premium") -> User:
@@ -87,17 +42,6 @@ async def _create_user(client, db_session, *, suffix: str = "premium") -> User:
     return user
 
 
-async def _activate_license(client, private_key, *, edition: str) -> None:
-    code = _build_license_code(
-        private_key,
-        expires_at=datetime.now(UTC) + timedelta(days=7),
-        builtin_provider_api_key=f"sk-{edition}-capability",
-        edition=edition,
-    )
-    response = await client.post("/api/v1/license/activate", json={"code": code})
-    assert response.status_code == 200
-
-
 async def _create_project(db_session, *, user_id: int, title: str = "Capability Project") -> Project:
     project = Project(user_id=user_id, title=title)
     db_session.add(project)
@@ -107,9 +51,18 @@ async def _create_project(db_session, *, user_id: int, title: str = "Capability 
 
 
 @pytest.mark.asyncio
-async def test_premium_license_blocks_harness_send_message(client, db_session, license_keypair):
+async def test_harness_send_message_is_available_without_license(client, db_session, monkeypatch):
     user = await _create_user(client, db_session, suffix="harness")
-    await _activate_license(client, license_keypair, edition="premium")
+    enqueue = AsyncMock(return_value=SimpleNamespace(id=123, run_id="run-unlicensed-test"))
+
+    async def live_events(*_args, **_kwargs):
+        if False:
+            yield ""
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.agent_run.control.enqueue_service.enqueue_message_run", enqueue,
+    )
+    monkeypatch.setattr("app.api.v1.endpoints.harness._stream_live_events", live_events)
 
     create_response = await client.post("/api/v1/agent/harness/conversations", json={})
     assert create_response.status_code == 200
@@ -120,19 +73,19 @@ async def test_premium_license_blocks_harness_send_message(client, db_session, l
         json={"content": "hello"},
     )
 
-    assert user.id > 0
-    assert response.status_code == 403
+    assert response.status_code == 200
+    enqueue.assert_awaited_once()
+    assert enqueue.await_args.kwargs["user_id"] == user.id
+    assert enqueue.await_args.kwargs["conversation_id"] == conversation_id
 
 
 @pytest.mark.asyncio
-async def test_premium_license_allows_canvas_harness_send_message(
+async def test_canvas_harness_send_message_is_available_without_license(
     client,
     db_session,
-    license_keypair,
     monkeypatch,
 ):
     user = await _create_user(client, db_session, suffix="canvas-harness")
-    await _activate_license(client, license_keypair, edition="premium")
     project = await _create_project(db_session, user_id=user.id, title="Canvas Harness Capability Project")
     enqueue_calls: list[dict] = []
 
@@ -150,7 +103,11 @@ async def test_premium_license_allows_canvas_harness_send_message(
     async def _load_canvas_items(*_args, **_kwargs):
         return []
 
-    async def _enqueue_message_run(*, user_id, conversation_id, payload, idempotency_key):
+    async def _enqueue_message_run(
+        *, user_id, conversation_id, payload, idempotency_key, parent_usage_log_id=None,
+        parent_billing_conversation=None,
+        wake_worker=True,
+    ):
         enqueue_calls.append({
             "user_id": user_id,
             "conversation_id": conversation_id,
@@ -187,9 +144,13 @@ async def test_premium_license_allows_canvas_harness_send_message(
 
 
 @pytest.mark.asyncio
-async def test_premium_license_blocks_prompt_extractor(client, db_session, license_keypair):
-    await _create_user(client, db_session, suffix="prompt")
-    await _activate_license(client, license_keypair, edition="premium")
+async def test_prompt_extractor_is_available_without_license(client, db_session, monkeypatch):
+    user = await _create_user(client, db_session, suffix="prompt")
+    analyze = AsyncMock(return_value=SimpleNamespace(
+        prompt="测试提示词", prompts={"zh": "测试提示词"}, language="zh-CN",
+        model="gemini-3.1-pro-preview", amount_cents=0,
+    ))
+    monkeypatch.setattr("app.services.prompt_extractor.PromptExtractorService.analyze", analyze)
 
     response = await client.post(
         "/api/v1/extension/prompt-extractor/analyze",
@@ -197,13 +158,14 @@ async def test_premium_license_blocks_prompt_extractor(client, db_session, licen
         files={"image": ("sample.png", b"fake-image-bytes", "image/png")},
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 200
+    assert response.json()["prompt"] == "测试提示词"
+    analyze.assert_awaited_once_with(user_id=user.id, locale="zh-CN", image=ANY)
 
 
 @pytest.mark.asyncio
-async def test_premium_license_blocks_photoshop_edit_job_creation(client, db_session, license_keypair):
+async def test_photoshop_edit_job_creation_is_available_without_license(client, db_session):
     user = await _create_user(client, db_session, suffix="ps-create")
-    await _activate_license(client, license_keypair, edition="premium")
     project = await _create_project(db_session, user_id=user.id)
     db_session.add(
         ProjectUserCanvas(
@@ -232,13 +194,13 @@ async def test_premium_license_blocks_photoshop_edit_job_creation(client, db_ses
         },
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 200
+    assert response.json()["source_canvas_item_id"] == "image-1"
 
 
 @pytest.mark.asyncio
-async def test_premium_license_blocks_photoshop_edit_job_save_and_plugin_save(client, db_session, license_keypair):
+async def test_photoshop_save_is_available_without_license(client, db_session):
     user = await _create_user(client, db_session, suffix="ps-save")
-    await _activate_license(client, license_keypair, edition="premium")
     project = await _create_project(db_session, user_id=user.id)
     job = PhotoshopEditJob(
         project_id=project.id,
@@ -269,5 +231,17 @@ async def test_premium_license_blocks_photoshop_edit_job_save_and_plugin_save(cl
         },
     )
 
-    assert save_job_response.status_code == 403
-    assert save_plugin_response.status_code == 403
+    assert save_job_response.status_code == 200
+    assert save_plugin_response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_unlicensed_features_still_require_authentication(client):
+    response = await client.post("/api/v1/agent/harness/conversations", json={})
+    assert response.status_code == 403
+    response = await client.post(
+        "/api/v1/extension/prompt-extractor/analyze",
+        data={"locale": "zh-CN"},
+        files={"image": ("sample.png", b"test-image", "image/png")},
+    )
+    assert response.status_code == 403

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2 } from 'lucide-react'
 import { projectMembersApi, ProjectMemberRead } from '@/api/endpoints/projectMembers'
@@ -57,19 +57,24 @@ export function MembersModal({ open, onClose, projectId, ownerUserId, onMembersC
     const [searchResults, setSearchResults] = useState<UserType[]>([])
     const [searching, setSearching] = useState(false)
 
+    const onMembersChangeRef = useRef(onMembersChange)
+    useEffect(() => {
+        onMembersChangeRef.current = onMembersChange
+    }, [onMembersChange])
+
     const fetchMembers = useCallback(async () => {
         try {
             setLoading(true)
             const res = await projectMembersApi.list(projectId)
             setMembers(res.data)
-            onMembersChange?.(toProjectUsers(res.data))
+            onMembersChangeRef.current?.(toProjectUsers(res.data))
             return res.data
         } catch {
             toast.error(t('projectsPage.membersLoadFailed'))
         } finally {
             setLoading(false)
         }
-    }, [projectId])
+    }, [projectId, t])
 
     useEffect(() => {
         if (open && projectId) {

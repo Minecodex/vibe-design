@@ -31,7 +31,7 @@ describe('ChatHomePage', () => {
       role: 'assistant',
       content: 'Latest response',
       createdAt: '2026-06-02T14:00:00Z',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -90,7 +90,7 @@ describe('ChatHomePage', () => {
     user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
     storeState.messages = [{
       id: 'assistant-plan',
       role: 'assistant',
@@ -113,7 +113,7 @@ describe('ChatHomePage', () => {
           ],
         },
       }],
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -129,7 +129,7 @@ describe('ChatHomePage', () => {
   })
 
   it('shows open-design lint warnings from the published artifact manifest', () => {
-    ;(storeState as any).runtimeState = {
+    (storeState).runtimeState = {
       artifact_manifest: {
         title: 'Landing',
         kind: 'html',
@@ -186,7 +186,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -222,7 +222,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -256,7 +256,7 @@ describe('ChatHomePage', () => {
       user_interaction: null,
       created_at: '2026-04-27T10:30:00+08:00',
       updated_at: '2026-04-27T10:35:00+08:00',
-    }] as any
+    }]
 
     render(<ChatHomePage />)
 
@@ -295,7 +295,7 @@ describe('ChatHomePage', () => {
     })
 
     storeState.newChat.mockImplementation(() => {
-      storeState.conversationId = null as any
+      storeState.conversationId = null
       storeState.messages = []
       storeState.conversations = []
     })
@@ -382,33 +382,16 @@ describe('ChatHomePage', () => {
     expect(screen.queryByText(/Read File/i)).not.toBeInTheDocument()
   })
 
-  it('uses solid white surfaces for the sidebar and composer cards', () => {
+  it('uses shared surface and border tokens for the sidebar and composer', () => {
     const { container } = render(<ChatHomePage />)
-
-    const surfaces = Array.from(container.querySelectorAll('div')).filter((element) => {
-      const className = element.className
-      return typeof className === 'string' && className.includes('bg-white') && className.includes('rounded')
-    })
-
-    const sidebarSurface = surfaces.find((element) => {
-      const className = element.className as string
-      return className.includes('w-[280px]') && className.includes('rounded-[32px]')
-    })
-
-    const composerSurface = Array.from(container.querySelectorAll('div')).find((element) => {
-      const className = element.className
-      return (
-        typeof className === 'string' &&
-        className.includes('w-full rounded-2xl border') &&
-        className.includes('bg-white')
-      )
-    })
-
-    expect(sidebarSurface?.className).toContain('bg-white')
-    expect(sidebarSurface?.className).not.toContain('bg-white/40')
-
-    expect(composerSurface?.className).toContain('bg-white')
-    expect(composerSurface?.className).not.toContain('bg-white/80')
+    const sidebar = Array.from(container.querySelectorAll('div')).find((element) => (
+      typeof element.className === 'string' && element.className.includes('w-[280px]')
+    ))
+    expect(sidebar?.className).toContain('bg-[var(--app-glass)]')
+    expect(sidebar?.className).toContain('border-[var(--app-border)]')
+    const composer = screen.getByTestId('home-chat-composer-dropzone')
+    expect(composer.className).toContain('bg-[var(--app-surface)]')
+    expect(composer.className).toContain('border-[var(--app-border)]')
   })
 
   it('toggles the homepage composer between default and expanded heights', async () => {
@@ -1701,18 +1684,12 @@ describe('ChatHomePage', () => {
         schema: {
           title: 'Brand brief',
           submitLabel: 'Continue',
-          fields: [
+          questions: [
             {
-              id: 'brand',
-              label: 'Brand name',
-              type: 'text',
-              required: true,
+              id: 'brand', header: 'Brand name', question: 'Brand name', type: 'single', required: true, options: [{ label: '星图科技', value: '星图科技' }, { label: 'Other brand', value: 'Other brand' }],
             },
             {
-              id: 'industry',
-              label: 'Industry',
-              type: 'text',
-              required: true,
+              id: 'industry', header: 'Industry', question: 'Industry', type: 'single', required: true, options: [{ label: '科技、AI', value: '科技、AI' }, { label: 'Other industry', value: 'Other industry' }],
             },
           ],
         },
@@ -1740,18 +1717,12 @@ describe('ChatHomePage', () => {
                 schema: {
                   title: 'Brand brief',
                   submitLabel: 'Continue',
-                  fields: [
+                  questions: [
                     {
-                      id: 'brand',
-                      label: 'Brand name',
-                      type: 'text',
-                      required: true,
+                      id: 'brand', header: 'Brand name', question: 'Brand name', type: 'single', required: true, options: [{ label: '星图科技', value: '星图科技' }, { label: 'Other brand', value: 'Other brand' }],
                     },
                     {
-                      id: 'industry',
-                      label: 'Industry',
-                      type: 'text',
-                      required: true,
+                      id: 'industry', header: 'Industry', question: 'Industry', type: 'single', required: true, options: [{ label: '科技、AI', value: '科技、AI' }, { label: 'Other industry', value: 'Other industry' }],
                     },
                   ],
                 },
@@ -1764,16 +1735,16 @@ describe('ChatHomePage', () => {
 
     render(<ChatHomePage />)
 
-    await user.type(screen.getByLabelText('Brand name'), '星图科技')
-    await user.type(screen.getByLabelText('Industry'), '科技、AI')
+    await user.click(screen.getByRole('button', { name: '星图科技' }))
+    await user.click(screen.getByRole('button', { name: '科技、AI' }))
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
     expect(storeState.respondToAgent).toHaveBeenCalledWith(
       'functions.ask_user:brand',
-      JSON.stringify({ brand: '星图科技', industry: '科技、AI' }),
+      JSON.stringify({ brand: { type: 'option', value: '星图科技', label: '星图科技' }, industry: { type: 'option', value: '科技、AI', label: '科技、AI' } }),
       '星图科技 / 科技、AI',
       undefined,
-      { brand: '星图科技', industry: '科技、AI' },
+      { brand: { type: 'option', value: '星图科技', label: '星图科技' }, industry: { type: 'option', value: '科技、AI', label: '科技、AI' } },
     )
   })
 
@@ -1788,12 +1759,9 @@ describe('ChatHomePage', () => {
         schema: {
           title: 'Brand brief',
           submitLabel: 'Continue',
-          fields: [
+          questions: [
             {
-              id: 'brand',
-              label: 'Brand name',
-              type: 'text',
-              required: true,
+              id: 'brand', header: 'Brand name', question: 'Brand name', type: 'single', required: true, options: [{ label: '星图科技', value: '星图科技' }, { label: 'Other brand', value: 'Other brand' }],
             },
           ],
         },
@@ -1821,12 +1789,9 @@ describe('ChatHomePage', () => {
                 schema: {
                   title: 'Brand brief',
                   submitLabel: 'Continue',
-                  fields: [
+                  questions: [
                     {
-                      id: 'brand',
-                      label: 'Brand name',
-                      type: 'text',
-                      required: true,
+                      id: 'brand', header: 'Brand name', question: 'Brand name', type: 'single', required: true, options: [{ label: '星图科技', value: '星图科技' }, { label: 'Other brand', value: 'Other brand' }],
                     },
                   ],
                 },
@@ -1839,7 +1804,7 @@ describe('ChatHomePage', () => {
 
     render(<ChatHomePage />)
 
-    await user.type(screen.getByLabelText('Brand name'), '星图科技')
+    await user.click(screen.getByRole('button', { name: '星图科技' }))
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     await waitFor(() => {
       expect(screen.getByTestId('home-chat-composer-submit-spinner')).toBeInTheDocument()
@@ -2174,6 +2139,7 @@ describe('ChatHomePage', () => {
           summary: '整理中日人口数据',
           status: 'executing',
           readonly: true,
+          execution_state: { status: 'executing', steps: [] },
           items: [{ id: 'item-1', title: '中国数据', summary: '', order: 1, status: 'completed' }],
         },
       },

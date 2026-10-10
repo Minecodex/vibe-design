@@ -46,7 +46,7 @@ export function AgentLazyMedia({
 
   return (
     <Container
-      ref={ref as any}
+      ref={(node: HTMLDivElement | HTMLSpanElement | null) => { ref.current = node }}
       className={cn('relative overflow-hidden', className)}
       style={{ aspectRatio: `${ratio}`, ...style }}
       onClick={onClick}

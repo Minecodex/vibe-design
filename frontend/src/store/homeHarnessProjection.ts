@@ -1,3 +1,4 @@
+import { wireRecord, wireNullableString } from './harnessWireFields'
 import type {
   AgentEvent,
   HarnessRuntimeStateRead,
@@ -10,6 +11,8 @@ import type {
   WorkspaceFileRead,
 } from '@/api/endpoints/agent'
 import i18n from '@/i18n'
+import { resolveHarnessPendingInteraction } from './harnessStreamLifecycle'
+import { normalizePendingInteraction } from '@/api/agentWireNormalization'
 import type { ChatMessage, MessageBlock, ToolCallInfo } from './homeHarnessStore'
 import { upsertVersionedFile } from './homeHarnessFileVersions'
 import {
@@ -127,7 +130,7 @@ function shouldProjectEvent(event: HomeHarnessProjectionEvent): boolean {
 
 function mergeRuntimeState(
   runtimeState: HarnessRuntimeStateRead | null,
-  patch: Record<string, any>,
+  patch: Record<string, unknown>,
 ): HarnessRuntimeStateRead | null {
   const current = runtimeState || ({
     conversation_id: String(patch.conversation_id || patch.conversationId || ''),
@@ -139,19 +142,19 @@ function mergeRuntimeState(
   return {
     ...current,
     ...patch,
-    workspace_runtime_session: (
+    workspace_runtime_session: wireRecord(
       patch.workspace_runtime_session
       ?? patch.workspaceRuntimeSession
       ?? current.workspace_runtime_session
       ?? null
-    ),
-    prepared_workspace: (
+    ) ?? null,
+    prepared_workspace: wireRecord(
       patch.prepared_workspace
       ?? patch.preparedWorkspace
       ?? current.prepared_workspace
       ?? null
-    ),
-    runtime_contract: patch.runtime_contract ?? patch.runtimeContract ?? current.runtime_contract ?? null,
+    ) ?? null,
+    runtime_contract: wireRecord(patch.runtime_contract ?? patch.runtimeContract ?? current.runtime_contract) ?? null,
   }
 }
 
@@ -265,7 +268,7 @@ function markPlanBlockTerminal(
 ): MessageBlock {
   const terminalStepStatus = status
   const steps = Array.isArray(block.payload.steps)
-    ? block.payload.steps.map((step: Record<string, any>) => {
+    ? block.payload.steps.map((step: Record<string, unknown>) => {
       const stepStatus = String(step.status || '').toLowerCase()
       const isActive = stepStatus === 'in_progress' || stepStatus === 'running'
       if (isActive) {
@@ -587,7 +590,7 @@ function isGenerationTaskBlock(block: MessageBlock, taskId: string): boolean {
   return String(blockTaskId ?? '').trim() === taskId
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -598,8 +601,8 @@ function numberOrNull(value: unknown): number | null {
 
 function normalizeCritiqueProjectionEventData(
   eventType: string,
-  data: Record<string, any>,
-): Record<string, any> {
+  data: Record<string, unknown>,
+): Record<string, unknown> {
   if (eventType !== 'critique.round_completed') {
     return data
   }
@@ -611,7 +614,7 @@ function normalizeCritiqueProjectionEventData(
   }
 }
 
-function inferWorkspaceFileType(data: Record<string, any>): string {
+function inferWorkspaceFileType(data: Record<string, unknown>): string {
   const explicit = String(data.type ?? data.file_type ?? data.fileType ?? '').trim()
   if (explicit) {
     return explicit
@@ -637,7 +640,7 @@ function inferWorkspaceFileType(data: Record<string, any>): string {
   return 'other'
 }
 
-function normalizeWorkspaceFileSource(data: Record<string, any>): WorkspaceFileRead['source'] {
+function normalizeWorkspaceFileSource(data: Record<string, unknown>): WorkspaceFileRead['source'] {
   const explicit = String(data.source ?? '').trim()
   if (explicit === 'versioned_file' || explicit === 'input_asset' || explicit === 'reference_asset' || explicit === 'plan_asset') {
     return explicit
@@ -653,7 +656,7 @@ function normalizeWorkspaceFileSource(data: Record<string, any>): WorkspaceFileR
 }
 
 function workspaceFileFromEventData(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   timestamp: string,
 ): WorkspaceFileRead | null {
   const path = String(data.path ?? data.file_path ?? data.filePath ?? data.url ?? '').trim()
@@ -679,11 +682,11 @@ function workspaceFileFromEventData(
     type: inferWorkspaceFileType(data),
     size: Number(data.size ?? 0),
     created_at: String(data.created_at ?? data.createdAt ?? timestamp),
-    updated_at: data.updated_at ?? data.updatedAt ?? null,
+    updated_at: wireNullableString(data.updated_at ?? data.updatedAt ?? null),
     current_version_id: String(data.current_version_id ?? data.currentVersionId ?? ''),
-    current_version_path: data.current_version_path ?? data.currentVersionPath ?? null,
-    artifact_kind: data.artifact_kind ?? data.artifactKind ?? null,
-    artifact_metadata: data.artifact_metadata ?? data.artifactMetadata ?? null,
+    current_version_path: wireNullableString(data.current_version_path ?? data.currentVersionPath ?? null),
+    artifact_kind: wireNullableString(data.artifact_kind ?? data.artifactKind ?? null),
+    artifact_metadata: wireRecord(data.artifact_metadata ?? data.artifactMetadata) ?? null,
     versions: Array.isArray(data.versions) ? data.versions : [],
     source: normalizeWorkspaceFileSource(data),
   }
@@ -878,7 +881,7 @@ export function applyHomeHarnessEvent(
         const turnFailure = getTurnFailure(event)
         const runtimeSnapshot = (
           event.data.runtime_snapshot && typeof event.data.runtime_snapshot === 'object'
-            ? event.data.runtime_snapshot as Record<string, any>
+            ? event.data.runtime_snapshot as Record<string, unknown>
             : {}
         )
         const stateForTerminal = status === 'cancelled'
@@ -918,7 +921,7 @@ export function applyHomeHarnessEvent(
             ? withOutlineRuntimeFailure(finalized.outlineRuntime, summary)
             : finalized.outlineRuntime,
           userInteraction: status === 'waiting_input'
-            ? (runtimeSnapshot.user_interaction as any) || finalized.userInteraction || state.userInteraction
+            ? normalizePendingInteraction(resolveHarnessPendingInteraction({ user_interaction: runtimeSnapshot.user_interaction })) || finalized.userInteraction || state.userInteraction
             : null,
         })
       }

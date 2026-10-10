@@ -62,7 +62,7 @@ export interface HomeChatOfficePresentationSnapshot {
 export type HomeChatOfficeSnapshot =
   | HomeChatOfficeSheetSnapshot
   | HomeChatOfficePresentationSnapshot
-  | Record<string, any>
+  | Record<string, unknown>
   | null
   | undefined
 

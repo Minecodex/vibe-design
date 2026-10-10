@@ -33,7 +33,7 @@ export function ProjectDetailsView({
 }: ProjectDetailsViewProps) {
   const { t } = useTranslation()
   const currentUser = useAuthStore(state => state.user)
-  const [members, setMembers] = useState<any[]>([])
+  const [members, setMembers] = useState<Awaited<ReturnType<typeof projectMembersApi.list>>['data']>([])
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
   const [assets, setAssets] = useState<AssetRead[]>([])
   const [assetType, setAssetType] = useState<'all' | 'image' | 'video'>('all')
@@ -232,7 +232,7 @@ export function ProjectDetailsView({
             <h4 className="text-[26px] font-bold tracking-tight px-2">{t('projectDetails.teamMembers')}</h4>
             <div className="flex flex-col gap-1.5 overflow-y-auto pr-2 pb-12">
               {members.map((member) => {
-                const avatar = getAvatarUrl(member.user?.avatar_url)
+                const avatar = getAvatarUrl(member.user?.avatar_url ?? undefined)
                 const isActive = selectedMemberId === member.user_id
                 return (
                   <div

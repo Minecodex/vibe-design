@@ -121,7 +121,7 @@ export async function loadExceljsWorkbook(options: LoadExceljsWorkbookOptions): 
   }
 
   const workbook = new Workbook()
-  await workbook.xlsx.load(decodeBase64(options.base64) as any)
+  await workbook.xlsx.load(new Uint8Array(decodeBase64(options.base64)).buffer)
   return workbook
 }
 

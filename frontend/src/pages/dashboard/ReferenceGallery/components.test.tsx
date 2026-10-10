@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 import type { ReferenceImageRead, ReferenceTaxonomyRead } from '@/api/endpoints/referenceGallery'
 
-import { imageLabels, TaxonomyManager, UploadReferenceDialog } from './components'
+import { TaxonomyManager, UploadReferenceDialog } from './components'
+import { imageLabels } from './referenceGalleryUtils'
 
 const createTaxonomyMock = vi.fn()
 

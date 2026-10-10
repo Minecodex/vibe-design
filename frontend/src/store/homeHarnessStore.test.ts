@@ -1,3 +1,6 @@
+import type { AgentEvent, HarnessConversationDetailRead, HarnessMessageRead, UserPlanRead } from '@/api/endpoints/agent'
+import { runtimeState, conversationDetail, workspaceFile } from './testing/harnessStateFixtures'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   applyHomeHarnessEvent,
@@ -6,142 +9,9 @@ import {
 import { replayHomeHarnessEvents } from './__tests__/harnessProjectionReplay'
 import { buildSnapshotProjectionFromDetail, createEmptyConversationSession } from './homeHarnessStoreSession'
 
-function turnCompleted(
-  status: 'completed' | 'failed' | 'blocked' | 'cancelled' | 'waiting_input',
-  data: Record<string, any> = {},
-): any {
-  const conversationId = String(data.conversation_id || 'conv-1')
-  const runId = String(data.run_id || 'run-1')
-  const summary = String(data.summary || data.message || data.terminal_error || '')
-  return {
-    type: 'turn_completed',
-    sequence: data.sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      conversation_id: conversationId,
-      run_id: runId,
-      turn_id: runId,
-      status,
-      error: status === 'failed' || status === 'blocked'
-        ? {
-          error_type: data.error_type || 'Failed',
-          summary,
-          user_visible: data.user_visible !== false,
-          failure_signature: data.failure_signature ?? null,
-        }
-        : null,
-      runtime_snapshot: {
-        runtime_status: status,
-        run_state: status,
-        turn_status: status,
-        ...(data.runtime_snapshot || {}),
-      },
-      completed_at: '2026-05-01T00:00:00.000Z',
-      duration_ms: null,
-    },
-  }
-}
+import { turnCompleted, presentationDelta, presentationComplete, presentationPatch } from './testing/homeHarnessEventFixtures'
 
-function presentationDelta(
-  sequence: number,
-  blockKey: string,
-  delta: string,
-  options: Record<string, any> = {},
-): any {
-  const runId = String(options.run_id || 'run-home')
-  const messageKey = String(options.message_key || `message:${runId}`)
-  return {
-    type: 'presentation.block.delta',
-    sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      protocol_version: 2,
-      type: 'presentation.block.delta',
-      op_id: `test:${sequence}:${blockKey}:delta`,
-      source_sequence: sequence,
-      message_key: messageKey,
-      block_key: blockKey,
-      parent_block_key: options.parent_block_key ?? null,
-      payload: { field: options.field || 'text', delta },
-    },
-  }
-}
 
-function presentationComplete(
-  sequence: number,
-  blockKey: string,
-  text: string,
-  options: Record<string, any> = {},
-): any {
-  const runId = String(options.run_id || 'run-home')
-  const messageKey = String(options.message_key || `message:${runId}`)
-  const uiKind = String(options.ui_kind || 'text')
-  const payload = { text, ...(options.payload || {}) }
-  return {
-    type: 'presentation.block.complete',
-    sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      protocol_version: 2,
-      type: 'presentation.block.complete',
-      op_id: `test:${sequence}:${blockKey}:complete`,
-      source_sequence: sequence,
-      message_key: messageKey,
-      block_key: blockKey,
-      parent_block_key: options.parent_block_key ?? null,
-      block: {
-        id: blockKey,
-        block_key: blockKey,
-        kind: options.kind || (uiKind === 'text' ? 'text' : 'content'),
-        order: options.order || 0,
-        status: options.status || 'completed',
-        visible: true,
-        ui_kind: uiKind,
-        uiKind,
-        task_id: options.task_id,
-        taskId: options.taskId ?? options.task_id,
-        label: options.label,
-        summary: options.summary,
-        payload,
-        children: options.children || [],
-        revision: sequence,
-        source_sequence: sequence,
-      },
-      payload,
-    },
-  }
-}
-
-function presentationPatch(
-  sequence: number,
-  blockKey: string,
-  patch: Record<string, any>,
-  options: Record<string, any> = {},
-): any {
-  const runId = String(options.run_id || 'run-home')
-  const messageKey = String(options.message_key || `message:${runId}`)
-  const status = String(options.status || patch.status || 'running')
-  return {
-    type: 'presentation.block.patch',
-    sequence,
-    run_id: runId,
-    lane: 'user',
-    data: {
-      protocol_version: 2,
-      type: 'presentation.block.patch',
-      op_id: `test:${sequence}:${blockKey}:patch`,
-      source_sequence: sequence,
-      message_key: messageKey,
-      block_key: blockKey,
-      parent_block_key: options.parent_block_key ?? null,
-      status,
-      payload: patch,
-    },
-  }
-}
 
 const {
   createHarnessConversationApiMock,
@@ -236,9 +106,9 @@ vi.mock('sonner', () => ({
 
 import { __chatStoreTestUtils, useChatStore } from './homeHarnessStore'
 
-function buildProjectionReplayEvents() {
+function buildProjectionReplayEvents(): AgentEvent[] {
   return [
-    {
+    ({
       type: 'message_appended',
       sequence: 1,
       data: {
@@ -316,7 +186,7 @@ function buildProjectionReplayEvents() {
           ],
         },
       },
-    },
+    } as unknown as AgentEvent),
     {
       type: 'artifact_plan_updated',
       sequence: 2,
@@ -342,11 +212,12 @@ function buildProjectionReplayEvents() {
       },
     },
     turnCompleted('completed', { sequence: 3, conversation_id: 'conv-home-replay', run_id: 'run-home-replay' }),
-  ] as any[]
+  ]
 }
 
-function buildHarnessConversationDetail(overrides: Record<string, any> = {}, messages: any[] = []) {
+function buildHarnessConversationDetail(overrides: Partial<HarnessConversationDetailRead> = {}, messages: HarnessMessageRead[] = []): HarnessConversationDetailRead {
   return {
+    engine_version: 'harness' as const,
     id: 'conv-home-detail',
     title: 'Harness Detail',
     skill_id: null,
@@ -369,7 +240,7 @@ describe('homeHarnessStore', () => {
     it('restores critique cards from detail runtime_state snapshots', () => {
     const projection = buildSnapshotProjectionFromDetail(buildHarnessConversationDetail({
       runtime_status: 'completed',
-      runtime_state: {
+      runtime_state: runtimeState({
         critique: {
           critique_run_id: 'critique-1',
           status: 'shipped',
@@ -394,8 +265,8 @@ describe('homeHarnessStore', () => {
           publish_fallback: false,
           reason: null,
         },
-      },
-    }) as any)
+      }),
+    }))
 
     expect(projection.critique?.critiqueRunId).toBe('critique-1')
     expect(projection.critique?.status).toBe('shipped')
@@ -406,9 +277,9 @@ describe('homeHarnessStore', () => {
     it('restores submitted interaction answers from persisted user message metadata in detail snapshots', () => {
     const projection = buildSnapshotProjectionFromDetail(buildHarnessConversationDetail({
       runtime_status: 'completed',
-      runtime_state: {
+      runtime_state: runtimeState({
         user_interaction: null,
-      },
+      }),
     }, [
       {
         id: 'assistant-interaction-1',
@@ -476,7 +347,7 @@ describe('homeHarnessStore', () => {
           source: 'preflight_interaction_submission',
         },
       },
-    ]) as any)
+    ]))
 
     const interactionBlocks = projection.messages.flatMap((message) =>
       message.blocks?.filter((block) => block.uiKind === 'interaction_form') || [],
@@ -499,9 +370,9 @@ describe('homeHarnessStore', () => {
     it('restores structured interaction submissions directly from the persisted interaction card snapshot', () => {
     const projection = buildSnapshotProjectionFromDetail(buildHarnessConversationDetail({
       runtime_status: 'completed',
-      runtime_state: {
+      runtime_state: runtimeState({
         user_interaction: null,
-      },
+      }),
     }, [
       {
         id: 'assistant-design-system-1',
@@ -550,7 +421,7 @@ describe('homeHarnessStore', () => {
           source: 'preflight_interaction_submission',
         },
       },
-    ]) as any)
+    ]))
 
     const interactionBlock = projection.messages
       .flatMap((message) => message.blocks || [])
@@ -721,7 +592,7 @@ describe('homeHarnessStore', () => {
         conversation_id: 'conv-plan-ready',
         phase: 'planning_ready',
         run_status: 'waiting_input',
-      } as any,
+      },
       runStatus: 'waiting_input',
       artifactMode: 'slides',
       mode: 'plan',
@@ -741,7 +612,7 @@ describe('homeHarnessStore', () => {
         multimodal_provider: 'builtin',
         auto: false,
       },
-      workspaceFiles: [{ file_id: 'plan.md', name: 'plan.md', path: 'plan.md' }] as any,
+      workspaceFiles: [workspaceFile({ file_id: 'plan.md', name: 'plan.md', path: 'plan.md' })],
     })
 
     useChatStore.getState().newChat()
@@ -765,7 +636,7 @@ describe('homeHarnessStore', () => {
   })
 
     it('switches immediately to the target conversation state without inheriting the previous settings', async () => {
-    let resolveSnapshot: (value: any) => void = () => undefined
+    let resolveSnapshot: (value: unknown) => void = () => undefined
     getHarnessConversationMock.mockImplementationOnce(() => new Promise((resolve) => {
       resolveSnapshot = resolve
     }))
@@ -781,7 +652,7 @@ describe('homeHarnessStore', () => {
         conversation_id: 'conv-previous',
         phase: 'planning_ready',
         run_status: 'waiting_input',
-      } as any,
+      },
       runStatus: 'waiting_input',
       artifactMode: 'slides',
       activeSkillId: 'pptx',
@@ -793,7 +664,7 @@ describe('homeHarnessStore', () => {
         multimodal_provider: 'builtin',
         auto: false,
       },
-      conversations: [{
+      conversations: [conversationDetail({
         id: 'conv-target',
         title: 'Target conversation',
         skill_id: null,
@@ -807,7 +678,7 @@ describe('homeHarnessStore', () => {
         user_interaction: null,
         created_at: '2026-04-20T00:00:00.000Z',
         updated_at: '2026-04-20T00:00:00.000Z',
-      }] as any,
+      })],
     })
 
     const loadPromise = useChatStore.getState().loadConversation('conv-target')
@@ -881,7 +752,7 @@ describe('homeHarnessStore', () => {
       conversationId: null,
       projectId: 123,
       engineVersion: 'v2',
-      createHarnessConversation: createHarnessConversationMock as any,
+      createHarnessConversation: createHarnessConversationMock,
     })
 
     await useChatStore.getState().sendMessage('hello')
@@ -904,7 +775,7 @@ describe('homeHarnessStore', () => {
       activeSkillId: null,
       skillSelectionMode: 'auto',
       messages: [],
-      createHarnessConversation: createHarnessConversationMock as any,
+      createHarnessConversation: createHarnessConversationMock,
     })
 
     await useChatStore.getState().sendMessage('做一个设计公司的落地页')
@@ -932,7 +803,7 @@ describe('homeHarnessStore', () => {
     useChatStore.setState({
       conversationId: null,
       engineVersion: 'v2',
-      createHarnessConversation: createHarnessConversationMock as any,
+      createHarnessConversation: createHarnessConversationMock,
     })
 
     await useChatStore.getState().sendMessage('hello')
@@ -1032,7 +903,7 @@ describe('homeHarnessStore', () => {
   })
 
     it('lets a terminal detail snapshot stop an active live send before later SSE events', async () => {
-    let resolveSnapshot: ((value: any) => void) | null = null
+    let resolveSnapshot: ((value: unknown) => void) | null = null
     const snapshotPromise = new Promise((resolve) => {
       resolveSnapshot = resolve
     })
@@ -1254,7 +1125,7 @@ describe('homeHarnessStore', () => {
         preview_url: 'blob:pending-thumb',
         _previewObjectUrl: 'blob:pending-thumb',
         _clientAttachmentId: 'pending-home-1',
-      } as any,
+      },
     ])
 
     expect(streamHarnessSendMessageMock).toHaveBeenCalledWith(
@@ -1384,9 +1255,11 @@ describe('homeHarnessStore', () => {
     it('marks the conversation as running as soon as the harness stream starts', async () => {
     let releaseStream!: () => void
     streamHarnessSendMessageMock.mockImplementation(async function* () {
+
       await new Promise<void>((resolve) => {
         releaseStream = resolve
       })
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -1414,25 +1287,29 @@ describe('homeHarnessStore', () => {
     let callCount = 0
     streamHarnessSendMessageMock.mockImplementation((
       _conversationId: string,
-      _data: any,
+      _data: unknown,
       signal: AbortSignal,
     ) => {
       callCount += 1
       if (callCount === 1) {
         return (async function* () {
+
           await new Promise<void>((resolve) => {
             signal.addEventListener('abort', () => resolve(), { once: true })
           })
           const abortError = new Error('Aborted')
           abortError.name = 'AbortError'
+          yield* [] // This fixture intentionally emits no events.
           throw abortError
         })()
       }
 
       return (async function* () {
+
         await new Promise<void>((resolve) => {
           releaseSecondStream = resolve
         })
+        yield* [] // This fixture intentionally emits no events.
       })()
     })
     cancelHarnessConversationRunMock.mockResolvedValueOnce({
@@ -1480,9 +1357,11 @@ describe('homeHarnessStore', () => {
     it('does not wait for later artifact mode changes before sending the fast-start payload', async () => {
     let releaseStream!: () => void
     streamHarnessSendMessageMock.mockImplementation(async function* () {
+
       await new Promise<void>((resolve) => {
         releaseStream = resolve
       })
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -1644,7 +1523,7 @@ describe('homeHarnessStore', () => {
         multimodal_provider: 'current-provider',
         auto: false,
       },
-    } as any)
+    })
     getHarnessConversationMock.mockResolvedValueOnce({
       data: buildHarnessConversationDetail({
         model_preferences: {
@@ -1676,9 +1555,9 @@ describe('homeHarnessStore', () => {
     getHarnessConversationMock.mockResolvedValueOnce({
       data: buildHarnessConversationDetail({
         runtime_status: 'completed',
-        runtime_state: {
+        runtime_state: runtimeState({
           user_interaction: null,
-        },
+        }),
       }, [
         {
           id: 'assistant-interaction-1',
@@ -1948,7 +1827,7 @@ describe('homeHarnessStore', () => {
         buildHarnessConversationDetail({
           id: 'conv-home-design-system',
           design_system_id: null,
-        }) as any,
+        }),
       ],
       userInteraction: {
         request_id: 'design-system:conv-home-design-system',
@@ -1999,7 +1878,7 @@ describe('homeHarnessStore', () => {
         buildHarnessConversationDetail({
           id: 'conv-home-design-system-optimistic',
           design_system_id: null,
-        }) as any,
+        }),
       ],
       userInteraction: {
         request_id: 'design-system:conv-home-design-system-optimistic',
@@ -2058,7 +1937,9 @@ describe('homeHarnessStore', () => {
       },
     })
     streamHarnessConversationEventsMock.mockImplementation(async function* () {
+
       await new Promise(() => {})
+      yield* [] // This fixture intentionally emits no events.
     })
 
     useChatStore.setState({
@@ -2261,7 +2142,7 @@ describe('homeHarnessStore', () => {
           render_only: true,
         },
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.id).toMatch(/^render:home-user-plan(?::|$)/)
@@ -2335,7 +2216,7 @@ describe('homeHarnessStore', () => {
           },
         ],
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(2)
     expect(messages[0]?.blocks?.[0]?.uiKind).toBe('design_jury_card')
@@ -2392,7 +2273,7 @@ describe('homeHarnessStore', () => {
           },
         ],
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(2)
     expect(messages[0]?.id).toBe(`run:render:${uiKind}`)
@@ -2430,7 +2311,7 @@ describe('homeHarnessStore', () => {
           render_key: 'home-user-progress',
         },
       },
-    ] as any)
+    ])
 
     expect(messages).toHaveLength(1)
     expect(messages[0]?.id).toBe('render:home-user-progress')
@@ -2545,7 +2426,7 @@ describe('homeHarnessStore', () => {
         buildHarnessConversationDetail({
           id: 'conv-home-design-system',
           design_system_id: null,
-        }) as any,
+        }),
       ],
     })
 
@@ -2734,7 +2615,7 @@ describe('homeHarnessStore', () => {
 
     useChatStore.setState({
       conversations: [
-        {
+        conversationDetail({
           id: 'conv-home-2',
           title: 'Harness Conversation',
           skill_id: null,
@@ -2748,7 +2629,7 @@ describe('homeHarnessStore', () => {
           finished_at: null,
           created_at: '2026-04-20T00:00:00.000Z',
           updated_at: '2026-04-20T00:00:00.000Z',
-        },
+        }),
       ],
       conversationsPage: 1,
       conversationsHasMore: true,
@@ -2806,7 +2687,7 @@ describe('homeHarnessStore', () => {
           },
         ],
       },
-    ] as any)
+    ])
 
     const planMessages = messages.filter((message) =>
       (message.blocks || []).some((block) => block.uiKind === 'plan_artifact'),
@@ -2863,7 +2744,7 @@ describe('homeHarnessStore', () => {
           },
         ],
       },
-    ] as any)
+    ])
 
     const mediaMessages = messages.filter((message) =>
       (message.blocks || []).some((block) => block.uiKind === 'media_card'),
@@ -3130,6 +3011,7 @@ describe('homeHarnessStore', () => {
         afterSequenceOrSignal?: number | AbortSignal,
         signal?: AbortSignal,
       ) {
+
         const activeSignal = afterSequenceOrSignal instanceof AbortSignal
           ? afterSequenceOrSignal
           : signal
@@ -3140,6 +3022,7 @@ describe('homeHarnessStore', () => {
         await new Promise<void>((resolve) => {
           activeSignal?.addEventListener('abort', () => resolve(), { once: true })
         })
+        yield* [] // This fixture intentionally emits no events.
       }
     })())
 
@@ -3179,11 +3062,11 @@ describe('homeHarnessStore', () => {
                 fields: [{ id: 'choice', label: 'Choice', type: 'radio', options: [] }],
               },
             },
-            runtime_state: {
+            runtime_state: runtimeState({
               runtime_status: 'waiting_input',
               run_state: 'waiting_input',
               user_interaction: null,
-            },
+            }),
             projection: {
               event_last_sequence: 8,
             },
@@ -3219,13 +3102,15 @@ describe('homeHarnessStore', () => {
           runtime_status: 'waiting_input',
           run_state: 'waiting_input',
           status: 'active',
-          runtime_state: {
+          runtime_state: runtimeState({
             runtime_status: 'waiting_input',
             run_state: 'waiting_input',
             user_interaction: null,
-          },
+          }),
           user_plan: {
-            id: 'plan-ready-1',
+            plan_instance_id: 'plan-ready-1',
+            artifact_type: 'ppt',
+            summary: '',
             title: 'PPT 大纲',
             status: 'planning_ready',
             items: [],
@@ -3258,7 +3143,7 @@ describe('homeHarnessStore', () => {
     useChatStore.setState({
       conversationId: 'conv-home-plan-ready-stream',
       conversations: [
-        {
+        conversationDetail({
           id: 'conv-home-plan-ready-stream',
           title: '生成一个设计公司的落地页',
           skill_id: 'web',
@@ -3271,7 +3156,7 @@ describe('homeHarnessStore', () => {
           finished_at: null,
           created_at: '2026-04-20T00:00:00.000Z',
           updated_at: '2026-04-20T00:00:00.000Z',
-        } as any,
+        }),
       ],
     })
 
@@ -3368,12 +3253,12 @@ describe('homeHarnessStore', () => {
           runtime_status: 'waiting_input',
           run_state: 'waiting_input',
           status: 'active',
-          runtime_state: {
+          runtime_state: runtimeState({
             phase: 'planning_ready',
             runtime_status: 'waiting_input',
             run_state: 'waiting_input',
             user_interaction: null,
-          },
+          }),
           user_plan: outline,
           outline_runtime: {
             current_outline: outline,
@@ -3605,14 +3490,14 @@ describe('homeHarnessStore', () => {
       engineVersion: 'harness',
       isStreaming: true,
       conversations: [
-        {
+        conversationDetail({
           ...buildHarnessConversationDetail({
             id: 'conv-home-cancel-requested',
             runtime_status: 'running',
             run_state: 'executing',
             status: 'active',
           }),
-        } as any,
+        }),
       ],
       conversationSessions: {
         'conv-home-cancel-requested': {
@@ -3811,7 +3696,7 @@ describe('homeHarnessStore', () => {
     const eventsDelivered: string[] = []
 
     streamHarnessSendMessageMock.mockImplementation(async function* () {
-      const yieldEvent = async (event: any) => {
+      const yieldEvent = async <T extends { type: string }>(event: T) => {
         eventsDelivered.push(event.type)
         return event
       }
@@ -4330,8 +4215,9 @@ describe('homeHarnessStore stop-then-action recovery', () => {
   function conflictThenComplete(mock: ReturnType<typeof vi.fn>) {
     mock
       .mockImplementationOnce(async function* () {
-        const err: any = new Error('Conversation already has an active run')
-        err.status = 409
+
+        const err = Object.assign(new Error('Conversation already has an active run'), { status: 409 })
+        yield* [] // This fixture intentionally emits no events.
         throw err
       })
       .mockImplementationOnce(async function* () {
@@ -4352,7 +4238,7 @@ describe('homeHarnessStore stop-then-action recovery', () => {
       outlineRuntime: session.outlineRuntime,
       activeUserPlan: session.activeUserPlan,
       conversationSessions: { 'conv-home-stuck': session },
-    } as any)
+    })
   }
 
   it('respondToAgent recovers from a 409 and is not left stuck', async () => {
@@ -4360,7 +4246,7 @@ describe('homeHarnessStore stop-then-action recovery', () => {
     conflictThenComplete(streamHarnessRespondToAgentMock)
 
     seedHomeSession({
-      userInteraction: { request_id: 'req-1', question: 'Continue?', kind: 'ask_user', schema: null } as any,
+      userInteraction: { request_id: 'req-1', question: 'Continue?', kind: 'ask_user', schema: null },
     })
 
     try {
@@ -4377,14 +4263,17 @@ describe('homeHarnessStore stop-then-action recovery', () => {
     getHarnessConversationMock.mockResolvedValue({ data: settledDetail() })
     conflictThenComplete(streamHarnessStartExecutionMock)
 
-    const outline = {
+    const outline: UserPlanRead = {
       title: 'Plan',
-      sections: [{ id: 's1', title: 'Section 1' }],
+      artifact_type: 'web',
+      summary: '',
+      status: 'planning_ready',
+      items: [{ id: 's1', title: 'Section 1' }],
       execution_state: { status: 'planning_ready' },
     }
     seedHomeSession({
-      activeUserPlan: outline as any,
-      outlineRuntime: { current_outline: outline, execution_state: { status: 'planning_ready' } } as any,
+      activeUserPlan: outline,
+      outlineRuntime: { current_outline: outline, execution_state: { status: 'planning_ready' } },
     })
 
     try {

@@ -69,14 +69,14 @@ def test_source_preserved_prefixes_covers_agent_harness_skills():
     # the `bash` tool invokes by path (e.g. `$SKILL_DIR/scripts/render_slides.py`).
     # If this prefix is removed or narrowed, those invocations break in
     # production because the .py sources are stripped.
-    assert "app/services/agent_harness/skills/" in SOURCE_PRESERVED_PREFIXES
+    assert "app/services/agent_harness/capabilities/skills/" in SOURCE_PRESERVED_PREFIXES
 
 
 def test_prune_python_sources_preserves_any_future_skill_under_skills_dir(tmp_path):
     app_root = tmp_path / "app"
     # Simulate an existing skill and a brand-new skill added later.
     for skill_name in ("pptx", "future_new_skill"):
-        scripts_dir = app_root / "services" / "agent_harness" / "skills" / skill_name / "scripts"
+        scripts_dir = app_root / "services" / "agent_harness" / "capabilities" / "skills" / skill_name / "scripts"
         scripts_dir.mkdir(parents=True)
         (scripts_dir / "helper.py").write_text("def run(): pass\n", encoding="utf-8")
         (scripts_dir / "__init__.py").write_text("", encoding="utf-8")
@@ -88,7 +88,7 @@ def test_prune_python_sources_preserves_any_future_skill_under_skills_dir(tmp_pa
     prune_python_sources(app_root)
 
     for skill_name in ("pptx", "future_new_skill"):
-        base = app_root / "services" / "agent_harness" / "skills" / skill_name / "scripts"
+        base = app_root / "services" / "agent_harness" / "capabilities" / "skills" / skill_name / "scripts"
         assert (base / "helper.py").exists(), f"skill '{skill_name}' helper.py was pruned"
         assert (base / "__init__.py").exists()
     assert not (app_root / "services" / "other" / "module.py").exists()
@@ -99,7 +99,7 @@ def test_real_repo_skills_tree_contains_py_scripts_protected_by_prefix():
     # skills dir, this test flags the drift so SOURCE_PRESERVED_PREFIXES
     # is updated in the same commit.
     repo_root = Path(__file__).resolve().parents[4]
-    skills_root = repo_root / "backend" / "app" / "services" / "agent_harness" / "skills"
+    skills_root = repo_root / "backend" / "app" / "services" / "agent_harness" / "capabilities" / "skills"
     assert skills_root.is_dir(), (
         f"expected skills tree at {skills_root}; "
         "if it moved, update SOURCE_PRESERVED_PREFIXES accordingly"

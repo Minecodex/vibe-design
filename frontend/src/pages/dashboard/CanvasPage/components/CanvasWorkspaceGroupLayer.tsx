@@ -1,9 +1,24 @@
-// @ts-nocheck
 
 import React, { useMemo } from 'react'
 import { getMediaSelectionOverlayMetrics } from '../mediaSelectionResize'
 
-export const CanvasWorkspaceGroupLayer = React.memo(function CanvasWorkspaceGroupLayer(props: any) {
+import type { RefObject } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { CanvasRenderSnapshot } from '../canvasRenderModel'
+import type { CanvasSelectionProps, CanvasResizeProps } from './canvasSelectionContracts'
+
+interface CanvasWorkspaceGroupLayerProps extends CanvasSelectionProps, CanvasResizeProps {
+  canvasRef: RefObject<Pick<HTMLDivElement, 'clientWidth' | 'clientHeight'>>
+  setSelectedItems: (items: string[]) => void
+  editingNameId?: string | null
+  setEditingNameId: (id: string | null) => void
+  updateItem: (id: string, updates: Partial<CanvasItem>) => void
+  setResizingGroupId: (id: string) => void
+  renderSnapshot?: CanvasRenderSnapshot
+  useWebGLRenderer?: boolean
+}
+
+export const CanvasWorkspaceGroupLayer = React.memo(function CanvasWorkspaceGroupLayer(props: CanvasWorkspaceGroupLayerProps) {
   const {
     canvasItems,
     selectedItems,
@@ -36,8 +51,8 @@ export const CanvasWorkspaceGroupLayer = React.memo(function CanvasWorkspaceGrou
   // Viewport culling for groups: memoized to avoid recalculation on unrelated prop changes
   const visibleGroups = useMemo(() => {
     if (useWebGLRenderer && renderSnapshot) {
-      const overlayIds = new Set(renderSnapshot.overlayNodes.map((node: any) => node.id))
-      return canvasItems.filter((item: any) => item.type === 'group' && overlayIds.has(item.id))
+      const overlayIds = new Set(renderSnapshot.overlayNodes.map((node) => node.id))
+      return canvasItems.filter((item) => item.type === 'group' && overlayIds.has(item.id))
     }
     const _CULL_BUF = 500
     const _el = canvasRef?.current
@@ -52,7 +67,7 @@ export const CanvasWorkspaceGroupLayer = React.memo(function CanvasWorkspaceGrou
       _cT = (-vh / 2 - offset.y) / _s - buf
       _cB = (vh / 2 - offset.y) / _s + buf
     }
-    return canvasItems.filter((item: any) => {
+    return canvasItems.filter((item) => {
       if (item.type !== 'group') return false
       if (selectedItems.includes(item.id)) return true
       if (item.is_hidden) return false
@@ -64,7 +79,7 @@ export const CanvasWorkspaceGroupLayer = React.memo(function CanvasWorkspaceGrou
 
   return (
     <>
-      {visibleGroups.map((item: any) => {
+      {visibleGroups.map((item) => {
         const isItemSelected = selectedItems.includes(item.id)
         const isHidden = item.is_hidden
         const selectionMetrics = getMediaSelectionOverlayMetrics(zoom)

@@ -1,6 +1,17 @@
 import pytest
 
 from app.services.multimodal_service import MultimodalService
+from unittest.mock import AsyncMock
+
+
+@pytest.fixture(autouse=True)
+def _per_user_provider_key(monkeypatch):
+    monkeypatch.setattr(
+        MultimodalService,
+        "_resolve_builtin_key",
+        AsyncMock(return_value=("test-key", 1)),
+    )
+
 
 
 @pytest.mark.asyncio

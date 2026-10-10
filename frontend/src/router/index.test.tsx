@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { isValidElement, type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -59,9 +59,10 @@ import { router } from './index'
 describe('router', () => {
   it('redirects /dashboard to /dashboard/projects', () => {
     const dashboardRoute = router.routes.find((route) => route.path === '/dashboard')
-    const dashboardIndexRoute = dashboardRoute?.children?.find((route) => route.index) as any
+    const dashboardIndexRoute = dashboardRoute?.children?.find((route) => route.index)
 
-    expect(dashboardIndexRoute?.element?.props).toMatchObject({
+    const element = dashboardIndexRoute && 'element' in dashboardIndexRoute ? dashboardIndexRoute.element : undefined
+    expect(isValidElement(element) ? element.props : null).toMatchObject({
       to: 'projects',
       replace: true,
     })

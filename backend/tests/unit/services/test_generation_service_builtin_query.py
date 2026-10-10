@@ -225,22 +225,19 @@ async def test_retry_image_submission_does_not_retry_generation_media_resolve_er
 
 
 @pytest.mark.asyncio
-async def test_builtin_credentials_refreshes_license_runtime_when_worker_memory_key_is_missing(monkeypatch):
-    calls = []
-    service = GenerationService(db=object())
+async def test_builtin_credentials_use_account_key_without_refreshing_license(
+    monkeypatch, db_session, apimart_user,
+):
+    service = GenerationService(db=db_session)
     monkeypatch.setattr(settings, "BUILTIN_PROVIDER_API_KEY", "")
 
-    class FakeLicenseRuntime:
-        async def force_refresh(self, db):
-            calls.append(db)
-            settings.BUILTIN_PROVIDER_API_KEY = "sk-refreshed"
+    class ForbiddenLicenseRuntime:
+        async def force_refresh(self, _db):
+            raise AssertionError("account credentials must not consult license records")
 
-    monkeypatch.setattr(builtin_credentials_module, "license_runtime_state", FakeLicenseRuntime())
-
-    credentials = await service._get_credentials(user_id=1, provider_code="builtin")
-
-    assert credentials.access_key == "sk-refreshed"
-    assert calls == [service.db]
+    monkeypatch.setattr(builtin_credentials_module, "license_runtime_state", ForbiddenLicenseRuntime())
+    credentials = await service._get_credentials(user_id=apimart_user.id, provider_code="builtin")
+    assert credentials.access_key == "test-key"
 
 
 def test_download_failure_error_does_not_include_provider_signed_url():
@@ -770,7 +767,7 @@ async def test_result_download_operation_failure_terminalizes_task(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_generate_image_normalizes_apimart_model_name_for_lingyaai(monkeypatch):
+async def test_generate_image_keeps_apimart_model_id_with_legacy_global_setting(monkeypatch):
     service = GenerationService(db=None)
 
     class FakeBuiltinProvider:
@@ -813,7 +810,7 @@ async def test_generate_image_normalizes_apimart_model_name_for_lingyaai(monkeyp
         provider_code="builtin",
     )
 
-    assert task.model_name == "nano-banana-2"
+    assert task.model_name == "gemini-3.1-flash-image-preview"
     assert task.model_label == "NanoBanana2"
 
 
@@ -2469,13 +2466,13 @@ async def test_generate_image_clamps_resolution_to_highest_supported_size_for_mo
         prompt="blue banana",
         model_name="doubao-seedream-5-0-lite",
         provider_code="builtin",
-        resolution="4K",
+        resolution="8K",
     )
 
-    assert task.params["resolution"] == "3K"
+    assert task.params["resolution"] == "4K"
     assert task.external_task_id is None
     assert task.status == "processing"
-    assert enqueued[0]["task"].params["resolution"] == "3K"
+    assert enqueued[0]["task"].params["resolution"] == "4K"
 
 
 def test_generation_task_read_exposes_task_params():
@@ -2549,13 +2546,17 @@ async def test_query_task_status_logs_failed_task_details(monkeypatch, caplog):
     monkeypatch.setattr(service, "_get_credentials", fake_get_credentials)
     monkeypatch.setattr(service, "_query_builtin", fake_query_builtin)
 
-    caplog.set_level(logging.ERROR)
+    caplog.set_level(logging.ERROR, logger=generation_service_module.logger.name)
 
     updated = await service.query_task_status(42, 9)
 
     assert updated.status == "failed"
     assert updated.error_message == "provider rejected prompt"
-    assert "Generation task failed" in caplog.text
+    assert "Generation task failed" in caplog.text, (
+        f"logger disabled={generation_service_module.logger.disabled} "
+        f"propagate={generation_service_module.logger.propagate} "
+        f"registered={logging.getLogger(generation_service_module.logger.name) is generation_service_module.logger}"
+    )
     assert "task_id=42" in caplog.text
     assert "provider=builtin" in caplog.text
     assert "model=seedream-5.0-lite" in caplog.text

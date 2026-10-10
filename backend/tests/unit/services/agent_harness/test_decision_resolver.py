@@ -8,6 +8,16 @@ from app.services.agent_harness.catalog import SkillSummary
 from app.services.agent_harness.authoring.planning import decision_resolver
 
 
+@pytest.fixture(autouse=True)
+def _planning_user_key(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.authoring.planning.decision_resolver.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
+
+
 def _skill_summary(
     skill_id: str,
     *,
@@ -105,6 +115,7 @@ async def test_call_selection_model_accepts_openai_function_tool_call(monkeypatc
         system_prompt="Resolve.",
         user_prompt="{}",
         model_name="configured-model",
+                       api_key="test-key",
     )
 
     assert result.decision is not None
@@ -115,7 +126,7 @@ async def test_call_selection_model_accepts_openai_function_tool_call(monkeypatc
 
 @pytest.mark.asyncio
 async def test_resolve_selection_includes_runtime_time_in_prompt(monkeypatch):
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         payload = json.loads(user_prompt)
         assert "runtime_time" in payload
         assert payload["runtime_time"]["current_date"]
@@ -156,7 +167,7 @@ async def test_resolve_selection_includes_runtime_time_in_prompt(monkeypatch):
 async def test_resolve_selection_persists_prompt_bundle_trace_when_context_is_provided(monkeypatch):
     traces: list[dict] = []
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         return decision_resolver._ResolverModelResult(  # noqa: SLF001
             decision=decision_resolver._ResolverToolInput.model_validate({"skill": None}),  # noqa: SLF001
             usage={"input_tokens": 6, "output_tokens": 1},
@@ -192,7 +203,7 @@ async def test_resolve_selection_persists_prompt_bundle_trace_when_context_is_pr
 
 @pytest.mark.asyncio
 async def test_resolve_selection_returns_skill_only_and_records_single_preflight_call(monkeypatch):
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         return decision_resolver._ResolverModelResult(  # noqa: SLF001
             decision=decision_resolver._ResolverToolInput.model_validate(  # noqa: SLF001
                 {
@@ -266,7 +277,7 @@ async def test_resolve_selection_model_failure_returns_defaultable_empty_decisio
 async def test_resolve_selection_includes_non_entry_mode_candidates(monkeypatch):
     captured: dict[str, object] = {}
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         captured["user_prompt"] = json.loads(user_prompt)
         return decision_resolver._ResolverModelResult(  # noqa: SLF001
             decision=decision_resolver._ResolverToolInput.model_validate(  # noqa: SLF001
@@ -342,7 +353,7 @@ async def test_resolve_selection_includes_non_entry_mode_candidates(monkeypatch)
 async def test_resolve_selection_uses_policy_helper_eligibility_for_internal_candidates(monkeypatch):
     captured: dict[str, object] = {}
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         captured["user_prompt"] = json.loads(user_prompt)
         return decision_resolver._ResolverModelResult(  # noqa: SLF001
             decision=decision_resolver._ResolverToolInput.model_validate({"skill": None}),  # noqa: SLF001
@@ -402,7 +413,7 @@ async def test_resolve_selection_uses_policy_helper_eligibility_for_internal_can
 
 @pytest.mark.asyncio
 async def test_resolve_selection_returns_internal_hidden_skill_ids(monkeypatch):
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, api_key: str = ""):
         return decision_resolver._ResolverModelResult(  # noqa: SLF001
             decision=decision_resolver._ResolverToolInput.model_validate(  # noqa: SLF001
                 {

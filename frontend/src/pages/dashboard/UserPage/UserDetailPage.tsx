@@ -1,4 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import type { ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
+import { apiErrorDetail } from '@/utils/apiErrors'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { Pencil, Check, X, Lock, UserCircle } from 'lucide-react'
 import { usersApi, User as UserType } from '@/api/endpoints/users'
@@ -27,7 +30,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 
-const ItemRow = ({ label, children, rightAlign = false, last = false }: any) => (
+const ItemRow = ({ label, children, rightAlign = false, last = false }: { label: ReactNode; children: ReactNode; rightAlign?: boolean; last?: boolean }) => (
     <div className={cn(
         'flex items-center py-6',
         !last && 'border-b border-[var(--app-border)]'
@@ -41,7 +44,7 @@ const ItemRow = ({ label, children, rightAlign = false, last = false }: any) => 
     </div>
 )
 
-const SectionTitle = ({ icon: Icon, title }: any) => (
+const SectionTitle = ({ icon: Icon, title }: { icon: LucideIcon; title: ReactNode }) => (
     <div className="flex items-center gap-2 mb-4 mt-8 first:mt-0">
         <Icon className="h-4 w-4 text-muted-foreground" />
         <span className="text-[13px] font-black uppercase tracking-widest text-muted-foreground">
@@ -69,13 +72,7 @@ export function UserDetailPage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null)
 
-    useEffect(() => {
-        if (id) {
-            fetchUser(parseInt(id))
-        }
-    }, [id])
-
-    const fetchUser = async (userId: number) => {
+    const fetchUser = useCallback(async (userId: number) => {
         try {
             setLoading(true)
             const { data } = await usersApi.getUser(userId)
@@ -87,7 +84,13 @@ export function UserDetailPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [t])
+
+    useEffect(() => {
+        if (id) {
+            fetchUser(parseInt(id))
+        }
+    }, [id, fetchUser])
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -152,8 +155,8 @@ export function UserDetailPage() {
             setOldPassword('')
             setNewPassword('')
             setConfirmPassword('')
-        } catch (error: any) {
-            toast.error(formatApiErrorDetail(error?.response?.data?.detail, t('users.passwordChangeFailed', '密码修改失败')))
+        } catch (error) {
+            toast.error(formatApiErrorDetail(apiErrorDetail(error), t('users.passwordChangeFailed', '密码修改失败')))
         }
     }
 

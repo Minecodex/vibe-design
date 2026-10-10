@@ -19,17 +19,23 @@ type HomeInteractionOption = InteractionOption & {
 }
 
 type HomeInteractionField = InteractionField & {
-  defaultValue?: any
+  defaultValue?: unknown
   maxSelections?: number | null
   options?: HomeInteractionOption[]
 }
 
 type HomeInteractionQuestion = InteractionQuestion & {
+  default_value?: unknown
+  defaultValue?: unknown
   maxSelections?: number | null
   options?: HomeInteractionOption[]
 }
 
 const OTHER_SELECTION_VALUE = '__ask_user_other__'
+
+function hasSelectedAnswerValue(answer: unknown, value: string): boolean {
+  return Array.isArray(answer) && answer.includes(value)
+}
 
 function isQuestionRequired(question: HomeInteractionQuestion): boolean {
   return question.required !== false
@@ -71,7 +77,7 @@ interface HomeHarnessInteractionFormProps {
     fields?: HomeInteractionField[]
     questions?: HomeInteractionQuestion[]
   } | null
-  answers?: Record<string, any> | null
+  answers?: Record<string, unknown> | null
   status?: 'pending' | 'submitted'
   submittedLabel?: string
   isDark: boolean
@@ -82,12 +88,12 @@ interface HomeHarnessInteractionFormProps {
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => Promise<void>
 }
 
-function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['schema']): Record<string, any> {
-  const defaults: Record<string, any> = {}
+function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['schema']): Record<string, unknown> {
+  const defaults: Record<string, unknown> = {}
   for (const field of schema?.fields || []) {
     const defaultValue = field.default_value !== undefined ? field.default_value : field.defaultValue
     if (defaultValue !== undefined) {
@@ -97,7 +103,7 @@ function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['sche
     defaults[field.id] = field.type === 'checkbox' ? [] : ''
   }
   for (const question of schema?.questions || []) {
-    const defaultValue = (question as Record<string, any>).default_value ?? (question as Record<string, any>).defaultValue
+    const defaultValue = question.default_value ?? question.defaultValue
     if (defaultValue !== undefined) {
       defaults[question.id] = defaultValue
       continue
@@ -109,8 +115,8 @@ function defaultAnswersFromSchema(schema?: HomeHarnessInteractionFormProps['sche
 
 function buildInitialInteractionState(
   schema?: HomeHarnessInteractionFormProps['schema'],
-  answers?: Record<string, any> | null,
-): { formAnswers: Record<string, any>, otherAnswers: Record<string, string> } {
+  answers?: Record<string, unknown> | null,
+): { formAnswers: Record<string, unknown>, otherAnswers: Record<string, string> } {
   const formAnswers = { ...defaultAnswersFromSchema(schema) }
   const otherAnswers: Record<string, string> = {}
 
@@ -121,7 +127,7 @@ function buildInitialInteractionState(
     }
 
     if ((field.type === 'radio' || field.type === 'cards') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-      const source = answer as Record<string, any>
+      const source = answer as Record<string, unknown>
       if (String(source.type || '').trim() === 'other') {
         formAnswers[field.id] = OTHER_SELECTION_VALUE
         otherAnswers[field.id] = String(source.value || '').trim()
@@ -134,7 +140,7 @@ function buildInitialInteractionState(
     if (field.type === 'checkbox' && Array.isArray(answer)) {
       formAnswers[field.id] = answer.map((entry) => {
         if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-          const source = entry as Record<string, any>
+          const source = entry as Record<string, unknown>
           if (String(source.type || '').trim() === 'other') {
             otherAnswers[field.id] = String(source.value || '').trim()
             return OTHER_SELECTION_VALUE
@@ -149,7 +155,7 @@ function buildInitialInteractionState(
     formAnswers[field.id] = typeof answer === 'string'
       ? answer
       : (answer && typeof answer === 'object' && !Array.isArray(answer))
-        ? String((answer as Record<string, any>).value || '').trim()
+        ? String((answer as Record<string, unknown>).value || '').trim()
         : answer
   }
 
@@ -160,7 +166,7 @@ function buildInitialInteractionState(
     }
 
     if ((question.type === 'single' || question.type === 'input') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-      const source = answer as Record<string, any>
+      const source = answer as Record<string, unknown>
       if (String(source.type || '').trim() === 'other') {
         formAnswers[question.id] = OTHER_SELECTION_VALUE
         otherAnswers[question.id] = String(source.value || '').trim()
@@ -173,7 +179,7 @@ function buildInitialInteractionState(
     if (question.type === 'multiple' && Array.isArray(answer)) {
       formAnswers[question.id] = answer.map((entry) => {
         if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-          const source = entry as Record<string, any>
+          const source = entry as Record<string, unknown>
           if (String(source.type || '').trim() === 'other') {
             otherAnswers[question.id] = String(source.value || '').trim()
             return OTHER_SELECTION_VALUE
@@ -191,7 +197,7 @@ function buildInitialInteractionState(
   return { formAnswers, otherAnswers }
 }
 
-function textareaClassName(_isDark: boolean): string {
+function textareaClassName(): string {
   return cn(
     'flex min-h-24 w-full min-w-0 rounded-xl border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none',
     'placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
@@ -200,28 +206,28 @@ function textareaClassName(_isDark: boolean): string {
   )
 }
 
-function selectTriggerClassName(_isDark: boolean): string {
+function selectTriggerClassName(): string {
   return cn(
     'h-10 w-full justify-between rounded-xl shadow-xs',
     'border-[var(--app-border)] bg-[var(--app-control)] text-foreground hover:bg-[var(--app-control-hover)]',
   )
 }
 
-function selectContentClassName(_isDark: boolean): string {
+function selectContentClassName(): string {
   return cn(
     'rounded-xl border shadow-md',
     'border-[var(--app-border)] bg-[var(--app-glass)] text-foreground backdrop-blur-2xl',
   )
 }
 
-function selectItemClassName(_isDark: boolean): string {
+function selectItemClassName(): string {
   return cn(
     'rounded-lg px-3 py-2 text-sm focus:text-current',
     'focus:bg-[var(--app-control-hover)] data-[state=checked]:bg-[var(--app-control-selected)] data-[state=checked]:text-[var(--app-control-selected-foreground)]',
   )
 }
 
-function surfaceButtonClassName(_isDark: boolean, selected = false): string {
+function surfaceButtonClassName(selected = false): string {
   if (selected) {
     return cn(
       'border shadow-xs',
@@ -235,14 +241,14 @@ function surfaceButtonClassName(_isDark: boolean, selected = false): string {
   )
 }
 
-function previewButtonClassName(_isDark: boolean): string {
+function previewButtonClassName(): string {
   return cn(
     'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold shadow-xs transition-colors',
     'border-[var(--app-border)] bg-[var(--app-control)] text-muted-foreground hover:bg-[var(--app-control-hover)] hover:text-foreground',
   )
 }
 
-function submitButtonClassName(_isDark: boolean): string {
+function submitButtonClassName(): string {
   return cn(
     'h-10 rounded-xl border px-4 shadow-xs transition-colors',
     'border-[var(--app-border)] bg-[var(--app-control)] text-foreground hover:bg-[var(--app-control-hover)]',
@@ -300,7 +306,7 @@ export function HomeHarnessInteractionForm({
     () => buildInitialInteractionState(localizedSchema, answers),
     [answers, localizedSchema],
   )
-  const [formAnswers, setFormAnswers] = useState<Record<string, any>>(() => initialState.formAnswers)
+  const [formAnswers, setFormAnswers] = useState<Record<string, unknown>>(() => initialState.formAnswers)
   const [otherAnswers, setOtherAnswers] = useState<Record<string, string>>(() => initialState.otherAnswers)
   const initialStateKey = useMemo(() => JSON.stringify(initialState), [initialState])
   const lastSyncedStateKeyRef = useRef(`${requestId}:${initialStateKey}`)
@@ -367,11 +373,11 @@ export function HomeHarnessInteractionForm({
   const canSubmit = hasAskUserQuestions ? canSubmitAskUser : canSubmitFields
 
   const buildSubmitAnswers = (
-    answerSource: Record<string, any> = formAnswers,
+    answerSource: Record<string, unknown> = formAnswers,
     otherSource: Record<string, string> = otherAnswers,
-  ): Record<string, any> => {
+  ): Record<string, unknown> => {
     if (kind === 'ask_user') {
-      const nextAnswers: Record<string, any> = {}
+      const nextAnswers: Record<string, unknown> = {}
       for (const question of askUserQuestions) {
         const value = answerSource[question.id]
         if (question.type === 'input') {
@@ -433,7 +439,7 @@ export function HomeHarnessInteractionForm({
     if (!usesStructuredSelectionAnswers(kind)) {
       return formAnswers
     }
-    const nextAnswers: Record<string, any> = {}
+    const nextAnswers: Record<string, unknown> = {}
     for (const field of localizedSchema?.fields || []) {
       const value = answerSource[field.id]
       if (field.type === 'checkbox') {
@@ -639,7 +645,7 @@ export function HomeHarnessInteractionForm({
                         }}
                         className={cn(
                           askQuestion.type === 'multiple' ? 'rounded-full px-3 py-2 text-sm' : 'rounded-xl px-3 py-2 text-left text-sm',
-                          surfaceButtonClassName(isDark, selected),
+                          surfaceButtonClassName(selected),
                           disabled ? 'opacity-60' : '',
                         )}
                       >
@@ -675,7 +681,6 @@ export function HomeHarnessInteractionForm({
                     className={cn(
                       askQuestion.type === 'multiple' ? 'rounded-full px-3 py-2 text-sm' : 'rounded-xl px-3 py-2 text-left text-sm',
                       surfaceButtonClassName(
-                        isDark,
                         askQuestion.type === 'multiple'
                           ? selectedValues.includes(OTHER_SELECTION_VALUE)
                           : selectedValue === OTHER_SELECTION_VALUE,
@@ -734,7 +739,7 @@ export function HomeHarnessInteractionForm({
                 disabled={!canSubmit || isSubmitting}
                 onClick={() => void handleSubmit()}
                 variant="outline"
-                className={submitButtonClassName(isDark)}
+                className={submitButtonClassName()}
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {localizedSchema.submit_label || localizedSchema.submitLabel || t('home.interaction.continue', 'Continue')}
@@ -800,7 +805,7 @@ export function HomeHarnessInteractionForm({
                 placeholder={field.placeholder || ''}
                 rows={4}
                 onChange={(event) => setFormAnswers((current) => ({ ...current, [field.id]: event.target.value }))}
-                className={textareaClassName(isDark)}
+                className={textareaClassName()}
               />
             ) : null}
             {field.type === 'select' ? (
@@ -812,16 +817,16 @@ export function HomeHarnessInteractionForm({
                 <SelectTrigger
                   id={`${requestId}-${field.id}`}
                   aria-label={field.label}
-                  className={selectTriggerClassName(isDark)}
+                  className={selectTriggerClassName()}
                 >
                   <SelectValue placeholder={field.placeholder || t('home.interaction.selectPlaceholder', 'Select')} />
                 </SelectTrigger>
-                <SelectContent className={selectContentClassName(isDark)}>
+                <SelectContent className={selectContentClassName()}>
                   <SelectItem value="__placeholder__" disabled className="hidden">
                     {field.placeholder || t('home.interaction.selectPlaceholder', 'Select')}
                   </SelectItem>
                   {(field.options || []).map((option) => (
-                    <SelectItem key={`${field.id}-${option.value}`} value={option.value} className={selectItemClassName(isDark)}>
+                    <SelectItem key={`${field.id}-${option.value}`} value={option.value} className={selectItemClassName()}>
                       {option.label}
                     </SelectItem>
                   ))}
@@ -863,7 +868,7 @@ export function HomeHarnessInteractionForm({
                         }}
                         className={cn(
                           'rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40',
-                          surfaceButtonClassName(isDark, selected),
+                          surfaceButtonClassName(selected),
                           (isSubmitted || isSubmitting) ? 'cursor-not-allowed opacity-70' : 'cursor-pointer',
                         )}
                       >
@@ -909,7 +914,7 @@ export function HomeHarnessInteractionForm({
                                       event.stopPropagation()
                                       setPreviewDesignSystem(previewDesignSystemOption)
                                     }}
-                                    className={cn(previewButtonClassName(isDark), 'shrink-0')}
+                                    className={cn(previewButtonClassName(), 'shrink-0')}
                                   >
                                     <Eye className="h-3 w-3" />
                                     <span>{t('home.designSystem.showcaseTab', '示例')}</span>
@@ -930,7 +935,7 @@ export function HomeHarnessInteractionForm({
                       onClick={() => setFormAnswers((current) => ({ ...current, [field.id]: option.value }))}
                       className={cn(
                         'rounded-xl px-3 py-2 text-left text-sm',
-                        surfaceButtonClassName(isDark, selected),
+                        surfaceButtonClassName(selected),
                       )}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -952,7 +957,7 @@ export function HomeHarnessInteractionForm({
                     onClick={() => setFormAnswers((current) => ({ ...current, [field.id]: OTHER_SELECTION_VALUE }))}
                     className={cn(
                       'rounded-xl px-3 py-2 text-left text-sm',
-                      surfaceButtonClassName(isDark, formAnswers[field.id] === OTHER_SELECTION_VALUE),
+                      surfaceButtonClassName(formAnswers[field.id] === OTHER_SELECTION_VALUE),
                     )}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -995,7 +1000,7 @@ export function HomeHarnessInteractionForm({
                       })}
                       className={cn(
                         'rounded-full px-3 py-2 text-sm',
-                        surfaceButtonClassName(isDark, selected),
+                        surfaceButtonClassName(selected),
                       )}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -1019,20 +1024,19 @@ export function HomeHarnessInteractionForm({
                     className={cn(
                       'rounded-full px-3 py-2 text-sm',
                       surfaceButtonClassName(
-                        isDark,
-                        Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE),
+                        hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE),
                       ),
                     )}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <span>{field.other_label || t('home.interaction.otherOption', 'Other')}</span>
-                      {renderSelectedIndicator(Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE))}
+                      {renderSelectedIndicator(hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE))}
                     </div>
                   </button>
                 ) : null}
               </div>
             ) : null}
-            {field.type === 'checkbox' && supportsCustomOther(kind, field) && Array.isArray(formAnswers[field.id]) && formAnswers[field.id].includes(OTHER_SELECTION_VALUE) ? (
+            {field.type === 'checkbox' && supportsCustomOther(kind, field) && hasSelectedAnswerValue(formAnswers[field.id], OTHER_SELECTION_VALUE) ? (
               <Input
                 id={`${requestId}-${field.id}`}
                 aria-label={field.label}
@@ -1056,7 +1060,7 @@ export function HomeHarnessInteractionForm({
             disabled={!canSubmit || isSubmitting}
             onClick={() => void handleSubmit()}
             variant="outline"
-            className={submitButtonClassName(isDark)}
+            className={submitButtonClassName()}
           >
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {localizedSchema.submit_label || localizedSchema.submitLabel || t('home.interaction.continue', 'Continue')}

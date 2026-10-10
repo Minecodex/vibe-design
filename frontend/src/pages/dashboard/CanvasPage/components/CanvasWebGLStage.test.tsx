@@ -5,25 +5,25 @@ import type { CanvasRenderNode } from '../canvasRenderModel'
 import { createCanvasInteractionPreviewController } from '../canvasInteractionPreview'
 
 const pixiMock = vi.hoisted(() => {
-  const applications: any[] = []
+  const applications: MockApplication[] = []
   const initResolvers: Array<() => void> = []
   let initMode: 'resolved' | 'pending' = 'resolved'
   let destroyedBeforeInit = 0
 
   class MockContainer {
-    children: any[] = []
+    children: MockContainer[] = []
     eventMode = 'none'
     visible = true
     zIndex = 0
     position = { set: vi.fn() }
     scale = { set: vi.fn() }
 
-    addChild(child: any) {
+    addChild(child: MockContainer) {
       this.children.push(child)
       return child
     }
 
-    removeChild(child: any) {
+    removeChild(child: MockContainer) {
       this.children = this.children.filter((candidate) => candidate !== child)
       return child
     }
@@ -45,11 +45,11 @@ const pixiMock = vi.hoisted(() => {
   }
 
   class MockSprite extends MockContainer {
-    texture: any
+    texture: unknown
     width = 0
     height = 0
 
-    constructor(texture: any) {
+    constructor(texture: unknown) {
       super()
       this.texture = texture
     }
@@ -57,7 +57,7 @@ const pixiMock = vi.hoisted(() => {
 
   class MockText extends MockContainer {
     text = ''
-    style: any = {}
+    style: unknown = {}
     rotation = 0
 
     constructor(options: { text?: string } = {}) {
@@ -121,8 +121,8 @@ const pixiMock = vi.hoisted(() => {
 })
 
 const resourceMock = vi.hoisted(() => {
-  const instances: any[] = []
-  const initialTextures = new Map<string, any>()
+  const instances: MockResourceManager[] = []
+  const initialTextures = new Map<string, unknown>()
   const defaultTileDescriptor = {
     url: '/image__tile_256_4_0_0.webp?v=1',
     status: 'ready',
@@ -136,7 +136,7 @@ const resourceMock = vi.hoisted(() => {
   }
 
   class MockResourceManager {
-    textures = new Map<string, any>()
+    textures = new Map<string, unknown>()
     getStats = vi.fn(() => ({
       textureCount: this.textures.size,
       loadingCount: 0,
@@ -389,10 +389,10 @@ describe('CanvasWebGLStage', () => {
 
     const world = pixiMock.applications[0].stage.children[0]
     const recordContainer = world.children[0]
-    const tileContainer = recordContainer.children.find((child: any) => child instanceof pixiMock.MockContainer && child.children.length > 0)
+    const tileContainer = recordContainer.children.find((child: unknown) => child instanceof pixiMock.MockContainer && child.children.length > 0)
 
     expect(tileContainer).toBeTruthy()
-    expect(tileContainer.children.some((child: any) => child instanceof pixiMock.MockSprite)).toBe(true)
+    expect(tileContainer?.children.some((child: unknown) => child instanceof pixiMock.MockSprite)).toBe(true)
     expect(resourceMock.instances[0].loadTexture).toHaveBeenCalledWith('/image__tile_256_4_4_4.webp?v=1')
   })
 
@@ -446,9 +446,9 @@ describe('CanvasWebGLStage', () => {
 
     const world = pixiMock.applications[0].stage.children[0]
     const recordContainer = world.children[0]
-    const imageSprite = recordContainer.children.find((child: any) => child instanceof pixiMock.MockSprite)
+    const imageSprite = recordContainer.children.find((child: unknown) => child instanceof pixiMock.MockSprite)
 
-    expect(imageSprite.texture).toEqual({ id: 'texture:/image.png' })
+    expect(imageSprite?.texture).toEqual({ id: 'texture:/image.png' })
   })
 
   it('loads a first-frame texture for WebGL videos without poster images', async () => {
@@ -486,12 +486,12 @@ describe('CanvasWebGLStage', () => {
 
     const world = pixiMock.applications[0].stage.children[0]
     const recordContainer = world.children[0]
-    const imageSprite = recordContainer.children.find((child: any) => child instanceof pixiMock.MockSprite)
-    const graphicsChildren = recordContainer.children.filter((child: any) => child instanceof pixiMock.MockGraphics)
+    const imageSprite = recordContainer.children.find((child: unknown) => child instanceof pixiMock.MockSprite)
+    const graphicsChildren = recordContainer.children.filter((child: unknown) => child instanceof pixiMock.MockGraphics)
     const playOverlay = graphicsChildren[graphicsChildren.length - 1]
 
     await waitFor(() => {
-      expect(imageSprite.texture).toEqual({ id: 'video-frame-texture:/movie.mp4' })
+      expect(imageSprite?.texture).toEqual({ id: 'video-frame-texture:/movie.mp4' })
     })
     expect(playOverlay.visible).toBe(true)
     expect(playOverlay.circle).toHaveBeenCalled()

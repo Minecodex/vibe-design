@@ -184,7 +184,7 @@ export function ZoomableImageViewer({
 
   React.useEffect(() => {
     setOffset((currentOffset) => clampOffset(currentOffset, maxOffset))
-  }, [maxOffset.x, maxOffset.y])
+  }, [maxOffset])
 
   React.useEffect(() => {
     if (!naturalSize.width || !naturalSize.height || !viewportSize.width || !viewportSize.height) {

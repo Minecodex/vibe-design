@@ -24,11 +24,11 @@ type GenerationArtifactSnapshot = {
   progress?: number | null
   result_url?: string | null
   result_urls?: string[] | null
-  artifact?: Record<string, any> | null
+  artifact?: Record<string, unknown> | null
   error_message?: string | null
   prompt?: string | null
-  params?: Record<string, any> | null
-  canvas_item?: Record<string, any> | null
+  params?: Record<string, unknown> | null
+  canvas_item?: Record<string, unknown> | null
 }
 
 const POLL_INTERVAL_MS = 3000

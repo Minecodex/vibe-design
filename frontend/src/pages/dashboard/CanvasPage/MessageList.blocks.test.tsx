@@ -1,4 +1,5 @@
-﻿import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import type { ChatMessage } from '@/store/canvasAgentTypes'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { act } from '@testing-library/react'
 import { agentApi } from '@/api/endpoints/agent'
@@ -195,7 +196,7 @@ vi.mock('@/store/canvasAgentStore', async () => {
   return {
     ...actual,
     useChatStore: Object.assign(
-      (selector: (state: any) => any) =>
+      (selector: (state: unknown) => unknown) =>
         selector({
           conversationId: 101,
           engineVersion: 'harness',
@@ -292,7 +293,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -315,7 +316,7 @@ describe('MessageList block renderers', () => {
             blocks: [],
             attachments: [],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
         onFocusItem={focusMock}
@@ -323,9 +324,11 @@ describe('MessageList block renderers', () => {
           {
             id: 'img-1',
             type: 'image',
+            x: 0,
+            y: 0,
             url: '/api/v1/uploads/canvas/1/source.png',
             name: '图片',
-          } as any,
+          },
         ]}
       />,
     )
@@ -347,7 +350,7 @@ describe('MessageList block renderers', () => {
             blocks: [],
             attachments: [],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -385,7 +388,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -415,7 +418,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -452,7 +455,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -496,7 +499,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -527,7 +530,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -558,7 +561,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -1303,7 +1306,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -1348,7 +1351,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
       />,
@@ -1608,7 +1611,7 @@ describe('MessageList block renderers', () => {
               analysis: null,
             },
           },
-        ] as any}
+        ]}
         isStreaming={true}
       />,
     )
@@ -1658,7 +1661,7 @@ describe('MessageList block renderers', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         isStreaming={true}
       />,
     )
@@ -1817,7 +1820,7 @@ describe('MessageList block renderers', () => {
           elapsed_ms: 1800,
         },
       },
-    } as any)
+    })
 
     expect(blocks).toHaveLength(1)
     expect(blocks[0].status).toBe('completed')
@@ -1963,7 +1966,7 @@ describe('MessageList block renderers', () => {
   })
 
   it('reuses canvas workspace media preview URLs across message remounts', async () => {
-    const messages = [
+    const messages: ChatMessage[] = [
       {
         id: 'assistant-workspace-image-reference-rerender',
         role: 'assistant',
@@ -1971,7 +1974,7 @@ describe('MessageList block renderers', () => {
         createdAt: '2026-03-30T00:00:00Z',
         blocks: [],
       },
-    ] as any
+    ]
 
     const firstRender = render(
       <MessageList

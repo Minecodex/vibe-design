@@ -79,7 +79,7 @@ type GeneratorAssetLibraryContext =
   | { type: 'ecommerce-reference'; onSelect: (urls: string[]) => void; maxSelection?: number }
 
 // ---------- component ----------
-export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?: boolean, guestProject?: any }) {
+export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?: boolean, guestProject?: unknown }) {
   const { t } = useTranslation()
   const isDark = useIsDarkMode()
   const navigate = useNavigate()
@@ -90,7 +90,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
     portrait: t('canvas.generator.ratio_hint_portrait', 'Portrait'),
   }
   const standardSuffix = t('canvas.generator.standard_suffix', 'Standard')
-  const { tools, selectTools, addTools } = getCanvasToolDefinitions(t, isDark)
+  const { tools, selectTools, addTools } = getCanvasToolDefinitions(t)
   const { id } = useParams<{ id: string }>()
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContentRef = useRef<HTMLDivElement>(null)
@@ -599,7 +599,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
     }
 
     if (generatorAssetLibraryContext.type === 'canvas-item') {
-      const item = canvasItems.find((canvasItem: any) => canvasItem.id === generatorAssetLibraryContext.itemId)
+      const item = canvasItems.find((canvasItem) => canvasItem.id === generatorAssetLibraryContext.itemId)
       if (!item) return null
       if (generatorAssetLibraryContext.target !== 'reference') {
         return { selectionMode: 'single' as const, maxSelection: 1 }
@@ -682,7 +682,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
         ref={anchoredImageReferenceInputRef}
         type="file"
         accept="image/*"
-        multiple={Boolean(imageAnchoredImageDraftItem && getResolvedImageCapability(imageAnchoredImageDraftItem as any).maxReferenceImages > 2)}
+        multiple={Boolean(imageAnchoredImageDraftItem && getResolvedImageCapability(imageAnchoredImageDraftItem).maxReferenceImages > 2)}
         style={{ display: 'none' }}
         onChange={handleUploadAnchoredImageReference}
       />
@@ -803,6 +803,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             handleMouseMove={handleMouseMove}
             handleMouseUp={handleMouseUp}
             setContextMenu={setContextMenu}
+            handleContextMenuAction={handleContextMenuAction}
             setSelectedItems={setSelectedItems}
             setActiveContextMenuItem={setActiveContextMenuItem}
             handleCanvasClick={handleCanvasClick}
@@ -853,7 +854,9 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             availableImageModels={availableImageModels}
             availableVideoModels={availableVideoModels}
             imageModel={imageModel}
+            imageProvider={imageProvider}
             videoModel={videoModel}
+            videoProvider={videoProvider}
             imageRes={imageRes}
             imageRatio={imageRatio}
             videoAspect={videoAspect}
@@ -892,7 +895,7 @@ export function CanvasPage({ isGuest = false, guestProject = null }: { isGuest?:
             shouldShowGeneratorControlPanel={shouldShowGeneratorControlPanel}
             getMediaDisplayInitializationUpdate={getMediaDisplayInitializationUpdate}
             normalizeReferenceImages={normalizeReferenceImages}
-            getImageGeneratorCapability={(modelName: string) =>
+            getImageGeneratorCapability={(modelName?: string) =>
               getResolvedImageModelCapability(availableImageModels, modelName)
             }
             withReferenceImages={withReferenceImages}

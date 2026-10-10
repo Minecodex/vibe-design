@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import type { CanvasItem } from '@/api/endpoints/projects'
 
 import {
   applyGeneratorAssetsToAnchoredImageDraft,
@@ -8,7 +9,7 @@ import {
 
 describe('generatorAssetLibrary', () => {
   test('applies reference images to a canvas video item and clears frames on conflict', () => {
-    const item = {
+    const item: Partial<CanvasItem> = {
       id: 'video-1',
       type: 'video_generator',
       reference_images: ['https://example.com/existing.png'],
@@ -99,7 +100,7 @@ describe('generatorAssetLibrary', () => {
   })
 
   test('refuses to add a tail frame asset when tail frame is currently disallowed', () => {
-    const item = {
+    const item: Partial<CanvasItem> = {
       id: 'video-1',
       type: 'video_generator',
       reference_images: [],

@@ -14,7 +14,7 @@ def test_workflow_diagnostics_default_off(monkeypatch, caplog):
     monkeypatch.setattr(settings, "HARNESS_WORKFLOW_STEP_WARNING_SECONDS", 0.001)
     monkeypatch.setattr(settings, "HARNESS_ACTIVITY_WARNING_SECONDS", 0.001)
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.INFO, logger=diagnostics.logger.name):
         with diagnostics.workflow_step_timer(step_type="model_turn", step_id="step-1", run_id="run-1", attempt=1):
             pass
         diagnostics.log_activity_slow(
@@ -34,7 +34,7 @@ def test_workflow_diagnostics_enabled_redacted_shape(monkeypatch, caplog):
     monkeypatch.setattr(settings, "HARNESS_WORKFLOW_STEP_WARNING_SECONDS", 0.0)
     monkeypatch.setattr(settings, "HARNESS_ACTIVITY_WARNING_SECONDS", 0.0)
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.INFO, logger=diagnostics.logger.name):
         with diagnostics.workflow_step_timer(step_type="model_turn", step_id="step-1", run_id="run-1", attempt=2):
             time.sleep(0.11)
         diagnostics.log_activity_slow(
@@ -56,7 +56,11 @@ def test_workflow_diagnostics_enabled_redacted_shape(monkeypatch, caplog):
         )
 
     messages = [record.getMessage() for record in caplog.records]
-    assert any("Workflow step slow" in message for message in messages)
+    assert any("Workflow step slow" in message for message in messages), (
+        f"logger disabled={diagnostics.logger.disabled} propagate={diagnostics.logger.propagate} "
+        f"level={diagnostics.logger.level} registered={logging.getLogger(diagnostics.logger.name) is diagnostics.logger} "
+        f"messages={messages}"
+    )
     assert any("Activity slow" in message for message in messages)
     assert any("Event fanout slow" in message for message in messages)
     assert any("Workflow phase timing" in message for message in messages)

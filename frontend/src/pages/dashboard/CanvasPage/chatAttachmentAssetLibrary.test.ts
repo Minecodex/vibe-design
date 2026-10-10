@@ -10,6 +10,6 @@ const source = readFileSync(resolve(currentDir, 'index.tsx'), 'utf8')
 describe('CanvasPage chat attachment asset library wiring', () => {
   it('uses multi-select when opening the asset library for chat attachments', () => {
     expect(source).toContain("onOpenAttachmentLibrary={() => openGeneratorAssetLibrary({ type: 'chat-attachment' })}")
-    expect(source).toContain("if (generatorAssetLibraryContext.type === 'chat-attachment') {\r\n      return { selectionMode: 'multiple' as const }\r\n    }")
+    expect(source.replace(/\r\n/g, '\n')).toContain("if (generatorAssetLibraryContext.type === 'chat-attachment') {\n      return { selectionMode: 'multiple' as const }\n    }")
   })
 })

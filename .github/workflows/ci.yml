@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      APP_ENV: development
+      DATABASE_URL: sqlite+aiosqlite:///./ci.db
+      HARNESS_STORAGE_DATABASE_URL: sqlite:///./ci-harness.db
+      REDIS_REQUIRED: 'false'
+      SECRET_KEY: ci-only-public-test-secret-not-for-deployment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+      - name: Install native image library
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips42
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest tests
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: Asia/Shanghai
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.10.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  business:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=12
+    env:
+      APP_ENV: development
+      DATABASE_URL: sqlite+aiosqlite:///./ci-business.db
+      HARNESS_STORAGE_DATABASE_URL: sqlite:///./ci-business-harness.db
+      REDIS_REQUIRED: 'true'
+      REDIS_URL: redis://127.0.0.1:6379/0
+      SECRET_KEY: ci-only-public-test-secret-not-for-deployment
+      TZ: Asia/Shanghai
+      PYTHONPATH: .
+      APP_API_BASE_URL: /api/v1
+      VITE_PROXY_TARGET: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.10.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: sudo apt-get update && sudo apt-get install -y libvips42
+      - run: python -m pip install -r requirements-dev.txt
+        working-directory: backend
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - name: Run real login and project browser/API regression
+        run: python scripts/ci_business.py
+        working-directory: backend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: vibe-browser-evidence
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+
+  ci-gate:
+    name: CI
+    if: ${{ always() }}
+    needs: ["backend", "frontend", "business"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every mandatory job to succeed
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          optional = set([])
+          jobs = json.loads(os.environ["JOB_RESULTS"])
+          failed = {
+              name: job["result"]
+              for name, job in jobs.items()
+              if job["result"] != "success"
+              and not (name in optional and job["result"] == "skipped")
+          }
+          if failed:
+              print(f"Required CI jobs did not succeed: {failed}")
+              sys.exit(1)
+          print("All mandatory CI jobs passed.")
+          PY

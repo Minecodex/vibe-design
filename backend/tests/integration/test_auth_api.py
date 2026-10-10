@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from unittest.mock import AsyncMock
 
 
 @pytest.mark.asyncio
@@ -33,7 +34,7 @@ async def test_register_duplicate_email(client: AsyncClient, db_session):
 
     response = await client.post(
         "/api/v1/auth/register",
-        json={"email": "dup@example.com", "username": "other", "password": "Test1234!"},
+        json={"email": "dup@example.com", "username": "otheruser", "password": "Test1234!"},
     )
     assert response.status_code == 409
 
@@ -53,7 +54,7 @@ async def test_login_success(client: AsyncClient, db_session):
 
     response = await client.post(
         "/api/v1/auth/login",
-        json={"email": "login@example.com", "password": "Test1234!"},
+        json={"account": "login@example.com", "password": "Test1234!"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -77,7 +78,7 @@ async def test_login_wrong_password(client: AsyncClient, db_session):
 
     response = await client.post(
         "/api/v1/auth/login",
-        json={"email": "wrongpwd@example.com", "password": "WrongPass"},
+        json={"account": "wrongpwd@example.com", "password": "WrongPass"},
     )
     assert response.status_code == 401
 
@@ -97,10 +98,17 @@ async def test_get_me_unauthenticated(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_health_check(client: AsyncClient):
+@pytest.mark.parametrize("catalog_status, expected_status", [
+    ("ready", "healthy"), ("unavailable", "unhealthy"),
+])
+async def test_health_check(client: AsyncClient, monkeypatch, catalog_status, expected_status):
+    monkeypatch.setattr(
+        "app.services.license_service.agent_catalog_health",
+        AsyncMock(return_value={"status": catalog_status}),
+    )
     response = await client.get("/health")
     assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
+    assert response.json()["status"] == expected_status
 
 
 @pytest.mark.asyncio

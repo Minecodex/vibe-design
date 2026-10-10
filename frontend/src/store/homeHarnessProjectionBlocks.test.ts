@@ -1,3 +1,4 @@
+import { wireRecord } from './harnessWireFields'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -54,7 +55,7 @@ describe('homeHarnessProjectionBlocks', () => {
     expect(blocks).toHaveLength(1)
     expect(blocks[0]?.uiKind).toBe('interaction_form')
     expect(blocks[0]?.payload.requestId).toBe('quick-brief:conv-1')
-    expect(blocks[0]?.payload.schema.submitLabel).toBe('Continue')
+    expect(wireRecord(blocks[0]?.payload.schema)?.submitLabel).toBe('Continue')
   })
 
   it('applies start, delta, and patch updates consistently', () => {

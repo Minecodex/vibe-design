@@ -1,3 +1,5 @@
+import { wireRecord } from '@/store/harnessWireFields'
+import { errorName, errorMessage } from '@/utils/apiErrors'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { toast } from 'sonner'
@@ -171,7 +173,7 @@ function preserveSubmittedInteractionAfterSnapshot(
 ): Pick<HomeHarnessProjectionState, 'messages' | 'userInteraction'> {
     const requestId = String(
         snapshotProjection.userInteraction?.request_id
-        || (snapshotProjection.userInteraction as any)?.requestId
+        || (snapshotProjection.userInteraction)?.requestId
         || '',
     ).trim()
     const requestIds = requestId ? [requestId] : findPendingInteractionRequestIds(incomingMessages)
@@ -204,7 +206,7 @@ function preserveSubmittedInteractionAfterSnapshot(
 function resolveDesignSystemIdFromInteractionAnswer(
     kind: string | null | undefined,
     answer: string,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
 ): string | null {
     const normalizedKind = String(kind || '').trim()
     if (normalizedKind !== 'design_system_picker') {
@@ -216,7 +218,7 @@ function resolveDesignSystemIdFromInteractionAnswer(
         try {
             const parsed = JSON.parse(String(answer || ''))
             payload = parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-                ? parsed as Record<string, any>
+                ? parsed as Record<string, unknown>
                 : null
         } catch {
             payload = null
@@ -565,8 +567,8 @@ function applyToolCallUpdatesToBlock(
     const incomingTaskId = updates.result?.task_id ?? updates.result?.taskId
     const blockTaskId = (
         block.payload.taskId
-        ?? block.payload.result?.task_id
-        ?? block.payload.result?.taskId
+        ?? wireRecord(block.payload.result)?.task_id
+        ?? wireRecord(block.payload.result)?.taskId
     )
     const taskIdMatches = incomingTaskId == null || blockTaskId == null || incomingTaskId === blockTaskId
     const isMatchingCall = blockCallId === callId && taskIdMatches
@@ -582,15 +584,15 @@ function applyToolCallUpdatesToBlock(
 
     if (nextResult) {
         nextPayload.result = nextResult
-        nextPayload.progress = nextResult.progress ?? nextPayload.progress
-        nextPayload.status = nextResult.status ?? nextPayload.status
-        nextPayload.taskId = nextResult.task_id ?? nextResult.taskId ?? nextPayload.taskId
-        nextPayload.previewUrl = nextResult.preview_url ?? nextResult.previewUrl ?? nextPayload.previewUrl
-        nextPayload.resultUrl = nextResult.result_url ?? nextResult.resultUrl ?? nextPayload.resultUrl
+        nextPayload.progress = wireRecord(nextResult)?.progress ?? nextPayload.progress
+        nextPayload.status = wireRecord(nextResult)?.status ?? nextPayload.status
+        nextPayload.taskId = wireRecord(nextResult)?.task_id ?? wireRecord(nextResult)?.taskId ?? nextPayload.taskId
+        nextPayload.previewUrl = wireRecord(nextResult)?.preview_url ?? wireRecord(nextResult)?.previewUrl ?? nextPayload.previewUrl
+        nextPayload.resultUrl = wireRecord(nextResult)?.result_url ?? wireRecord(nextResult)?.resultUrl ?? nextPayload.resultUrl
         nextPayload.errorMessage = (
-            nextResult.error_message
-            ?? nextResult.errorMessage
-            ?? nextResult.error
+            wireRecord(nextResult)?.error_message
+            ?? wireRecord(nextResult)?.errorMessage
+            ?? wireRecord(nextResult)?.error
             ?? nextPayload.errorMessage
         )
     }
@@ -686,7 +688,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 return loadHarnessUiConfigRequest
             },
 
-            loadConversations: async (_projectId) => {
+            loadConversations: async () => {
                 if (loadHarnessConversationsRequest) {
                     return loadHarnessConversationsRequest
                 }
@@ -741,8 +743,8 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 let detail: HarnessConversationDetailRead | null = null
                 try {
                     detail = await fetchHarnessConversationDetailSnapshot(targetId, detailAbortController.signal)
-                } catch (error: any) {
-                    if (error?.name === 'CanceledError' || error?.name === 'AbortError') {
+                } catch (error) {
+                    if (errorName(error) === 'CanceledError' || errorName(error) === 'AbortError') {
                         return
                     }
                     throw error
@@ -908,7 +910,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 const effectiveSkillDecisionConfidence = latestState.skillDecisionConfidence
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     // Strip _localFile from attachments before sending to API
                     const cleanAttachments = attachments?.map(stripTransientAttachmentFields)
@@ -953,57 +955,60 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError' && isActiveHarnessSend(get, targetConversationId, abortController)) {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError' && isActiveHarnessSend(get, targetConversationId, abortController)) {
                         sendError = err
                         set((s) => applyConversationSessionUpdate(s, targetConversationId, (session) => ({
                             ...session,
                             messages: [...session.messages, {
                                 id: `error-${Date.now()}`,
                                 role: 'assistant',
-                                content: `Error: ${err.message}`,
+                                content: `Error: ${errorMessage(err)}`,
                                 createdAt: new Date().toISOString(),
                             }],
                         })))
                     }
                 } finally {
-                    if (!isActiveHarnessSend(get, targetConversationId, abortController)) {
-                        return
-                    }
-                    if (typeof targetConversationId === 'string') {
-                        const currentSession = getConversationSession(get(), targetConversationId)
-                        if (currentSession.runStatus === 'cancelled') {
-                            finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                    const settleConversationStream = async () => {
+                        if (!isActiveHarnessSend(get, targetConversationId, abortController)) {
                             return
                         }
-                        if (sawTurnCompleted) {
-                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                        if (typeof targetConversationId === 'string') {
+                            const currentSession = getConversationSession(get(), targetConversationId)
+                            if (currentSession.runStatus === 'cancelled') {
+                                finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                                return
+                            }
+                            if (sawTurnCompleted) {
+                                finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                                return
+                            }
+                            const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
+                            if (resumed) {
+                                return
+                            }
+                        }
+                        if (sendError) {
+                            // The send failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
                             return
                         }
-                        const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
-                        if (resumed) {
-                            return
-                        }
-                    }
-                    if (sendError) {
-                        // The send failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1151,7 +1156,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                 set({ engineVersion: 'harness' })
 
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const respondStream = withHarnessActiveRunRetry(
                         targetConversationId as string,
@@ -1169,46 +1174,49 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Agent resume error:', err)
                     }
                 } finally {
-                    if (typeof targetConversationId === 'string') {
-                        const currentSession = getConversationSession(get(), targetConversationId)
-                        if (currentSession.runStatus === 'cancelled') {
-                            finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                    const settleConversationStream = async () => {
+                        if (typeof targetConversationId === 'string') {
+                            const currentSession = getConversationSession(get(), targetConversationId)
+                            if (currentSession.runStatus === 'cancelled') {
+                                finalizeStreamV2(set, get, targetConversationId, 'cancelled')
+                                return
+                            }
+                            if (sawTurnCompleted) {
+                                finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                                return
+                            }
+                            const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
+                            if (resumed) {
+                                return
+                            }
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
                             return
                         }
-                        if (sawTurnCompleted) {
-                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                            return
-                        }
-                        const resumed = await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)
-                        if (resumed) {
-                            return
-                        }
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1261,7 +1269,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                     },
                 } as AgentEvent, set, get, targetConversationId)
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const stream = withHarnessActiveRunRetry(
                         targetConversationId,
@@ -1278,38 +1286,41 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err?.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Plan execution error:', err)
                     }
                 } finally {
-                    if (sawTurnCompleted) {
-                        finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                        return
-                    }
-                    if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
-                        return
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
+                    const settleConversationStream = async () => {
+                        if (sawTurnCompleted) {
+                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                            return
+                        }
+                        if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
+                            return
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
+                            return
+                        }
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1328,7 +1339,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
                     runStatus: 'running',
                 })))
                 let sawTurnCompleted = false
-                let sendError: any = null
+                let sendError: unknown = null
                 try {
                     const stream = withHarnessActiveRunRetry(
                         targetConversationId,
@@ -1346,38 +1357,41 @@ export const useChatStore = create<ChatState & ChatActions>()(
                         }
                         handleAgentEventV2(event, set, get, targetConversationId)
                     }
-                } catch (err: any) {
-                    if (err?.name !== 'AbortError') {
+                } catch (err) {
+                    if (errorName(err) !== 'AbortError') {
                         sendError = err
                         console.error('Plan revision error:', err)
                     }
                 } finally {
-                    if (sawTurnCompleted) {
-                        finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
-                        return
-                    }
-                    if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
-                        return
-                    }
-                    if (sendError) {
-                        // The action failed before a turn could start (e.g. a 409 while a
-                        // prior run was still cancelling). Reset the streaming state so the
-                        // UI does not stay stuck on "thinking" and the user can retry.
+                    const settleConversationStream = async () => {
+                        if (sawTurnCompleted) {
+                            finalizeStreamV2(set, get, targetConversationId, getConversationSession(get(), targetConversationId).runStatus)
+                            return
+                        }
+                        if (await reconcileTurnStreamAfterTransportClose(targetConversationId, set, get)) {
+                            return
+                        }
+                        if (sendError) {
+                            // The action failed before a turn could start (e.g. a 409 while a
+                            // prior run was still cancelling). Reset the streaming state so the
+                            // UI does not stay stuck on "thinking" and the user can retry.
+                            set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
+                                ...session,
+                                runStatus: 'failed',
+                                isStreaming: false,
+                                streamingBlocks: [],
+                                currentStreamText: '',
+                                currentToolCalls: [],
+                                abortController: null,
+                            })))
+                            return
+                        }
                         set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
                             ...session,
-                            runStatus: 'failed',
-                            isStreaming: false,
-                            streamingBlocks: [],
-                            currentStreamText: '',
-                            currentToolCalls: [],
                             abortController: null,
                         })))
-                        return
                     }
-                    set((state) => applyConversationSessionUpdate(state, targetConversationId, (session) => ({
-                        ...session,
-                        abortController: null,
-                    })))
+                    await settleConversationStream()
                 }
             },
 
@@ -1671,8 +1685,8 @@ function handleAgentEventV2(
         const currentSession = projectionConversationId
             ? getConversationSession(_get(), projectionConversationId)
             : null
-        if (isPresentationOpEvent(event as any)) {
-            const conversationPatch = extractPresentationConversationPatch(event as any)
+        if (isPresentationOpEvent(event)) {
+            const conversationPatch = extractPresentationConversationPatch(event)
             if (!projectionConversationId) {
                 set((s) => buildActiveConversationFields(
                     applyPresentationOpToSession({
@@ -1681,7 +1695,7 @@ function handleAgentEventV2(
                         streamingBlocks: s.streamingBlocks,
                         lastSequence: s.conversationId && currentSession ? currentSession.lastSequence : 0,
                         appliedPresentationOps: currentSession?.appliedPresentationOps ?? [],
-                    }, event as any),
+                    }, event),
                 ))
                 return
             }
@@ -1703,7 +1717,7 @@ function handleAgentEventV2(
                     : {}
                 return {
                     ...applyConversationSessionUpdate(s, projectionConversationId, (session) => (
-                        applyPresentationOpToSession(session, event as any)
+                        applyPresentationOpToSession(session, event)
                     )),
                     ...activePatch,
                     conversations: conversationPatch
@@ -1800,7 +1814,7 @@ function handleAgentEventV2(
 }
 
 function getDurableEventSequence(event: AgentEvent): number | null {
-    if ((event as any).transient === true) {
+    if (('transient' in event && event.transient) === true) {
         return null
     }
     const sequence = typeof event.sequence === 'number' ? event.sequence : null
@@ -1872,7 +1886,7 @@ function shouldReplaySameSequenceTurnCompleted(
 function terminalFailureSummary(event: AgentEvent): string {
     const error = event.data?.error
     if (error && typeof error === 'object') {
-        return String((error as Record<string, any>).summary || '').trim()
+        return String((error as Record<string, unknown>).summary || '').trim()
     }
     return String(event.data?.summary || event.data?.message || '').trim()
 }
@@ -1889,11 +1903,11 @@ function durableRuntimeEventKey(
     event: AgentEvent,
     durableSequence: number | null,
 ): string | null {
-    const eventId = String((event as Record<string, any>).event_id ?? '').trim()
+    const eventId = String(('event_id' in event ? event.event_id : undefined) ?? '').trim()
     if (eventId) {
         return `event:${eventId}`
     }
-    const idempotencyKey = String((event as Record<string, any>).idempotency_key ?? '').trim()
+    const idempotencyKey = String(('idempotency_key' in event ? event.idempotency_key : undefined) ?? '').trim()
     if (idempotencyKey) {
         return `idempotency:${idempotencyKey}`
     }

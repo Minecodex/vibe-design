@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PendingInteraction } from '@/api/endpoints/agent'
 
-import { EcommerceInteractionCard, isEcommerceInteractionKind } from './EcommerceInteractionCard'
+import { EcommerceInteractionCard } from './EcommerceInteractionCard'
+import { isEcommerceInteractionKind } from './ecommerceInteractionKinds'
 
 const createWorkspacePreviewTokenMock = vi.fn()
 const getHarnessGenerationArtifactTaskMock = vi.fn()
@@ -85,16 +86,17 @@ vi.mock('react-i18next', async (importOriginal) => {
     'agent.ecommerceInteraction.imageAlt': '参考图 {{index}}',
     'agent.ecommerceInteraction.taxonomy.loadFailed': '参考图库分类加载失败',
   }
-  return {
-    ...actual,
-    useTranslation: () => ({
-      t: (key: string, values?: Record<string, unknown>) => {
+  const t = (key: string, values?: Record<string, unknown>) => {
         const template = translations[key] ?? key
         return Object.entries(values || {}).reduce(
           (text, [name, value]) => text.split(`{{${name}}}`).join(String(value)),
           template,
         )
-      },
+      }
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t,
     }),
   }
 })
@@ -123,7 +125,7 @@ const styles = [
   },
 ]
 
-function interaction(overrides: Record<string, any> = {}): PendingInteraction {
+function interaction(overrides: Record<string, unknown> = {}): PendingInteraction {
   return {
     request_id: 'req-options',
     kind: 'ecommerce_generation_options',
@@ -241,7 +243,7 @@ describe('EcommerceInteractionCard', () => {
   })
 
   it('shares the max reference image limit across all reference sections', async () => {
-    const onRequestReferenceImages = vi.fn((_source, onSelect, _options) => {
+    const onRequestReferenceImages = vi.fn<NonNullable<Parameters<typeof EcommerceInteractionCard>[0]['onRequestReferenceImages']>>((_source, onSelect) => {
       onSelect(['/api/v1/uploads/first.png', '/api/v1/uploads/second.png'])
     })
     render(

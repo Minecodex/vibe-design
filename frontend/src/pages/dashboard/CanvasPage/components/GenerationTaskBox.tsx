@@ -1,3 +1,5 @@
+import { formatApiErrorDetail } from '@/utils/apiErrors'
+import { wireRecord, wireString } from '@/store/harnessWireFields'
 import { Download, Loader2, Maximize, Play, XCircle } from 'lucide-react'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -134,7 +136,7 @@ function MessageVideoPreview({
                 return
               }
               if ((videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void })?.webkitRequestFullscreen) {
-                ;(videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
+                (videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
               }
             }}
             style={{
@@ -179,18 +181,18 @@ function GenerationTaskBoxImpl({
   const { t } = useTranslation()
   const isImage = toolCall.name === 'generate_image'
   const result = toolCall.result
-  const progress = result?.progress || 0
+  const progress = Number(result?.progress || 0)
   const taskId = getGenerationTaskId(result, toolCall.args)
-  const failedMessage = result?.error_message || result?.error || toolCall.error
+  const failedMessage = formatApiErrorDetail(result?.error_message || result?.error || toolCall.error, '')
   const failureKind = getGenerationFailureKind({
-    status: toolCall.status === 'failed' ? 'failed' : result?.status,
+    status: toolCall.status === 'failed' ? 'failed' : wireString(result?.status),
     task_id: taskId ?? undefined,
   })
   const isHistoryFailedCard = isHistoryLoaded && (
     toolCall.status === 'failed'
     || result?.status === 'failed'
     || Boolean(failedMessage)
-    || result?.canvas_item?.status === 'failed'
+    || wireRecord(result?.canvas_item)?.status === 'failed'
   )
   const status = isHistoryFailedCard
     ? 'failed'
@@ -203,7 +205,7 @@ function GenerationTaskBoxImpl({
 
   const onCanvasUpdate = useChatStore(s => s.onCanvasUpdate)
   const conversationId = useChatStore(s => s.conversationId)
-  const agentMediaKey = result?.canvas_item?.id || null
+  const agentMediaKey = wireString(wireRecord(result?.canvas_item)?.id) || null
   const shouldSkipCanvasReplay = isHistoryLoaded
     || !canReplayCompletedMedia
     || hasDeletedAgentMediaKey(deletedAgentMediaKeys, agentMediaKey)
@@ -211,15 +213,15 @@ function GenerationTaskBoxImpl({
   const failureLabel = failureKind === 'internal_failed'
     ? t('canvas.generator.internal_error_label', '内部错误')
     : t('canvas.generator.failed_label')
-  const originalResultUrl = ensureFullUrl(result?.result_url, conversationId)
-  const previewResultUrl = useCanvasHarnessMediaSource(conversationId, result?.result_url, {
+  const originalResultUrl = ensureFullUrl(wireString(result?.result_url), conversationId)
+  const previewResultUrl = useCanvasHarnessMediaSource(conversationId, wireString(result?.result_url), {
     variant: isHistoryLoaded ? 'thumb-512' : 'original',
     enabled: Boolean(result?.result_url),
   })
-  const displayResultUrl = ensureFullUrl(previewResultUrl || result?.result_url, conversationId)
+  const displayResultUrl = ensureFullUrl(previewResultUrl || wireString(result?.result_url), conversationId)
   const modelDisplay = getModelDisplayName(
-    result?.model_label || result?.canvas_item?.model_label,
-    result?.model_name || result?.canvas_item?.model_name,
+    wireString(result?.model_label || wireRecord(result?.canvas_item)?.model_label),
+    wireString(result?.model_name || wireRecord(result?.canvas_item)?.model_name),
   )
   const onCanvasUpdateRef = React.useRef(onCanvasUpdate)
   onCanvasUpdateRef.current = onCanvasUpdate
@@ -254,13 +256,13 @@ function GenerationTaskBoxImpl({
       ...result.canvas_item,
       type: isImage ? 'image_generator' : 'video_generator',
       artifact_ref: result?.artifact_ref,
-      status: result.canvas_item.status || 'generating',
+      status: wireRecord(result.canvas_item)?.status || 'generating',
       canvas_revision: result?.canvas_revision ?? result?.canvasRevision,
       canvas_item_deleted: result?.canvas_item_deleted ?? result?.canvasItemDeleted,
       failure_kind: undefined,
       conversationId,
       messageId,
-      agentMediaKey: result.canvas_item.id || null,
+      agentMediaKey: wireRecord(result.canvas_item)?.id || null,
       _agentLabel: modelDisplay || t('canvas.chat.agent_added'),
     })
   }, [
@@ -269,6 +271,11 @@ function GenerationTaskBoxImpl({
     messageId,
     onCanvasUpdate,
     result?.canvas_item,
+    result?.artifact_ref,
+    result?.canvas_revision,
+    result?.canvasRevision,
+    result?.canvas_item_deleted,
+    result?.canvasItemDeleted,
     modelDisplay,
     shouldSkipCanvasReplay,
     status,
@@ -295,14 +302,14 @@ function GenerationTaskBoxImpl({
       type: isImage ? 'image_generator' : 'video_generator',
       artifact_ref: result?.artifact_ref,
       status: 'failed',
-      task_id: taskId ?? result.canvas_item.task_id,
+      task_id: taskId ?? wireRecord(result.canvas_item)?.task_id,
       error_message: failedMessage,
       failure_kind: failureKind,
       canvas_revision: result?.canvas_revision ?? result?.canvasRevision,
       canvas_item_deleted: result?.canvas_item_deleted ?? result?.canvasItemDeleted,
       conversationId,
       messageId,
-      agentMediaKey: result.canvas_item.id || null,
+      agentMediaKey: wireRecord(result.canvas_item)?.id || null,
       _agentLabel: modelDisplay || t('canvas.chat.agent_added'),
     })
   }, [
@@ -312,6 +319,11 @@ function GenerationTaskBoxImpl({
     isImage,
     messageId,
     result?.canvas_item,
+    result?.artifact_ref,
+    result?.canvas_revision,
+    result?.canvasRevision,
+    result?.canvas_item_deleted,
+    result?.canvasItemDeleted,
     modelDisplay,
     shouldSkipCanvasReplay,
     status,
@@ -335,17 +347,17 @@ function GenerationTaskBoxImpl({
           canvas_item_deleted: result?.canvas_item_deleted ?? result?.canvasItemDeleted,
           conversationId,
           messageId,
-          agentMediaKey: result.canvas_item.id || null,
+          agentMediaKey: wireRecord(result.canvas_item)?.id || null,
           _agentLabel: modelDisplay || t('canvas.chat.agent_added'),
         })
       }
     }
-  }, [status, result?.result_url, originalResultUrl, conversationId, messageId, isImage, result?.canvas_item, modelDisplay, onCanvasUpdate, t, shouldSkipCanvasReplay, syncCanvasRevision])
+  }, [result?.artifact_ref, result?.canvas_revision, result?.canvasRevision, result?.canvas_item_deleted, result?.canvasItemDeleted, status, result?.result_url, originalResultUrl, conversationId, messageId, isImage, result?.canvas_item, modelDisplay, onCanvasUpdate, t, shouldSkipCanvasReplay, syncCanvasRevision])
 
-  const aspect_ratio = result?.params?.aspect_ratio || result?.canvas_item?.aspect_ratio || toolCall.args.aspect_ratio || (isImage ? '1:1' : '16:9')
-  const providerCode = result?.provider_code || result?.canvas_item?.provider_code || toolCall.args.provider_code || ''
-  const configuredResolution = result?.params?.resolution || result?.resolution || result?.canvas_item?.resolution || toolCall.args.resolution
-  const actualResolution = result?.params?.resolution || result?.resolution || result?.canvas_item?.resolution || ''
+  const aspect_ratio = wireString(wireRecord(result?.params)?.aspect_ratio || wireRecord(result?.canvas_item)?.aspect_ratio || toolCall.args.aspect_ratio || (isImage ? '1:1' : '16:9')) || (isImage ? '1:1' : '16:9')
+  const providerCode = wireString(result?.provider_code || wireRecord(result?.canvas_item)?.provider_code || toolCall.args.provider_code || '') || ''
+  const configuredResolution = wireString(wireRecord(result?.params)?.resolution || result?.resolution || wireRecord(result?.canvas_item)?.resolution || toolCall.args.resolution)
+  const actualResolution = wireString(wireRecord(result?.params)?.resolution || result?.resolution || wireRecord(result?.canvas_item)?.resolution || '') || ''
   const [actualDims, setActualDims] = React.useState<{ width: number; height: number } | null>(null)
   const dimensions = getMediaDimensions({
     type: isImage ? 'image' : 'video',

@@ -17,8 +17,10 @@ describe('homeChatAttachmentUrls', () => {
     )
   })
 
-  it('rejects legacy files-prefixed attachment paths', () => {
-    expect(normalizeWorkspaceAttachmentPath('files/assets/inputs/upload_001/source.png')).toBeNull()
+  it('normalizes legacy files-prefixed input paths into the canonical reference namespace', () => {
+    expect(normalizeWorkspaceAttachmentPath('files/assets/inputs/upload_001/source.png'))
+      .toBe('references/inputs/upload_001/source.png')
+    expect(normalizeWorkspaceAttachmentPath('files/assets/inputs/../../private.txt')).toBeNull()
   })
 
   it('treats generated reference assets as workspace attachments', () => {

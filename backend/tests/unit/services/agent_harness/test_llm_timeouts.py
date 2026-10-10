@@ -84,7 +84,7 @@ async def test_apimart_non_stream_timeout_uses_extended_read_budget(monkeypatch)
     timeout = _FakeAsyncClient.last_timeout
     assert timeout.connect == 15.0
     assert timeout.read == 500
-    assert timeout.write == 120.0
+    assert timeout.write == 300.0
     assert timeout.pool == 15.0
 
 

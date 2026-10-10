@@ -90,7 +90,7 @@ def test_sanitize_tool_result_for_model_summarizes_async_generation_without_ui_m
 
     sanitized = sanitize_tool_result_for_model("lc_generate_image", result)
 
-    assert sanitized == {
+    assert {key: value for key, value in sanitized.items() if key != "instruction"} == {
         "type": "async_generation_started",
         "media_type": "image",
         "task_id": 42,
@@ -98,8 +98,8 @@ def test_sanitize_tool_result_for_model_summarizes_async_generation_without_ui_m
         "status": "processing",
         "result_url": None,
         "ui_already_shows_progress": True,
-        "instruction": (
-            "The UI already shows this generation task. Do not merely restate that "
-            "generation is in progress; only continue with substantive guidance."
-        ),
+        "async_execution": True,
+        "do_not_repeat_same_generation": True,
     }
+    assert "Do not call the same generation tool again" in sanitized["instruction"]
+    assert "artifact_ref" in sanitized["instruction"]

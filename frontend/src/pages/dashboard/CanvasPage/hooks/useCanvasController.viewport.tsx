@@ -2,21 +2,14 @@
 // @ts-nocheck
 import { useCallback, useEffect, useRef } from 'react'
 
-import {
-  filterGuideCandidateBuckets,
-  getDraggedBounds,
-  getGuideThresholdInCanvas,
-  projectGuidesToViewport,
-  resolveActiveGuides,
-  resolveActiveGuidesFromBuckets,
-} from '../alignmentGuides'
+import { filterGuideCandidateBuckets, getDraggedBounds, getGuideThresholdInCanvas, projectGuidesToViewport, resolveActiveGuidesFromBuckets } from '../alignmentGuides';
 import {
   clampCanvasZoom,
   MAX_CANVAS_ZOOM,
 } from '../canvasZoom'
 import { createCanvasWheelCameraScheduler } from '../canvasWheelCamera'
 import { getCanvasSelectionHandleAppearance } from '../selectionStyles'
-import { isHoverOnlyFailedVideoTask } from '../imageAnchoredVideo'
+import '../imageAnchoredVideo';
 import { createBrushPathCanvasItem } from '../brushPaths'
 import { collectCanvasClipboardItems } from './useCanvasController.arrangement'
 import { writeCanvasClipboardMarkerToClipboardData } from '../canvasClipboard'
@@ -29,84 +22,7 @@ import {
 } from '../canvasInteractionTransforms'
 
 export function useCanvasControllerViewport(args: any) {
-  const {
-    isDark,
-    canvasRef,
-    canvasContentRef,
-    canvasItems,
-    itemIndex,
-    groupChildrenIndex,
-    baseGuideCandidates,
-    baseGuideCandidateBuckets,
-    visibleSelectableItemsRef,
-    updateCanvasItems,
-    selectedItems,
-    setSelectedItems,
-    beginTransaction,
-    commitTransaction,
-    getItemDims,
-    activeTool,
-    setActiveTool,
-    setMarkModifierState,
-    zoom,
-    zoomRef,
-    offset,
-    offsetRef,
-    camera,
-    isPanning,
-    setIsPanning,
-    setIsWheeling,
-    selectionBox,
-    setSelectionBox,
-    draggingItemId,
-    setDraggingItemId,
-    activeGuides,
-    setActiveGuides,
-    resizingGroupId,
-    setResizingGroupId,
-    mediaResizeState,
-    setMediaResizeState,
-    brushResizeState,
-    setBrushResizeState,
-    movingItemIdsRef,
-    resizingHandle,
-    dragItemStart,
-    resizingStart,
-    mousePosRef,
-    panStart,
-    offsetStart,
-    dragItemOriginals,
-    rafIdRef,
-    guideCandidatesRef,
-    handleCancelImageErase,
-    imageEraseSessionRef,
-    imageDetailItemId,
-    handleCloseImageDetails,
-    textRedrawState,
-    handleCancelTextRedraw,
-    cropState,
-    setCropState,
-    imageAnchoredImageDraft,
-    cancelImageAnchoredImageDraft,
-    imageAnchoredVideoDraft,
-    cancelImageAnchoredVideoDraft,
-    spatialAngleSession,
-    handleCancelSpatialAngle,
-    handleContextMenuAction,
-    handlePasteClipboardImage,
-    clipboardItems,
-    undo,
-    redo,
-    setContextMenu,
-    setActiveDropdown,
-    handleFitView,
-    handlePlaceTextAtPoint,
-    brushDraft,
-    setBrushDraft,
-    brushToolState,
-    textEditingItemId,
-    handleCancelTextEdit,
-  } = args
+  const { isDark, canvasRef, canvasContentRef, canvasItems, itemIndex, groupChildrenIndex, baseGuideCandidateBuckets, visibleSelectableItemsRef, updateCanvasItems, selectedItems, setSelectedItems, beginTransaction, commitTransaction, getItemDims, activeTool, setActiveTool, setMarkModifierState, zoom, zoomRef, offset, offsetRef, camera, isPanning, setIsPanning, setIsWheeling, selectionBox, setSelectionBox, draggingItemId, setDraggingItemId, activeGuides, setActiveGuides, resizingGroupId, setResizingGroupId, mediaResizeState, setMediaResizeState, brushResizeState, setBrushResizeState, movingItemIdsRef, resizingHandle, dragItemStart, resizingStart, mousePosRef, panStart, offsetStart, dragItemOriginals, rafIdRef, guideCandidatesRef, handleCancelImageErase, imageEraseSessionRef, imageDetailItemId, handleCloseImageDetails, textRedrawState, handleCancelTextRedraw, cropState, setCropState, imageAnchoredImageDraft, cancelImageAnchoredImageDraft, imageAnchoredVideoDraft, cancelImageAnchoredVideoDraft, spatialAngleSession, handleCancelSpatialAngle, handleContextMenuAction, handlePasteClipboardImage, clipboardItems, undo, redo, setContextMenu, setActiveDropdown, handleFitView, handlePlaceTextAtPoint, brushDraft, setBrushDraft, brushToolState, textEditingItemId, handleCancelTextEdit } = args
 
   // Shadow frequently-changing state values with refs to stabilize handleMouseMove callback
   const brushDraftRef = useRef(brushDraft)
@@ -459,7 +375,7 @@ export function useCanvasControllerViewport(args: any) {
     groupHitCandidatesRef.current = []
     const previewItems = interactionPreviewRef.current.getLatestItems()
     if (previewItems?.length) {
-      const previewById = new Map(previewItems.map((item: any) => [item.id, item]))
+      const previewById = new Map(previewItems.map((item) => [item.id, item]))
       updateCanvasItems((prev: any[]) => prev.map((item) => previewById.get(item.id) || item))
     }
     interactionPreviewRef.current.clear({ restore: !previewItems?.length })

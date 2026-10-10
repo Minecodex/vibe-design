@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { AgentEvent } from '@/api/endpoints/agent'
 import type { MessageBlock, ToolCallInfo } from './canvasAgentTypes'
 import { normalizeHarnessPayload } from './canvasAgentBlockNormalize'
@@ -13,7 +14,7 @@ export function applyToolCallUpdatesToBlock(
     const incomingTaskId = updates.result?.task_id
     const blockTaskId = (
         block.payload.task_id
-        ?? block.payload.result?.task_id
+        ?? wireRecord(block.payload.result)?.task_id
     )
     const taskIdMatches = (
         incomingTaskId == null
@@ -33,14 +34,14 @@ export function applyToolCallUpdatesToBlock(
 
     if (nextResult) {
         nextPayload.result = nextResult
-        nextPayload.progress = nextResult.progress ?? nextPayload.progress
-        nextPayload.status = nextResult.status ?? nextPayload.status
-        nextPayload.task_id = nextResult.task_id ?? nextPayload.task_id
-        nextPayload.preview_url = nextResult.preview_url ?? nextPayload.preview_url
-        nextPayload.result_url = nextResult.result_url ?? nextPayload.result_url
+        nextPayload.progress = wireRecord(nextResult)?.progress ?? nextPayload.progress
+        nextPayload.status = wireRecord(nextResult)?.status ?? nextPayload.status
+        nextPayload.task_id = wireRecord(nextResult)?.task_id ?? nextPayload.task_id
+        nextPayload.preview_url = wireRecord(nextResult)?.preview_url ?? nextPayload.preview_url
+        nextPayload.result_url = wireRecord(nextResult)?.result_url ?? nextPayload.result_url
         nextPayload.error_message = (
-            nextResult.error_message
-            ?? nextResult.error
+            wireRecord(nextResult)?.error_message
+            ?? wireRecord(nextResult)?.error
             ?? nextPayload.error_message
         )
     }
@@ -63,7 +64,7 @@ export function applyToolCallUpdatesToBlock(
     }
 }
 
-export function normalizeToolResultStatus(result: Record<string, any>, fallbackStatus?: string): ToolCallInfo['status'] {
+export function normalizeToolResultStatus(result: Record<string, unknown>, fallbackStatus?: unknown): ToolCallInfo['status'] {
     const rawStatus = String(result.status ?? fallbackStatus ?? '').toLowerCase()
     if (
         rawStatus === 'failed'
@@ -85,7 +86,7 @@ export function normalizeToolResultStatus(result: Record<string, any>, fallbackS
     return 'running'
 }
 
-export function extractToolResultStreamText(result: Record<string, any>): string | undefined {
+export function extractToolResultStreamText(result: Record<string, unknown>): string | undefined {
     const text = result.stream_text
         ?? result.output
         ?? result.analysis
@@ -96,7 +97,7 @@ export function extractToolResultStreamText(result: Record<string, any>): string
     return typeof text === 'string' && text.trim().length > 0 ? text : undefined
 }
 
-export function getToolUiKind(toolName: string, result?: Record<string, any>): string {
+export function getToolUiKind(toolName: string, result?: Record<string, unknown>): string {
     if (toolName === 'generate_image' || toolName === 'generate_video') {
         return 'generation_task'
     }
@@ -109,7 +110,7 @@ export function getToolUiKind(toolName: string, result?: Record<string, any>): s
     return 'compact_tool'
 }
 
-export function buildToolPayloadMeta(toolName: string): Record<string, any> | undefined {
+export function buildToolPayloadMeta(toolName: string): Record<string, unknown> | undefined {
     if (toolName === 'generate_image') {
         return { media_type: 'image' }
     }
@@ -119,11 +120,15 @@ export function buildToolPayloadMeta(toolName: string): Record<string, any> | un
     return undefined
 }
 
-export function extractToolElapsedMs(event: AgentEvent, result: Record<string, any>): number | undefined {
+export function extractToolElapsedMs(event: AgentEvent, result: Record<string, unknown>): number | undefined {
+    const eventResult = event.data.result
+    const nestedElapsed = eventResult && typeof eventResult === 'object'
+        ? (eventResult as Record<string, unknown>).elapsed_ms
+        : undefined
     const rawElapsed = (
         result.elapsed_ms
         ?? event.data.elapsed_ms
-        ?? event.data.result?.elapsed_ms
+        ?? nestedElapsed
     )
 
     const elapsedMs = Number(rawElapsed)
@@ -138,7 +143,7 @@ export function upsertStreamingToolResultBlock(blocks: MessageBlock[], event: Ag
     }
 
     const normalizedResult = (
-        normalizeHarnessPayload(event.data.result || {}) as Record<string, any>
+        normalizeHarnessPayload(event.data.result || {}) as Record<string, unknown>
     ) || {}
     const status = normalizeToolResultStatus(normalizedResult, event.data.status)
     const errorMessage = String(

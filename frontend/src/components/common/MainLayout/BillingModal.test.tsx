@@ -75,7 +75,7 @@ vi.mock('@/hooks/useTheme', () => ({
 }))
 
 vi.mock('@/store/authStore', () => ({
-  useAuthStore: (selector: (state: any) => unknown) =>
+  useAuthStore: (selector: (state: unknown) => unknown) =>
     selector({
       user: { id: 1, role: 'user', username: 'tester', nickname: 'Tester', balance_cents: 9999 },
       deployType: 'saas',

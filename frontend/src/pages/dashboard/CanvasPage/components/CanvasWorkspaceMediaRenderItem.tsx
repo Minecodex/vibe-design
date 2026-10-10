@@ -1,6 +1,7 @@
-// @ts-nocheck
 
 import React from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { CanvasWorkspaceMediaRenderItemProps } from './canvasRenderContracts'
 import {
   ChevronDown,
   ChevronRight,
@@ -10,7 +11,8 @@ import { getModelDisplayName } from '@/utils/modelDisplayName'
 
 import { CanvasVideoItem } from './CanvasVideoItem'
 import { GeneratorImageSourcePicker } from './GeneratorImageSourcePicker'
-import { GeneratorReferenceStrip, useGeneratorReferenceChips } from './GeneratorReferenceStrip'
+import { GeneratorReferenceStrip } from './GeneratorReferenceStrip'
+import { useGeneratorReferenceChips } from './useGeneratorReferenceChips'
 import { ImageAnchoredImagePanel } from './ImageAnchoredImagePanel'
 import { ImageAnchoredVideoPanel } from './ImageAnchoredVideoPanel'
 import {
@@ -33,7 +35,7 @@ import {
   isGeneratorModelOptionSelected,
 } from '../generatorModelIdentity'
 
-function areMediaItemPropsEqual(prev: any, next: any) {
+function areMediaItemPropsEqual(prev: CanvasWorkspaceMediaRenderItemProps, next: CanvasWorkspaceMediaRenderItemProps) {
   // Core item data changed => must re-render
   if (prev.item !== next.item) return false
   if (prev.isHidden !== next.isHidden) return false
@@ -70,136 +72,8 @@ function areMediaItemPropsEqual(prev: any, next: any) {
   return true
 }
 
-const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceMediaRenderItemInner(props: any) {
-  const {
-    item,
-    isHidden,
-    isImageGroup,
-    isMediaAsset,
-    isGenerator,
-    isHoverOnlyFailedVideo,
-    actualWidth,
-    actualHeight,
-    isModelDropdownOpen,
-    isResDropdownOpen,
-    isVideoResolutionDropdownOpen,
-    isDurationDropdownOpen,
-    isRatioDropdownOpen,
-    isMarkableImage,
-    isTransientMarkMode,
-    isActiveCropItem,
-    isItemSelected,
-    mediaSelectionMetrics,
-    shouldShowMediaSelectionOverlay,
-    cropPreviewFrame,
-    activeCropOutputSize,
-    cropPanelOffset,
-    currentModel,
-    currentConfig,
-    imageCapability,
-    videoCapability,
-    allowedVideoDurations,
-    allowedVideoResolutions,
-    tailFrameConstraint,
-    referenceImages,
-    showReferenceButton,
-    showFirstFrameButton,
-    showTailFrameButton,
-    showRatioSelector,
-    optionColumnCount,
-    clampCanvasStackZIndex,
-    selectedItems,
-    activeTool,
-    MARK_CURSOR,
-    imageAnchoredVideoDraft,
-    imageDetailItemId,
-    isMarkModifierPressed,
-    addMark,
-    setSelectedItems,
-    handleItemMouseDown,
-    handleAppendImageMentionToChat,
-    setContextMenu,
-    setActiveContextMenuItem,
-    setHoveredMarkableImageId,
-    cropState,
-    getCanvasSelectionContainerOverflow,
-    isDark,
-    zoom,
-    activeVideoPreviewItemId,
-    updateItem,
-    getMediaDisplayInitializationUpdate,
-    textRedrawExtractingItemIds,
-    getTextRedrawExtractingBadgeStyle,
-    t,
-    cropDragState,
-    handleCropMoveMouseDown,
-    handleCropHandleMouseDown,
-    getCanvasSelectionBorder,
-    getCanvasSelectionHandleAppearance,
-    beginTransaction,
-    setActiveGuides,
-    movingItemIdsRef,
-    dragItemStart,
-    setMediaResizeState,
-    renderSelectionHandles,
-    marks,
-    shouldShowGeneratorControlPanel,
-    setActiveDropdown,
-    referenceImageInputRef,
-    openGeneratorAssetLibrary,
-    openGeneratorReferenceGallery,
-    firstFrameImageInputRef,
-    tailFrameImageInputRef,
-    handleGenerateImage,
-    handleGenerateVideo,
-    getItemAmountCents,
-    formatResolutionOptionLabel,
-    standardSuffix,
-    imageRes,
-    videoQuality,
-    videoDuration,
-    normalizeReferenceImages,
-    withReferenceImages,
-    getImageGeneratorCapability,
-    getVideoGeneratorCapability,
-    getResolvedVideoDurations,
-    imageRatio,
-    videoAspect,
-    ratioHintLabels,
-    formatAspectRatioOptionLabelWithDimensions,
-    getItemDims,
-    availableImageModels,
-    availableVideoModels,
-    imageModel,
-    imageProvider,
-    videoModel,
-    videoProvider,
-    cropCommitMode,
-    handleCropDimensionChange,
-    CROP_PRESET_GROUPS,
-    setCropExpandedGroups,
-    cropExpandedGroups,
-    handleSelectCropPreset,
-    setCropState,
-    handleApplyCrop,
-    imageAnchoredImageDraft,
-    imageAnchoredImageDraftItem,
-    anchoredImageReferenceInputRef,
-    updateImageAnchoredImageDraft,
-    setPreviewImageUrl,
-    handleGenerateAnchoredImage,
-    imageAnchoredVideoDraftItem,
-    imageAnchoredVideoCapability,
-    imageAnchoredVideoAllowedDurations,
-    anchoredReferenceImageInputRef,
-    anchoredFirstFrameImageInputRef,
-    anchoredTailFrameImageInputRef,
-    updateImageAnchoredVideoDraft,
-    handleMoveAnchoredVideoSourcePlacement,
-    handleGenerateAnchoredVideo,
-    interactionPreview,
-    canvasItems,
-  } = props
+const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceMediaRenderItemInner(props: CanvasWorkspaceMediaRenderItemProps) {
+  const { item, isHidden, isImageGroup, isMediaAsset, isGenerator, isHoverOnlyFailedVideo, actualWidth, actualHeight, isModelDropdownOpen, isResDropdownOpen, isVideoResolutionDropdownOpen, isDurationDropdownOpen, isRatioDropdownOpen, isMarkableImage, isTransientMarkMode, isActiveCropItem, isItemSelected, mediaSelectionMetrics, shouldShowMediaSelectionOverlay, cropPreviewFrame, activeCropOutputSize, cropPanelOffset, currentModel, currentConfig, imageCapability, videoCapability, allowedVideoDurations, allowedVideoResolutions, tailFrameConstraint, referenceImages, showReferenceButton, showFirstFrameButton, showTailFrameButton, showRatioSelector, optionColumnCount, clampCanvasStackZIndex, selectedItems, activeTool, MARK_CURSOR, imageAnchoredVideoDraft, imageDetailItemId, isMarkModifierPressed, addMark, setSelectedItems, handleItemMouseDown, handleAppendImageMentionToChat, setContextMenu, setActiveContextMenuItem, setHoveredMarkableImageId, cropState, getCanvasSelectionContainerOverflow, isDark, zoom, activeVideoPreviewItemId, updateItem, getMediaDisplayInitializationUpdate, textRedrawExtractingItemIds, getTextRedrawExtractingBadgeStyle, t, cropDragState, handleCropMoveMouseDown, handleCropHandleMouseDown, getCanvasSelectionBorder, getCanvasSelectionHandleAppearance, beginTransaction, setActiveGuides, movingItemIdsRef, dragItemStart, setMediaResizeState, renderSelectionHandles, marks, shouldShowGeneratorControlPanel, setActiveDropdown, referenceImageInputRef, openGeneratorAssetLibrary, openGeneratorReferenceGallery, firstFrameImageInputRef, tailFrameImageInputRef, handleGenerateImage, handleGenerateVideo, getItemAmountCents, formatResolutionOptionLabel, standardSuffix, imageRes, videoQuality, videoDuration, normalizeReferenceImages, withReferenceImages, getImageGeneratorCapability, getResolvedVideoDurations, imageRatio, videoAspect, ratioHintLabels, formatAspectRatioOptionLabelWithDimensions, getItemDims, availableImageModels, availableVideoModels, imageModel, imageProvider, videoModel, videoProvider, cropCommitMode, handleCropDimensionChange, CROP_PRESET_GROUPS, setCropExpandedGroups, cropExpandedGroups, handleSelectCropPreset, setCropState, handleApplyCrop, imageAnchoredImageDraft, imageAnchoredImageDraftItem, anchoredImageReferenceInputRef, updateImageAnchoredImageDraft, setPreviewImageUrl, handleGenerateAnchoredImage, imageAnchoredVideoDraftItem, imageAnchoredVideoCapability, imageAnchoredVideoAllowedDurations, anchoredReferenceImageInputRef, anchoredFirstFrameImageInputRef, anchoredTailFrameImageInputRef, updateImageAnchoredVideoDraft, handleMoveAnchoredVideoSourcePlacement, handleGenerateAnchoredVideo, interactionPreview, canvasItems } = props
   const isPendingGeneration = isGenerationTaskPendingStatus(item.status)
   const selectedModelName = item.model_name || (isImageGroup ? imageModel : videoModel)
   const selectedModelProvider = item.provider_code || (isImageGroup ? imageProvider : videoProvider)
@@ -284,7 +158,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
           if (isMarkableImage) setHoveredMarkableImageId(item.id)
         }}
         onMouseLeave={() => {
-          setHoveredMarkableImageId((prev: any) => (prev === item.id ? null : prev))
+          setHoveredMarkableImageId((prev) => (prev === item.id ? null : prev))
         }}
         onClick={(e) => {
           e.stopPropagation()
@@ -599,7 +473,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
             </>
           )}
         </div>
-        {isActiveCropItem && activeCropOutputSize && (
+        {isActiveCropItem && activeCropOutputSize && cropState && cropPanelOffset && (
           <div
             className="nowheel"
             onClick={(e) => e.stopPropagation()}
@@ -649,11 +523,11 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
               {t('canvas.crop.presets_label', '预设')}
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px 8px' }}>
-              {CROP_PRESET_GROUPS.map((group: any) => (
+              {CROP_PRESET_GROUPS.map((group) => (
                 <div key={group.id} style={{ marginBottom: 4 }}>
                   <button
                     type="button"
-                    onClick={() => setCropExpandedGroups((prev: any) => ({ ...prev, [group.id]: !prev[group.id] }))}
+                    onClick={() => setCropExpandedGroups((prev) => ({ ...prev, [group.id]: !prev[group.id] }))}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -673,7 +547,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
                   </button>
                   {cropExpandedGroups[group.id] && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '0 6px 2px 22px' }}>
-                      {group.presets.map((preset: any) => (
+                      {group.presets.map((preset) => (
                         <button
                           key={preset.id}
                           type="button"
@@ -758,7 +632,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
             </div>
           </div>
         )}
-        {marks.filter((mark: any) => mark.imageItemId === item.id).map((mark: any) => (
+        {marks.filter((mark) => mark.imageItemId === item.id).map((mark) => (
           <div
             key={mark.id}
             style={{
@@ -936,7 +810,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
                     </div>
                     {isModelDropdownOpen && (
                       <div style={{ position: 'absolute', bottom: '110%', left: 0, backgroundColor: 'var(--app-glass)', borderRadius: 12, boxShadow: 'var(--app-shadow-panel)', border: '1px solid var(--app-border)', backdropFilter: 'var(--app-blur)', WebkitBackdropFilter: 'var(--app-blur)', padding: 8, width: '100%', minWidth: 200, zIndex: 1001, display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 200, overflowY: 'auto' }}>
-                        {(isImageGroup ? availableImageModels : availableVideoModels).map((m: any, index: number) => {
+                        {(isImageGroup ? availableImageModels : availableVideoModels).map((m, index: number) => {
                           const isSelectedModel = isGeneratorModelOptionSelected(
                             m,
                             selectedModelName,
@@ -947,7 +821,7 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
                             key={getGeneratorModelOptionKey(m, index)}
                             onClick={(e) => {
                               e.stopPropagation()
-                              const updates: any = { model_name: m.value, provider_code: m.provider }
+                              const updates: Partial<CanvasItem> = { model_name: m.value, provider_code: m.provider }
                               const newConfig = m.config
                               const nextReferenceImages = normalizeReferenceImages(item)
                               if (newConfig) {
@@ -1174,12 +1048,12 @@ const CanvasWorkspaceMediaRenderItemInner = React.memo(function CanvasWorkspaceM
       )}
       {item.type === 'image' && imageAnchoredImageDraft && imageAnchoredImageDraft.sourceImageItemId === item.id && selectedItems.includes(item.id) && selectedItems.length === 1 && imageAnchoredImageDraftItem && (
         <div style={{ position: 'absolute', top: actualHeight + (12 * 100 / zoom), left: actualWidth / 2, transform: `translateX(-50%) scale(${100 / zoom})`, transformOrigin: 'top center', zIndex: 2147483500 }}>
-          <ImageAnchoredImagePanel draft={imageAnchoredImageDraft} availableImageModels={availableImageModels} isDark={isDark} t={t as any} amountCents={getItemAmountCents(imageAnchoredImageDraftItem)} referenceInputRef={anchoredImageReferenceInputRef} onUpdateDraft={updateImageAnchoredImageDraft} onPreviewImage={setPreviewImageUrl} onGenerate={handleGenerateAnchoredImage} onPickReferenceFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-image', target: 'reference' })} onPickReferenceFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-image', target: 'reference' })} />
+          <ImageAnchoredImagePanel draft={imageAnchoredImageDraft} availableImageModels={availableImageModels} isDark={isDark} t={(key, fallback) => fallback === undefined ? t(key) : t(key, fallback)} amountCents={getItemAmountCents(imageAnchoredImageDraftItem)} referenceInputRef={anchoredImageReferenceInputRef} onUpdateDraft={updateImageAnchoredImageDraft} onPreviewImage={setPreviewImageUrl} onGenerate={handleGenerateAnchoredImage} onPickReferenceFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-image', target: 'reference' })} onPickReferenceFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-image', target: 'reference' })} />
         </div>
       )}
       {item.type === 'image' && imageAnchoredVideoDraft && imageAnchoredVideoDraft.sourceImageItemId === item.id && selectedItems.includes(item.id) && selectedItems.length === 1 && imageAnchoredVideoDraftItem && imageAnchoredVideoCapability && (
         <div style={{ position: 'absolute', top: actualHeight + (12 * 100 / zoom), left: actualWidth / 2, transform: `translateX(-50%) scale(${100 / zoom})`, transformOrigin: 'top center', zIndex: 2147483500 }}>
-          <ImageAnchoredVideoPanel draft={imageAnchoredVideoDraft} draftItem={imageAnchoredVideoDraftItem} capability={imageAnchoredVideoCapability} allowedDurations={imageAnchoredVideoAllowedDurations} availableVideoModels={availableVideoModels} isDark={isDark} t={t as any} amountCents={getItemAmountCents(imageAnchoredVideoDraftItem)} referenceInputRef={anchoredReferenceImageInputRef} firstFrameInputRef={anchoredFirstFrameImageInputRef} tailFrameInputRef={anchoredTailFrameImageInputRef} onUpdateDraft={updateImageAnchoredVideoDraft} onMoveSourcePlacement={handleMoveAnchoredVideoSourcePlacement} onPreviewImage={setPreviewImageUrl} onGenerate={handleGenerateAnchoredVideo} onPickReferenceFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'tail_frame' })} onPickReferenceFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'tail_frame' })} showSourceDragHint />
+          <ImageAnchoredVideoPanel draft={imageAnchoredVideoDraft} draftItem={imageAnchoredVideoDraftItem} capability={imageAnchoredVideoCapability} allowedDurations={imageAnchoredVideoAllowedDurations} availableVideoModels={availableVideoModels} isDark={isDark} t={(key, fallback) => fallback === undefined ? t(key) : t(key, fallback)} amountCents={getItemAmountCents(imageAnchoredVideoDraftItem)} referenceInputRef={anchoredReferenceImageInputRef} firstFrameInputRef={anchoredFirstFrameImageInputRef} tailFrameInputRef={anchoredTailFrameImageInputRef} onUpdateDraft={updateImageAnchoredVideoDraft} onMoveSourcePlacement={handleMoveAnchoredVideoSourcePlacement} onPreviewImage={setPreviewImageUrl} onGenerate={handleGenerateAnchoredVideo} onPickReferenceFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromLibrary={() => openGeneratorAssetLibrary({ type: 'anchored-video', target: 'tail_frame' })} onPickReferenceFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'reference' })} onPickFirstFrameFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'first_frame' })} onPickTailFrameFromReferenceGallery={() => openGeneratorReferenceGallery({ type: 'anchored-video', target: 'tail_frame' })} showSourceDragHint />
         </div>
       )}
     </div>

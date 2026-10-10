@@ -20,6 +20,8 @@ const floatingPanelsSource = readComponentIfExists('CanvasWorkspaceFloatingPanel
 const bottomBarSource = readComponentIfExists('CanvasWorkspaceBottomBar.tsx')
 const staleOverlaySource = readComponentIfExists('CanvasStaleOverlay.tsx')
 const mediaRenderItemSource = readComponentIfExists('CanvasWorkspaceMediaRenderItem.tsx')
+const workspaceConsumerSource = [canvasAreaSource, floatingPanelsSource, mediaRenderItemSource,
+  readComponentIfExists('CanvasWorkspaceItemLayer.tsx')].join('\n')
 const viewportHookSource = readFileSync(
   resolve(currentDir, 'hooks', 'useCanvasController.viewport.tsx'),
   'utf8',
@@ -61,15 +63,13 @@ describe('CanvasPage CanvasWorkspace wiring', () => {
     expect(source).toContain('handleAppendImageMentionToChat={handleAppendImageMentionToChat}')
   })
 
-  it('destructures every runtime prop that the workspace body reads directly', () => {
-    expect(workspaceSource).toContain('setActiveDropdown,')
-    expect(workspaceSource).toContain('selectionBox,')
-    expect(workspaceSource).toContain('setMediaResizeState,')
-    expect(workspaceSource).toContain('openImageAnchoredVideoDraft,')
-    expect(workspaceSource).toContain('imageAnchoredImageDraft,')
-    expect(workspaceSource).toContain('openImageAnchoredImageDraft,')
-    expect(workspaceSource).toContain('handleGenerateAnchoredImage,')
-    expect(workspaceSource).toContain('handleAppendImageMentionToChat,')
+  it('forwards runtime props to the canvas area and its consumers', () => {
+    expect(workspaceSource).toContain('<CanvasWorkspaceCanvasArea {...props} />')
+    for (const name of ['setActiveDropdown', 'selectionBox', 'setMediaResizeState',
+      'openImageAnchoredVideoDraft', 'imageAnchoredImageDraft', 'openImageAnchoredImageDraft',
+      'handleGenerateAnchoredImage', 'handleAppendImageMentionToChat']) {
+      expect(workspaceConsumerSource).toContain(name)
+    }
   })
 
   it('keeps clipboard image paste wired from the controller into the canvas area', () => {

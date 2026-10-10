@@ -1,40 +1,36 @@
-// @ts-nocheck
 
 import React from 'react'
 import { ChevronDown, Copy, Layers } from 'lucide-react'
 
-export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorkspaceMultiSelectToolbar(props: any) {
-  const {
-    selectedItems,
-    canvasItems,
-    getItemDims,
-    canvasRef,
-    zoom,
-    offset,
-    handleItemMouseDown,
-    setContextMenu,
-    setActiveContextMenuItem,
-    getCanvasSelectionBorder,
-    activeTool,
-    getCanvasSelectionHandleAppearance,
-    isDark,
-    handleUngroup,
-    setMultiSelectToolsOpen,
-    multiSelectToolsOpen,
-    t,
-    setGroupBackgroundColor,
-    handleCreateGroup,
-    handleMergeLayers,
-    handleAlign,
-    handleAutoArrange,
-    handleSpacing,
-    handleBulkExport,
-    handleContextMenuAction,
-  } = props
+import type { Dispatch, RefObject, SetStateAction } from 'react'
+import type { TFunction } from 'i18next'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { CanvasSelectionProps } from './canvasSelectionContracts'
+
+type MultiSelectPanel = 'align' | 'spacing' | 'bgcolor' | null
+interface CanvasWorkspaceMultiSelectToolbarProps extends CanvasSelectionProps {
+  getItemDims: (item: CanvasItem) => { width: number; height: number }
+  canvasRef: RefObject<{ getBoundingClientRect: () => { left: number; top: number; width: number; height: number } }>
+  handleUngroup: (id: string) => void
+  setMultiSelectToolsOpen: Dispatch<SetStateAction<MultiSelectPanel>>
+  multiSelectToolsOpen: MultiSelectPanel
+  t: TFunction
+  setGroupBackgroundColor: (id: string, color: string) => void
+  handleCreateGroup: () => void
+  handleMergeLayers: () => void
+  handleAlign: (key: string) => void
+  handleAutoArrange: () => void
+  handleSpacing: (key: string) => void
+  handleContextMenuAction: (action: string) => void
+  handleBulkExport?: (itemIds: string[], format?: string) => void
+}
+
+export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorkspaceMultiSelectToolbar(props: CanvasWorkspaceMultiSelectToolbarProps) {
+  const { selectedItems, canvasItems, getItemDims, canvasRef, zoom, offset, handleItemMouseDown, setContextMenu, setActiveContextMenuItem, getCanvasSelectionBorder, activeTool, getCanvasSelectionHandleAppearance, isDark, handleUngroup, setMultiSelectToolsOpen, multiSelectToolsOpen, t, setGroupBackgroundColor, handleCreateGroup, handleMergeLayers, handleAlign, handleAutoArrange, handleSpacing, handleContextMenuAction } = props
 
   if (selectedItems.length === 0) return null
 
-  const isSingleGroup = selectedItems.length === 1 && canvasItems.find((i: any) => i.id === selectedItems[0])?.type === 'group'
+  const isSingleGroup = selectedItems.length === 1 && canvasItems.find((i) => i.id === selectedItems[0])?.type === 'group'
   if (selectedItems.length === 1 && !isSingleGroup) return null
 
   let minX = Infinity
@@ -44,7 +40,7 @@ export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorks
   let hasItems = false
 
   selectedItems.forEach((id: string) => {
-    const item = canvasItems.find((candidate: any) => candidate.id === id)
+    const item = canvasItems.find((candidate) => candidate.id === id)
     if (item && !item.is_hidden) {
       const dims = getItemDims(item)
       const w = item.width || dims.width
@@ -129,15 +125,15 @@ export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorks
         }}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {selectedItems.length === 1 && canvasItems.find((i: any) => i.id === selectedItems[0])?.type === 'group' ? (
+        {selectedItems.length === 1 && canvasItems.find((i) => i.id === selectedItems[0])?.type === 'group' ? (
           <>
             <div onClick={() => handleUngroup(selectedItems[0])} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 8, cursor: 'pointer', transition: 'background 0.2s' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3"><rect x="3" y="3" width="18" height="18" rx="2" /></svg>
               <span style={{ fontSize: 13, color: 'var(--app-foreground)', fontWeight: 500 }}>{t('canvas.context_menu.ungroup')}</span>
             </div>
             <div style={{ position: 'relative' }}>
-              <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o: any) => o === 'bgcolor' ? null : 'bgcolor') }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 8, cursor: 'pointer', transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'bgcolor' ? 'var(--app-control-hover)' : 'transparent' }}>
-                <div style={{ width: 14, height: 14, borderRadius: 3, border: '1px solid var(--app-border)', backgroundColor: canvasItems.find((i: any) => i.id === selectedItems[0])?.background_color || 'var(--app-surface-muted)' }} />
+              <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o) => o === 'bgcolor' ? null : 'bgcolor') }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 8, cursor: 'pointer', transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'bgcolor' ? 'var(--app-control-hover)' : 'transparent' }}>
+                <div style={{ width: 14, height: 14, borderRadius: 3, border: '1px solid var(--app-border)', backgroundColor: canvasItems.find((i) => i.id === selectedItems[0])?.background_color || 'var(--app-surface-muted)' }} />
                 <span style={{ fontSize: 13, color: 'var(--app-foreground)', fontWeight: 500 }}>{t('canvas.generator.background_color')}</span>
                 <ChevronDown size={12} color="var(--app-foreground-subtle)" />
               </div>
@@ -166,7 +162,7 @@ export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorks
         )}
         <div style={{ width: 1, height: 20, backgroundColor: 'var(--app-border)', margin: '0 4px' }} />
         <div style={{ position: 'relative' }}>
-          <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o: any) => o === 'align' ? null : 'align') }} style={{ padding: 6, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'align' ? 'var(--app-control-hover)' : 'transparent' }}>
+          <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o) => o === 'align' ? null : 'align') }} style={{ padding: 6, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'align' ? 'var(--app-control-hover)' : 'transparent' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="2" height="16" /><rect x="8" y="7" width="12" height="3" rx="1" /><rect x="8" y="14" width="8" height="3" rx="1" /></svg>
             <ChevronDown size={12} color="var(--app-foreground-subtle)" style={{ transform: multiSelectToolsOpen === 'align' ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </div>
@@ -181,7 +177,7 @@ export const CanvasWorkspaceMultiSelectToolbar = React.memo(function CanvasWorks
           )}
         </div>
         <div style={{ position: 'relative' }}>
-          <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o: any) => o === 'spacing' ? null : 'spacing') }} style={{ padding: 6, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'spacing' ? 'var(--app-control-hover)' : 'transparent' }}>
+          <div onClick={(e) => { e.stopPropagation(); setMultiSelectToolsOpen((o) => o === 'spacing' ? null : 'spacing') }} style={{ padding: 6, borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2, transition: 'background 0.2s', backgroundColor: multiSelectToolsOpen === 'spacing' ? 'var(--app-control-hover)' : 'transparent' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="2" /><rect x="3" y="21" width="18" height="2" /><rect x="7" y="8" width="10" height="8" rx="1" /></svg>
             <ChevronDown size={12} color="var(--app-foreground-subtle)" style={{ transform: multiSelectToolsOpen === 'spacing' ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </div>

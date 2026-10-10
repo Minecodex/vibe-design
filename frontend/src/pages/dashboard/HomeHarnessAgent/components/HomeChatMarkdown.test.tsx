@@ -77,7 +77,7 @@ const reportFile = {
   current_version_id: '',
   versions: [],
   source: 'reference_asset',
-} as any
+}
 
 const sheetFile = {
   file_id: 'file-sheet',
@@ -90,7 +90,7 @@ const sheetFile = {
   current_version_id: '',
   versions: [],
   source: 'reference_asset',
-} as any
+}
 
 const imageFile = {
   file_id: 'file-image',
@@ -103,7 +103,7 @@ const imageFile = {
   current_version_id: '',
   versions: [],
   source: 'reference_asset',
-} as any
+}
 
 const publishedWebBundleFile = {
   file_id: 'file-web-bundle',
@@ -123,7 +123,7 @@ const publishedWebBundleFile = {
   },
   versions: [],
   source: 'generated',
-} as any
+}
 
 describe('HomeChatMarkdown', () => {
   beforeEach(() => {

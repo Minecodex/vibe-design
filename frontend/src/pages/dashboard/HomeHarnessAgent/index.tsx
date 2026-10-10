@@ -1,3 +1,4 @@
+import { DesignSystemSwatch } from './components/DesignSystemSwatch'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Suspense, lazy } from 'react'
@@ -124,7 +125,6 @@ import type {
 import { HomeDesignSystemPreviewDialog } from './components/HomeDesignSystemPreviewDialog'
 import { HomeSkillExamplePreviewDialog } from './components/HomeSkillExamplePreviewDialog'
 import {
-  DesignSystemSwatch,
   getDesignSystemDisplayDescription,
   getDesignSystemDisplayTitle,
 } from './components/homeDesignSystemPreviewUtils'
@@ -169,9 +169,9 @@ function normalizePickerSearch(value: string): string {
 }
 
 function resolveRuntimePreviewPath(
-  artifactManifest: Record<string, any> | null | undefined,
-  workspaceRuntimeSession: Record<string, any> | null | undefined,
-  preparedWorkspace: Record<string, any> | null | undefined,
+  artifactManifest: Record<string, unknown> | null | undefined,
+  workspaceRuntimeSession: Record<string, unknown> | null | undefined,
+  preparedWorkspace: Record<string, unknown> | null | undefined,
 ): string {
   return String(
     artifactManifest?.entry
@@ -450,15 +450,15 @@ export function ChatHomePage() {
   const runtimePreviewMeta = useMemo(() => {
     const workspaceRuntimeSession = runtimeState?.workspace_runtime_session
       && typeof runtimeState.workspace_runtime_session === 'object'
-      ? runtimeState.workspace_runtime_session as Record<string, any>
+      ? runtimeState.workspace_runtime_session as Record<string, unknown>
       : null
     const preparedWorkspace = runtimeState?.prepared_workspace
       && typeof runtimeState.prepared_workspace === 'object'
-      ? runtimeState.prepared_workspace as Record<string, any>
+      ? runtimeState.prepared_workspace as Record<string, unknown>
       : null
     const artifactManifest = runtimeState?.artifact_manifest
       && typeof runtimeState.artifact_manifest === 'object'
-      ? runtimeState.artifact_manifest as Record<string, any>
+      ? runtimeState.artifact_manifest as Record<string, unknown>
       : null
     const activeEntryPath = resolveRuntimePreviewPath(artifactManifest, workspaceRuntimeSession, preparedWorkspace)
     if (!activeEntryPath && !runtimeState) {
@@ -478,7 +478,7 @@ export function ChatHomePage() {
     const discoveryStatus = String(runtimeState?.discovery_status || '').trim()
     const direction = String(
       workspaceRuntimeSession?.selected_direction
-      || (runtimeState?.runtime_contract as Record<string, any> | null)?.direction_id
+      || (runtimeState?.runtime_contract as Record<string, unknown> | null)?.direction_id
       || '',
     ).trim()
     const phase = String(runtimeState?.phase || '').trim()
@@ -538,7 +538,7 @@ export function ChatHomePage() {
         ))}
       </div>
     )
-  }, [isDark, previewingWorkspaceFile?.path, runtimeState, t])
+  }, [previewingWorkspaceFile?.path, runtimeState, t])
   const artifactManifestMeta = useMemo(() => {
     const manifest = runtimeState?.artifact_manifest
     if (!manifest || typeof manifest !== 'object') {
@@ -548,21 +548,21 @@ export function ChatHomePage() {
     const kind = String(manifest.kind || '').trim()
     const entry = String(manifest.entry || '').trim()
     const publication = manifest.publication && typeof manifest.publication === 'object'
-      ? manifest.publication as Record<string, any>
+      ? manifest.publication as Record<string, unknown>
       : null
     const publicationPayload = publication?.payload && typeof publication.payload === 'object'
-      ? publication.payload as Record<string, any>
+      ? publication.payload as Record<string, unknown>
       : null
-    const manifestRecord = manifest as Record<string, any>
+    const manifestRecord = manifest as Record<string, unknown>
     const openDesignLint = (
       publicationPayload?.open_design_lint && typeof publicationPayload.open_design_lint === 'object'
         ? publicationPayload.open_design_lint
         : manifestRecord.open_design_lint && typeof manifestRecord.open_design_lint === 'object'
           ? manifestRecord.open_design_lint
           : null
-    ) as Record<string, any> | null
+    ) as Record<string, unknown> | null
     const lintFindings = Array.isArray(openDesignLint?.findings)
-      ? openDesignLint.findings as Array<Record<string, any>>
+      ? openDesignLint.findings as Array<Record<string, unknown>>
       : []
     const lintWarnings = lintFindings.filter((finding) => {
       const severity = String(finding?.severity || '').toUpperCase()
@@ -656,13 +656,13 @@ export function ChatHomePage() {
   useEffect(() => {
     const runtimeEntryPath = resolveRuntimePreviewPath(
       runtimeState?.artifact_manifest && typeof runtimeState.artifact_manifest === 'object'
-        ? runtimeState.artifact_manifest as Record<string, any>
+        ? runtimeState.artifact_manifest as Record<string, unknown>
         : null,
       runtimeState?.workspace_runtime_session && typeof runtimeState.workspace_runtime_session === 'object'
-        ? runtimeState.workspace_runtime_session as Record<string, any>
+        ? runtimeState.workspace_runtime_session as Record<string, unknown>
         : null,
       runtimeState?.prepared_workspace && typeof runtimeState.prepared_workspace === 'object'
-        ? runtimeState.prepared_workspace as Record<string, any>
+        ? runtimeState.prepared_workspace as Record<string, unknown>
         : null,
     )
     if (!runtimeEntryPath || previewingWorkspaceFile) {
@@ -856,7 +856,7 @@ export function ChatHomePage() {
     answer: string,
     displayLabel?: string,
     approved?: boolean,
-    answers?: Record<string, any> | null,
+    answers?: Record<string, unknown> | null,
   ) => {
     const nextLabel = String(displayLabel || answer || '').trim() || answer
     setSubmittingInteractionLabels((current) => ({
@@ -993,6 +993,7 @@ export function ChatHomePage() {
     previewingWorkspaceFile,
     previewingVersionId,
     ensureBalanceForModelPreferences,
+    t,
   ])
 
   const handleSend = useCallback(async () => {
@@ -1366,7 +1367,7 @@ export function ChatHomePage() {
         }
       })
     }
-  }, [conversationId, showUnsupportedUploadToast, t])
+  }, [conversationId, showUnsupportedUploadToast, t, upsertWorkspaceFile])
 
   const handleLocalFilesSelected = useCallback(async (files: FileList | null) => {
     if (isPrimaryComposerLocked) return

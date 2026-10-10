@@ -20,7 +20,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 vi.mock('@/store/canvasAgentStore', () => ({
-  useChatStore: (selector: (state: any) => any) =>
+  useChatStore: (selector: (state: unknown) => unknown) =>
     selector({
       conversationId: 101,
       engineVersion: 'harness',
@@ -78,7 +78,7 @@ describe('GenerationTaskBox', () => {
               aspect_ratio: '1:1',
             },
           },
-        } as any}
+        }}
         isDark={false}
         messageId="assistant-1"
         onPreview={vi.fn()}
@@ -115,7 +115,7 @@ describe('GenerationTaskBox', () => {
               aspect_ratio: '1:1',
             },
           },
-        } as any}
+        }}
         isDark={false}
         messageId="assistant-1"
         onPreview={vi.fn()}
@@ -153,7 +153,7 @@ describe('GenerationTaskBox', () => {
               url: '',
             },
           },
-        } as any}
+        }}
         isDark={false}
         messageId="assistant-1"
         onPreview={vi.fn()}

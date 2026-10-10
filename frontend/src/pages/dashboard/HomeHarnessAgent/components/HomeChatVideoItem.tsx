@@ -137,7 +137,7 @@ export function HomeChatVideoItem({ url, zoom, onLoadedMetadata }: HomeChatVideo
                 return
               }
               if ((videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void })?.webkitRequestFullscreen) {
-                ;(videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
+                (videoRef.current as HTMLVideoElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen?.()
               }
             }}
             style={{

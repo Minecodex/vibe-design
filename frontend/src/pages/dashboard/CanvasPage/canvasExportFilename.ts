@@ -3,7 +3,7 @@ import type { CanvasItem } from '@/api/endpoints/projects'
 const DEFAULT_PROJECT_NAME = 'Untitled'
 const DEFAULT_ITEM_NAME = 'item'
 const FILENAME_SEPARATOR = '_'
-const INVALID_FILENAME_PART_CHARS = /[<>:"/\\|?*\u0000-\u001F]/g
+const INVALID_FILENAME_PART_CHARS = /[<>:"/\\|?*]/g
 const KNOWN_MEDIA_EXTENSION = /\.(?:avif|bmp|gif|jpe?g|m4v|mkv|mov|mp4|png|svg|webm|webp)$/i
 const WINDOWS_RESERVED_NAMES = new Set([
   'CON',
@@ -49,7 +49,7 @@ function stripMediaExtension(value: string) {
 
 function cleanFilenamePart(value: string, options: NormalizeFilenamePartOptions = {}) {
   const withoutExtension = options.stripMediaExtension ? stripMediaExtension(value) : value
-  return withoutExtension
+  return Array.from(withoutExtension, (character) => character.charCodeAt(0) < 32 ? FILENAME_SEPARATOR : character).join('')
     .replace(INVALID_FILENAME_PART_CHARS, FILENAME_SEPARATOR)
     .replace(/\s+/g, ' ')
     .replace(/_+/g, FILENAME_SEPARATOR)

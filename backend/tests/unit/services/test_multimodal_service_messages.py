@@ -2,19 +2,27 @@ import pytest
 from fastapi import HTTPException
 
 from app.services.multimodal_service import MultimodalService, get_multimodal_model_config
+from unittest.mock import AsyncMock
 
 
-def test_create_builtin_client_requires_readable_api_key_message(monkeypatch):
+@pytest.fixture(autouse=True)
+def _per_user_provider_key(monkeypatch):
+    monkeypatch.setattr(
+        MultimodalService,
+        "_resolve_builtin_key",
+        AsyncMock(return_value=("test-key", 1)),
+    )
+
+
+
+def test_create_builtin_client_uses_explicit_user_key(monkeypatch):
     monkeypatch.setattr(
         "app.services.multimodal_service.settings.BUILTIN_PROVIDER_API_KEY",
         "",
     )
 
-    with pytest.raises(HTTPException) as exc_info:
-        MultimodalService._create_builtin_client()
-
-    assert exc_info.value.status_code == 400
-    assert exc_info.value.detail == "未配置内置提供商密钥 (BUILTIN_PROVIDER_API_KEY)"
+    client = MultimodalService._create_builtin_client("test-user-key")
+    assert client._auth_headers()["Authorization"] == "Bearer test-user-key"
 
 
 @pytest.mark.asyncio

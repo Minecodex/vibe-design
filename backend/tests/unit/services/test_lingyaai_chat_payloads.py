@@ -4,9 +4,8 @@ from app.services.builtin_provider import LingyaAiBuiltinProvider
 
 
 def test_lingyaai_auth_headers_reject_blank_api_key_before_httpx():
-    provider = LingyaAiBuiltinProvider("   ")
-
-    with pytest.raises(ValueError, match="BUILTIN_PROVIDER_API_KEY is required"):
+    with pytest.raises(ValueError, match="APIMart API key.*required"):
+        provider = LingyaAiBuiltinProvider("   ")
         provider._auth_headers()
 
 

@@ -1,3 +1,5 @@
+import { wireString } from './harnessWireFields'
+import { wireRecord } from '@/store/harnessWireFields'
 import type { ChatMessage, MessageBlock } from './homeHarnessStore'
 
 const USER_VISIBLE_UI_KINDS = new Set([
@@ -45,22 +47,22 @@ export function camelizeBlockPayload(value: unknown): unknown {
   return next
 }
 
-export function normalizeBlock(raw: Record<string, any>): MessageBlock {
-  const payload = (camelizeBlockPayload(raw.payload || {}) as Record<string, any>) || {}
+export function normalizeBlock(raw: Record<string, unknown>): MessageBlock {
+  const payload = (camelizeBlockPayload(raw.payload || {}) as Record<string, unknown>) || {}
   return {
     id: String(raw.id),
-    kind: raw.kind,
+    kind: raw.kind === 'tool' || raw.kind === 'interaction' || raw.kind === 'content' ? raw.kind : 'text',
     order: Number(raw.order ?? 0),
     status: String(raw.status ?? 'completed'),
     visible: raw.visible !== false,
-    userVisible: raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible,
+    userVisible: typeof (raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible) === 'boolean' ? Boolean(raw.userVisible ?? raw.user_visible ?? payload.userVisible ?? payload.user_visible) : undefined,
     debugOnly: Boolean(raw.debugOnly ?? raw.debug_only ?? payload.debugOnly ?? payload.debug_only ?? false),
     uiKind: String(raw.uiKind ?? raw.ui_kind ?? raw.kind ?? 'text'),
     payload,
-    renderKey: raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key,
-    taskId: raw.taskId ?? raw.task_id ?? raw.payload?.taskId ?? raw.payload?.task_id,
-    label: raw.label ?? raw.payload?.label ?? raw.payload?.result?.label,
-    summary: raw.summary ?? raw.payload?.summary,
+    renderKey: wireString(raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key),
+    taskId: wireString(raw.taskId ?? raw.task_id ?? wireRecord(raw.payload)?.taskId ?? wireRecord(raw.payload)?.task_id),
+    label: wireString(raw.label ?? wireRecord(raw.payload)?.label ?? wireRecord(wireRecord(raw.payload)?.result)?.label),
+    summary: wireString(raw.summary ?? wireRecord(raw.payload)?.summary),
     expanded: typeof raw.expanded === 'boolean' ? raw.expanded : undefined,
     children: normalizeBlocks(raw.children),
     revision: normalizePositiveNumber(raw.revision ?? payload.revision),
@@ -106,7 +108,7 @@ export function normalizeBlocks(rawBlocks: unknown): MessageBlock[] {
   }
   return filterHomepageBlocks(
     rawBlocks
-      .filter((block): block is Record<string, any> => !!block && typeof block === 'object')
+      .filter((block): block is Record<string, unknown> => !!block && typeof block === 'object')
       .map(normalizeBlock)
       .sort((a, b) => a.order - b.order),
   )
@@ -160,7 +162,7 @@ export function appendBlockDeltaWithPlaceholder(
   ]
 }
 
-export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -187,8 +189,8 @@ export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any
     .sort((a, b) => a.order - b.order)
 }
 
-export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, any>): MessageBlock[] {
-  const merge = (target: Record<string, any>, nextPatch: Record<string, any>): Record<string, any> => {
+export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, unknown>): MessageBlock[] {
+  const merge = (target: Record<string, unknown>, nextPatch: Record<string, unknown>): Record<string, unknown> => {
     const result = { ...target }
     for (const [key, value] of Object.entries(nextPatch)) {
       if (key === 'children' && Array.isArray(value)) {
@@ -203,7 +205,7 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
         && typeof result[key] === 'object'
         && !Array.isArray(result[key])
       ) {
-        result[key] = merge(result[key] as Record<string, any>, value as Record<string, any>)
+        result[key] = merge(result[key] as Record<string, unknown>, value as Record<string, unknown>)
       } else {
         result[key] = value
       }
@@ -217,13 +219,13 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
       return block
     }
     didUpdate = true
-    return merge(block as unknown as Record<string, any>, patch) as unknown as MessageBlock
+    return merge(block as unknown as Record<string, unknown>, patch) as unknown as MessageBlock
   })
 
   return didUpdate ? filterHomepageBlocks(nextBlocks) : blocks
 }
 
-export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -235,7 +237,7 @@ export function replaceBlockEnd(blocks: MessageBlock[], raw: Record<string, any>
     .sort((a, b) => a.order - b.order)
 }
 
-export function replaceExistingBlockEnd(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function replaceExistingBlockEnd(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
   const normalized = normalizeBlock(raw)
   if (!isUserVisibleHomepageBlock(normalized)) {
     return blocks
@@ -266,8 +268,8 @@ export function extractMessageText(blocks: MessageBlock[]): string | null {
 export function extractBlockCallId(block: MessageBlock): string | null {
   const payloadCallId = block.payload.callId
     ?? block.payload.call_id
-    ?? block.payload.result?.callId
-    ?? block.payload.result?.call_id
+    ?? wireRecord(block.payload.result)?.callId
+    ?? wireRecord(block.payload.result)?.call_id
   if (payloadCallId != null && String(payloadCallId)) {
     return String(payloadCallId)
   }
@@ -324,13 +326,13 @@ export function getBlockIdentityKeys(block: MessageBlock): string[] {
   const renderKey = block.renderKey ?? block.payload.renderKey ?? block.payload.render_key
   const artifactRef = block.payload.artifactRef
     ?? block.payload.artifact_ref
-    ?? block.payload.result?.artifactRef
-    ?? block.payload.result?.artifact_ref
+    ?? wireRecord(block.payload.result)?.artifactRef
+    ?? wireRecord(block.payload.result)?.artifact_ref
   const taskId = block.taskId
     ?? block.payload.taskId
     ?? block.payload.task_id
-    ?? block.payload.result?.taskId
-    ?? block.payload.result?.task_id
+    ?? wireRecord(block.payload.result)?.taskId
+    ?? wireRecord(block.payload.result)?.task_id
   const callId = extractBlockCallId(block)
 
   if (artifactRef != null && String(artifactRef)) {
@@ -504,10 +506,10 @@ function critiqueCardIdentity(child: MessageBlock, critiqueRunId: string): boole
 
 function buildSubagentDesignJuryBlock(
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
   existing?: MessageBlock,
 ): MessageBlock {
-  const normalizedPayload = (camelizeBlockPayload(critiquePayload) as Record<string, any>) || {}
+  const normalizedPayload = (camelizeBlockPayload(critiquePayload) as Record<string, unknown>) || {}
   const critiqueRunId = String(normalizedPayload.critiqueRunId || normalizedPayload.critique_run_id || 'active')
   const displayStatus = String(normalizedPayload.displayStatus || normalizedPayload.display_status || '').trim()
   const status = displayStatus === 'round_completed'
@@ -520,13 +522,13 @@ function buildSubagentDesignJuryBlock(
     status,
     visible: true,
     uiKind: 'design_jury_card',
-    renderKey: `subagent:${subagentTaskId}:design-jury:${critiqueRunId}`,
+    renderKey: wireString(`subagent:${subagentTaskId}:design-jury:${critiqueRunId}`),
     payload: normalizedPayload,
     children: [],
   }
 }
 
-function terminalSubagentStatusForCritique(critiquePayload: Record<string, any>): string | null {
+function terminalSubagentStatusForCritique(critiquePayload: Record<string, unknown>): string | null {
   const status = String(critiquePayload.status || critiquePayload.displayStatus || critiquePayload.display_status || '').trim().toLowerCase()
   if (status === 'shipped' || status === 'below_threshold' || status === 'completed') {
     return 'completed'
@@ -543,7 +545,7 @@ function terminalSubagentStatusForCritique(critiquePayload: Record<string, any>)
 function upsertSubagentDesignJuryCardInBlocks(
   blocks: MessageBlock[],
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
 ): { blocks: MessageBlock[]; updated: boolean } {
   let didUpdate = false
   const normalizedTaskId = String(subagentTaskId || '').trim()
@@ -604,7 +606,7 @@ function upsertSubagentDesignJuryCardInBlocks(
 export function upsertSubagentDesignJuryCard(
   blocks: MessageBlock[],
   subagentTaskId: string,
-  critiquePayload: Record<string, any>,
+  critiquePayload: Record<string, unknown>,
 ): MessageBlock[] {
   const normalizedTaskId = String(subagentTaskId || '').trim()
   if (!normalizedTaskId) {
@@ -621,8 +623,8 @@ function isMatchingSubagentBlock(block: MessageBlock, taskId: string): boolean {
   if (block.taskId === taskId) {
     return true
   }
-  const payloadTaskId = block.payload.taskId ?? block.payload.result?.taskId
-    ?? block.payload.task_id ?? block.payload.result?.task_id
+  const payloadTaskId = block.payload.taskId ?? wireRecord(block.payload.result)?.taskId
+    ?? block.payload.task_id ?? wireRecord(block.payload.result)?.task_id
   return String(payloadTaskId || '') === taskId
 }
 

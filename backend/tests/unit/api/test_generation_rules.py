@@ -13,7 +13,7 @@ from app.schemas.generation import GenerateImageRequest, GenerateVideoRequest
 def test_generate_image_request_accepts_multiple_reference_images():
     request = GenerateImageRequest(
         prompt="make it cinematic",
-        model_name="gemini-3.1-flash-image-preview-official",
+        model_name="gemini-3.1-flash-image-preview",
         provider_code="builtin",
         aspect_ratio="16:9",
         resolution="1K",
@@ -32,7 +32,7 @@ def test_generate_image_request_accepts_multiple_reference_images():
 def test_generate_image_request_accepts_client_request_id():
     request = GenerateImageRequest(
         prompt="make it cinematic",
-        model_name="gemini-3.1-flash-image-preview-official",
+        model_name="gemini-3.1-flash-image-preview",
         provider_code="builtin",
         client_request_id="canvas-image-request-1",
     )
@@ -44,7 +44,7 @@ def test_generate_image_request_rejects_too_many_gemini_reference_images():
     with pytest.raises(ValidationError, match="14"):
         GenerateImageRequest(
             prompt="make it cinematic",
-            model_name="gemini-3.1-flash-image-preview-official",
+            model_name="gemini-3.1-flash-image-preview",
             provider_code="builtin",
             image_urls=[f"https://example.com/ref-{index}.png" for index in range(15)],
         )
@@ -296,7 +296,7 @@ def test_generator_capabilities_are_derived_from_builtin_registry():
         for entry in PROVIDER_REGISTRY["builtin"]["models"]["text2video"]
     }
 
-    assert image_configs["gemini-3.1-flash-image-preview-official"]["max_reference_images"] == 14
+    assert image_configs["gemini-3.1-flash-image-preview"]["max_reference_images"] == 14
     assert image_configs["gpt-image-2"]["max_reference_images"] == 16
     assert image_configs["doubao-seedream-5-0-lite"]["max_reference_images"] == 10
     assert video_configs["kling-v2-6"]["max_image_inputs"] == 2
@@ -305,7 +305,7 @@ def test_generator_capabilities_are_derived_from_builtin_registry():
     assert video_configs["kling-v2-6"]["requires_first_frame_for_tail_frame"] is True
     assert video_configs["kling-v2-6"]["audio_tail_frame_mutually_exclusive"] is True
     assert video_configs["doubao-seedance-2.0"]["max_image_inputs"] == 9
-    assert IMAGE_MODEL_CAPABILITIES["gemini-3.1-flash-image-preview-official"]["max_reference_images"] == 14
+    assert IMAGE_MODEL_CAPABILITIES["gemini-3.1-flash-image-preview"]["max_reference_images"] == 14
     assert IMAGE_MODEL_CAPABILITIES["gpt-image-2"]["max_reference_images"] == 16
     assert VIDEO_MODEL_CAPABILITIES["kling-v2-6"]["max_image_inputs"] == 2
     assert VIDEO_MODEL_CAPABILITIES["kling-v3"]["max_image_inputs"] == 2

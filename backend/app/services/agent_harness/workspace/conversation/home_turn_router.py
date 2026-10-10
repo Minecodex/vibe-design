@@ -268,6 +268,11 @@ async def route_home_text_turn(
     if classifier_fn is None:
         selected_model_name = model_name or get_default_multimodal_model()
         selected_provider_code = resolve_multimodal_provider(selected_model_name, provider_code)
+        if selected_provider_code == "builtin" and user_id is None:
+            return _classifier_failure_route(
+                conversation=conversation,
+                source="classifier_unavailable_default",
+            ).to_dict()
         from app.services.agent_harness.prompt_runtime import classify_side_payload
 
         classifier_fn = classify_side_payload

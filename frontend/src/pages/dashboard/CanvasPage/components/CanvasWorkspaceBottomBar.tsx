@@ -1,16 +1,18 @@
-// @ts-nocheck
-
+import type { TFunction } from 'i18next'
 import { Minus, Plus } from 'lucide-react'
 
-export function CanvasWorkspaceBottomBar(props: any) {
-  const {
-    isDark: _isDark,
-    isLayerPanelOpen,
-    setIsLayerPanelOpen,
-    zoomOut,
-    zoom,
-    zoomIn,
-  } = props
+interface CanvasWorkspaceBottomBarProps {
+  isDark?: boolean
+  t?: TFunction
+  isLayerPanelOpen: boolean
+  setIsLayerPanelOpen: (open: boolean) => void
+  zoom: number
+  zoomIn: () => void
+  zoomOut: () => void
+}
+
+export function CanvasWorkspaceBottomBar(props: CanvasWorkspaceBottomBarProps) {
+  const { isLayerPanelOpen, setIsLayerPanelOpen, zoomOut, zoom, zoomIn } = props
 
   return (
     <div

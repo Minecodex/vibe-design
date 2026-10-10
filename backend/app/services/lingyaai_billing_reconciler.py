@@ -249,50 +249,6 @@ class LingyaAiBillingReconciler:
     async def run_once(self) -> int:
         # LingyaAI reconciliation is retired with the global provider key.
         return 0
-        try:
-            if is_provider_balance_sync_enabled():
-                return 0
-
-            now = datetime.now(UTC)
-            async with AsyncSessionLocal() as db:
-                repo = UsageLogRepository(db)
-                due_logs = await repo.list_due_provider_reconcile_logs(
-                    provider_code="lingyaai",
-                    now=now,
-                    limit=max(int(settings.LINGYAAI_BILLING_RECONCILE_BATCH_SIZE), 1),
-                )
-                if not due_logs:
-                    return 0
-                if not self._can_fetch_bill_rows(now):
-                    self._record_metric("bill_fetch_denied")
-                    return 0
-                if not await self._allow_distributed_bill_rows_fetch():
-                    return 0
-
-                lock_token = uuid.uuid4().hex
-                claimed = await repo.claim_provider_reconcile_logs(
-                    log_ids=[log.id for log in due_logs],
-                    now=now,
-                    locked_until=now + timedelta(seconds=max(int(settings.LINGYAAI_BILLING_RECONCILE_LOCK_SECONDS), 1)),
-                    lock_token=lock_token,
-                )
-                if not claimed:
-                    return 0
-                self._record_metric("claimed_logs", len(claimed))
-
-                provider = get_active_builtin_provider()
-                rows = await provider.fetch_recent_bill_rows()
-                self._last_bill_rows_fetch_at = now
-                billing_svc = BillingService(db)
-                plan = self._build_reconcile_plan(claimed=claimed, rows=rows, provider=provider, now=now)
-                self._record_metric("settled_logs", len(plan.settles))
-                self._record_metric("retried_logs", len(plan.retries))
-                self._record_metric("blocked_logs", len(plan.blocks))
-                await billing_svc.apply_provider_reconcile_plan(plan, lock_token=lock_token)
-                return len(claimed)
-        except Exception:
-            self._record_metric("failures")
-            raise
 
     def _can_fetch_bill_rows(self, now: datetime) -> bool:
         min_interval_seconds = self._min_fetch_interval_seconds()

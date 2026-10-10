@@ -1,9 +1,46 @@
-// @ts-nocheck
-
 import React from 'react'
+import type { ComponentProps, CSSProperties, MouseEvent, MutableRefObject } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
+import type { MediaResizeState } from '../types'
+import type { getMediaSelectionOverlayMetrics } from '../mediaSelectionResize'
+import type { getCanvasSelectionBorder, getCanvasSelectionHandleAppearance } from '../selectionStyles'
 import { CanvasTextItem } from './CanvasTextItem'
 
-function areTextItemPropsEqual(prev: any, next: any) {
+type TextItemProps = ComponentProps<typeof CanvasTextItem>
+interface CanvasWorkspaceTextRenderItemProps {
+  item: CanvasItem
+  normalizedTextItem: CanvasItem | null
+  isHidden: boolean
+  isItemSelected: boolean
+  actualWidth: number
+  actualHeight: number
+  selectedItems: string[]
+  clampCanvasStackZIndex: (value?: number) => number
+  activeTool: string
+  textEditingItemId: string | null
+  handleStartTextEdit: TextItemProps['onStartEdit']
+  handleCommitTextEdit: TextItemProps['onCommitEdit']
+  handleCancelTextEdit: TextItemProps['onCancelEdit']
+  handleItemMouseDown: (event: MouseEvent<HTMLDivElement>, itemId: string) => void
+  setSelectedItems: (items: string[]) => void
+  setContextMenu: (menu: { x: number; y: number; type: 'item' }) => void
+  setActiveContextMenuItem: (id: string | null) => void
+  getCanvasSelectionBorder: typeof getCanvasSelectionBorder
+  getCanvasSelectionHandleAppearance: (options: Parameters<typeof getCanvasSelectionHandleAppearance>[0]) => CSSProperties
+  beginTransaction: () => void
+  setActiveGuides: (guides: []) => void
+  movingItemIdsRef: MutableRefObject<Set<string>>
+  setMediaResizeState: (state: MediaResizeState) => void
+  resizingHandle: MutableRefObject<string | null>
+  dragItemStart: MutableRefObject<{ x: number; y: number } | null>
+  resizingStart: MutableRefObject<{ x: number; y: number; w: number; h: number; top: number; left: number } | null>
+  mediaSelectionMetrics: Pick<ReturnType<typeof getMediaSelectionOverlayMetrics>, 'handleSize' | 'handleOffset' | 'borderWidth'>
+  isDark: boolean
+  interactionPreview?: { begin: (items: CanvasItem[]) => void }
+  canvasItems: CanvasItem[]
+}
+
+function areTextItemPropsEqual(prev: CanvasWorkspaceTextRenderItemProps, next: CanvasWorkspaceTextRenderItemProps) {
   if (prev.item !== next.item) return false
   if (prev.normalizedTextItem !== next.normalizedTextItem) return false
   if (prev.isHidden !== next.isHidden) return false
@@ -22,7 +59,7 @@ function areTextItemPropsEqual(prev: any, next: any) {
   return true
 }
 
-const CanvasWorkspaceTextRenderItemInner = React.memo(function CanvasWorkspaceTextRenderItemInner(props: any) {
+const CanvasWorkspaceTextRenderItemInner = React.memo(function CanvasWorkspaceTextRenderItemInner(props: CanvasWorkspaceTextRenderItemProps) {
   const {
     item,
     normalizedTextItem,

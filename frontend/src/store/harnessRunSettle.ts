@@ -1,3 +1,4 @@
+import { errorName } from '@/utils/apiErrors'
 import { agentApi, type AgentEvent } from '@/api/endpoints/agent'
 
 const SETTLE_POLL_INTERVAL_MS = 250
@@ -74,8 +75,8 @@ export async function waitForHarnessRunToSettle(
         try {
             const res = await agentApi.getHarnessConversation(conversationId, signal)
             detail = res?.data ?? null
-        } catch (err: any) {
-            if (err?.name === 'AbortError') {
+        } catch (err) {
+            if (errorName(err) === 'AbortError') {
                 return false
             }
             detail = null
@@ -111,8 +112,8 @@ export async function* withHarnessActiveRunRetry(
                 yield event
             }
             return
-        } catch (err: any) {
-            if (err?.name === 'AbortError') {
+        } catch (err) {
+            if (errorName(err) === 'AbortError') {
                 throw err
             }
             if (

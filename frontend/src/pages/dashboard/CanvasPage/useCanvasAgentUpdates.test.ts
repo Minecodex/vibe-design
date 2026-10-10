@@ -188,7 +188,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('focuses generated media even when canvas state application is deferred', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let queuedUpdater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[]) | null = null
     const selectAndCenterCanvasItem = vi.fn()
     const saveCanvasItems = vi.fn()
@@ -238,7 +238,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('applies agent canvas writes locally while stale without saving a stale snapshot', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = []
     const updateCanvasItems = vi.fn()
     const selectAndCenterCanvasItem = vi.fn()
@@ -293,7 +293,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('syncs backend agent patch revisions without saving a canvas snapshot', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null = null
     const updateCanvasItems = vi.fn()
     const saveCanvasItems = vi.fn()
     const syncCanvasRevisionFromAgentPatch = vi.fn()
@@ -332,7 +332,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('syncs canvas revision from agent media write payloads before applying them', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null = null
     const calls: string[] = []
     let latestCanvasItems: CanvasItem[] = [{
       id: 'image-completed',
@@ -402,7 +402,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('routes backend-persisted agent patches through the agent-only canvas updater', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [{
       id: 'image-completed',
       type: 'image_generator',
@@ -467,7 +467,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('does not resolve stale from deleted backend agent patch revision events', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>, meta?: Record<string, unknown>) => void) | null = null
     const syncCanvasRevisionFromAgentPatch = vi.fn()
 
     renderHook(() => {
@@ -508,7 +508,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
     ['image_generator', 'image-1'],
     ['video_generator', 'video-1'],
   ] as const)('projects agent placeholder items immediately while backend owns persistence for %s', (type, id) => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = []
     const updateCanvasItems = vi.fn((updater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[])) => {
       latestCanvasItems = typeof updater === 'function' ? updater(latestCanvasItems) : updater
@@ -567,7 +567,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('uses model dimension tables for newly inserted agent image placeholders', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = []
     const updateCanvasItems = vi.fn((updater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[])) => {
       latestCanvasItems = typeof updater === 'function' ? updater(latestCanvasItems) : updater
@@ -640,7 +640,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('moves a newly created agent group as a whole when the natural grid overlaps existing canvas items', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [
       {
         id: 'blocking-image',
@@ -855,7 +855,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('repositions an existing agent group when a completed media item grows into an obstacle', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [
       {
         id: 'group-1',
@@ -971,7 +971,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('updates an untouched placeholder video to intrinsic dimensions when agent media completes', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [
       {
         id: 'video-1',
@@ -1004,7 +1004,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
     }
     vi.spyOn(document, 'createElement').mockImplementation(((tagName: string) => {
       if (tagName === 'video') {
-        return mockVideo as any
+        return mockVideo as unknown
       }
       return originalCreateElement(tagName)
     }) as typeof document.createElement)
@@ -1054,7 +1054,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('keeps a user-resized placeholder size when agent media completes', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [
       {
         id: 'image-1',
@@ -1133,7 +1133,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('repairs historical agent media items whose intrinsic size was initialized from configured dimensions', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = [
       {
         id: 'image-historical',
@@ -1211,7 +1211,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('stores agent media refs without binding the backend host', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     let latestCanvasItems: CanvasItem[] = []
     const updateCanvasItems = vi.fn((updater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[])) => {
       latestCanvasItems = typeof updater === 'function' ? updater(latestCanvasItems) : updater
@@ -1274,7 +1274,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('updates an existing generated media placeholder by task id', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     const selectAndCenterCanvasItem = vi.fn()
     const placeholder = {
       id: 'agent-generated-artifact_ref-image-1',
@@ -1342,7 +1342,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('updates an existing generated media placeholder while stale without saving', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     const selectAndCenterCanvasItem = vi.fn()
     let latestCanvasItems: CanvasItem[] = [{
       id: 'agent-generated-artifact_ref-image-stale',
@@ -1416,7 +1416,7 @@ describe('useCanvasAgentUpdates replay guard', () => {
   })
 
   it('does not refocus the canvas while polling updates an existing generating placeholder', () => {
-    let onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null = null
+    let onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null = null
     const selectAndCenterCanvasItem = vi.fn()
     let latestCanvasItems: CanvasItem[] = [{
       id: 'agent-generated-artifact_ref-image-2',

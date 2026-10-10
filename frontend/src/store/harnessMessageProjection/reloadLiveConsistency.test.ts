@@ -36,7 +36,7 @@ describe('reload + live op consistency (C1)', () => {
           message_key: messageKey,
         },
         created_at: '2026-06-07T00:00:00.000Z',
-      } as any,
+      },
     ])
 
     expect(reloaded).toHaveLength(1)
@@ -91,7 +91,7 @@ describe('reload + live op consistency (C1)', () => {
           message_key: 'home-user-progress',
         },
         created_at: '2026-06-07T00:00:00.000Z',
-      } as any,
+      },
     ])
 
     // Reload keys the card as `render:home-user-progress`.

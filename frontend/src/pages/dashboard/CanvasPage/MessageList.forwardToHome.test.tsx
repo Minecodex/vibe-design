@@ -21,7 +21,7 @@ vi.mock('@/store/canvasAgentStore', async () => {
   return {
     ...actual,
     useChatStore: Object.assign(
-      (selector: (state: any) => any) =>
+      (selector: (state: unknown) => unknown) =>
         selector({
           conversationId: 101,
           uiConfig: { hiddenToolCalls: [] },
@@ -103,7 +103,7 @@ describe('MessageList forward to homepage affordances', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
         forwardSelectionMode={false}
@@ -162,7 +162,7 @@ describe('MessageList forward to homepage affordances', () => {
               },
             ],
           },
-        ] as any}
+        ]}
         streamingBlocks={[]}
         isStreaming={false}
         forwardSelectionMode

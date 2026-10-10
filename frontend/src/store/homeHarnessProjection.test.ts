@@ -1,3 +1,5 @@
+import { legacyHarnessEvent } from './testing/legacyHarnessEvent'
+import type { TurnCompletionOverrides } from './testing/harnessEventFixtures'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/i18n', () => ({
@@ -9,17 +11,17 @@ import {
   applyHomeHarnessEvent,
   createHomeHarnessProjectionState,
 } from './homeHarnessProjection'
-import type { HomeHarnessProjectionState } from './homeHarnessProjection'
+import type { HomeHarnessProjectionEvent, HomeHarnessProjectionState } from './homeHarnessProjection'
 import { replayHomeHarnessEvents } from './__tests__/harnessProjectionReplay'
 import { isSessionHtmlFile } from '@/pages/dashboard/HomeHarnessAgent/components/homeChatWorkspaceFileKinds'
 
 function turnCompleted(
   status: 'completed' | 'failed' | 'blocked' | 'cancelled' | 'waiting_input',
-  data: Record<string, any> = {},
-): any {
+  data: Omit<TurnCompletionOverrides, 'terminal_error'> & { terminal_error?: string | { message?: string } } = {},
+): HomeHarnessProjectionEvent {
   const conversationId = String(data.conversation_id || 'conv-1')
   const runId = String(data.run_id || 'run-1')
-  const summary = String(data.summary || data.message || data.terminal_error?.message || data.terminal_error || '')
+  const summary = String(data.summary || data.message || (typeof data.terminal_error === 'object' ? data.terminal_error.message : undefined) || data.terminal_error || '')
   return {
     type: 'turn_completed',
     sequence: data.sequence,
@@ -76,7 +78,7 @@ describe('homeHarnessProjection', () => {
           ],
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.workspaceFiles).toHaveLength(1)
     expect(projection.workspaceFiles[0]?.file_id).toBe('f_report')
@@ -138,7 +140,7 @@ describe('homeHarnessProjection', () => {
           ],
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     const file = projection.workspaceFiles[0]
     expect(file?.artifact_kind).toBe('web_bundle')
@@ -164,7 +166,7 @@ describe('homeHarnessProjection', () => {
           source: 'reference_asset',
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.workspaceFiles).toHaveLength(1)
     expect(projection.workspaceFiles[0]).toMatchObject({
@@ -191,7 +193,7 @@ describe('homeHarnessProjection', () => {
           created_at: '2026-06-07T17:15:31.605301+00:00',
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.workspaceFiles).toHaveLength(1)
     expect(projection.workspaceFiles[0]).toMatchObject({
@@ -233,7 +235,7 @@ describe('homeHarnessProjection', () => {
         path: 'outputs/report.html',
         file_id: 'newer-id',
       },
-    } as any)
+    }  )
 
     expect(projection.workspaceFiles.map((file) => file.file_id)).toEqual(['keep-id'])
   })
@@ -275,7 +277,7 @@ describe('homeHarnessProjection', () => {
         max_rounds: 3,
         score_scale: 10,
       },
-    } as any)
+    }  )
 
     const subagent = next.messages[0]?.blocks?.[0]
     const designJury = subagent?.children?.[0]
@@ -327,7 +329,7 @@ describe('homeHarnessProjection', () => {
         score_scale: 10,
         scores: { critic: 8.2, brand: 8.4, a11y: 8, copy: 8.1 },
       },
-    } as any)
+    }  )
 
     const subagent = next.messages[0]?.blocks?.[0]
     const designJury = subagent?.children?.[0]
@@ -367,7 +369,7 @@ describe('homeHarnessProjection', () => {
           current_version_id: 'v0002',
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.workspaceFiles).toHaveLength(1)
     expect(projection.workspaceFiles[0]?.name).toBe('report.md')
@@ -411,13 +413,13 @@ describe('homeHarnessProjection', () => {
           ],
         },
       },
-      {
+      legacyHarnessEvent({
         type: 'message_done',
         sequence: 265,
         run_id: '4091b6c0f6de',
         lane: 'user',
         data: { status: 'completed' },
-      },
+      }),
       {
         type: 'current_outline_updated',
         sequence: 266,
@@ -446,7 +448,7 @@ describe('homeHarnessProjection', () => {
         run_id: '4091b6c0f6de',
         conversation_id: '1779543310412_af4e26',
       }),
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.runStatus).toBe('completed')
     expect(projection.isStreaming).toBe(false)
@@ -489,7 +491,7 @@ describe('homeHarnessProjection', () => {
           },
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(runningState.runStatus).toBe('running')
     expect(runningState.isStreaming).toBe(true)
@@ -501,7 +503,7 @@ describe('homeHarnessProjection', () => {
         run_id: 'run-waiting',
         lane: 'user',
         data: turnCompleted('completed', { conversation_id: 'conv-waiting', run_id: 'run-waiting' }).data,
-      } as any)
+      }  )
       expect(completed.runStatus).toBe('completed')
       expect(completed.isStreaming).toBe(false)
       expect(completed.runtimeState?.runtime_status).toBe('completed')
@@ -551,7 +553,7 @@ describe('homeHarnessProjection', () => {
           artifact_ref: 'artifact_ref:home-1',
         },
       },
-    ] as any[], initial)
+    ] , initial)
 
     const stale = replayHomeHarnessEvents([
       {
@@ -563,7 +565,7 @@ describe('homeHarnessProjection', () => {
           progress: 55,
         },
       },
-    ] as any[], completed)
+    ] , completed)
 
     const card = stale.messages[0]?.blocks?.[0]
     expect(card?.status).toBe('completed')
@@ -587,12 +589,12 @@ describe('homeHarnessProjection', () => {
           },
         },
       },
-      {
+      legacyHarnessEvent({
         type: 'message_done',
         sequence: 2,
         data: { conversation_id: 'conv-ignore-tool-result' },
-      },
-    ] as any[], createHomeHarnessProjectionState())
+      }),
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.messages).toEqual([])
     expect(projection.streamingBlocks).toEqual([])
@@ -649,7 +651,7 @@ describe('homeHarnessProjection', () => {
     ],
     [
       'interaction_submitted',
-      {
+      legacyHarnessEvent({
         type: 'interaction_submitted',
         sequence: 1,
         data: {
@@ -658,9 +660,9 @@ describe('homeHarnessProjection', () => {
           answer: 'Continue',
           display_label: 'Continue',
         },
-      },
+      }),
     ],
-  ] as Array<[string, any]>)('does not start an idle turn from %s without turn_started', (_name, event) => {
+  ] as Array<[string, HomeHarnessProjectionEvent]>)('does not start an idle turn from %s without turn_started', (_name, event) => {
     const nextState = applyHomeHarnessEvent(createHomeHarnessProjectionState(), event)
 
     expect(nextState.runStatus).toBe('idle')
@@ -692,7 +694,7 @@ describe('homeHarnessProjection', () => {
       },
     }
 
-    const submitted = applyHomeHarnessEvent(waitingState, {
+    const submitted = applyHomeHarnessEvent(waitingState, legacyHarnessEvent({
       type: 'interaction_submitted',
       sequence: 1,
       data: {
@@ -701,7 +703,7 @@ describe('homeHarnessProjection', () => {
         answer: 'Continue',
         display_label: 'Continue',
       },
-    } as any)
+    })  )
 
     expect(submitted.runStatus).toBe('waiting_input')
     expect(submitted.isStreaming).toBe(false)
@@ -718,7 +720,7 @@ describe('homeHarnessProjection', () => {
         runtime_profile: 'home',
         started_at: '2026-05-01T00:00:00.000Z',
       },
-    } as any)
+    }  )
 
     expect(resumed.runStatus).toBe('running')
     expect(resumed.isStreaming).toBe(true)
@@ -815,7 +817,7 @@ describe('homeHarnessProjection', () => {
 
     it('restores the projection to running when a new run starts after a cancelled run', () => {
     const projection = replayHomeHarnessEvents([
-      {
+      legacyHarnessEvent({
         type: 'message_appended',
         sequence: 1,
         data: {
@@ -826,7 +828,7 @@ describe('homeHarnessProjection', () => {
             created_at: '2026-05-19T14:44:43.000Z',
           },
         },
-      },
+      }),
       {
         type: 'turn_started',
         sequence: 2,
@@ -839,7 +841,7 @@ describe('homeHarnessProjection', () => {
         sequence: 3,
         run_id: 'run-old',
       }),
-      {
+      legacyHarnessEvent({
         type: 'message_appended',
         sequence: 4,
         data: {
@@ -850,7 +852,7 @@ describe('homeHarnessProjection', () => {
             created_at: '2026-05-19T14:44:51.000Z',
           },
         },
-      },
+      }),
       {
         type: 'turn_started',
         sequence: 5,
@@ -859,7 +861,7 @@ describe('homeHarnessProjection', () => {
           runtime_status: 'running',
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.runStatus).toBe('running')
     expect(projection.isStreaming).toBe(true)
@@ -887,7 +889,7 @@ describe('homeHarnessProjection', () => {
         sequence: 3,
         run_id: 'run-old',
       }),
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.runStatus).toBe('running')
     expect(projection.isStreaming).toBe(true)
@@ -913,7 +915,7 @@ describe('homeHarnessProjection', () => {
           },
         },
       },
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(projection.activeUserPlan).toBeNull()
     expect(projection.messages).toHaveLength(0)
@@ -937,7 +939,7 @@ describe('homeHarnessProjection', () => {
         data: { conversation_id: 'conv-handshake' },
       },
       turnCompleted('completed', { sequence: 2, conversation_id: 'conv-handshake', run_id: 'run-1' }),
-    ] as any[], createHomeHarnessProjectionState())
+    ] , createHomeHarnessProjectionState())
 
     expect(completedState.runStatus).toBe('completed')
     expect(completedState.isStreaming).toBe(false)
@@ -951,7 +953,7 @@ describe('homeHarnessProjection', () => {
         // Mirrors the old server payload that hardcoded "running".
         runtime_status: 'running',
       },
-    } as any)
+    }  )
 
     expect(afterHandshake.runStatus).toBe('completed')
     expect(afterHandshake.isStreaming).toBe(false)

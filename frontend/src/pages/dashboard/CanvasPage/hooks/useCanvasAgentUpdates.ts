@@ -1,3 +1,13 @@
+type AgentCanvasUpdateItem = Partial<CanvasItem> & Record<string, unknown> & {
+  conversationId?: string | number | null
+  messageId?: string | number | null
+  agentMediaKey?: string | null
+  agentGroupKey?: string | null
+  canvasItemDeleted?: boolean
+  suppressCompletionToast?: boolean
+  _agentLabel?: string
+}
+
 import { useEffect, useRef } from 'react'
 
 import type { CanvasItem } from '@/api/endpoints/projects'
@@ -68,7 +78,7 @@ interface UseCanvasAgentUpdatesArgs {
   videoQuality: string
   zoomRef: React.MutableRefObject<number>
   offsetRef: React.MutableRefObject<{ x: number; y: number }>
-  setOnCanvasUpdate: (callback: ((action: string, item: Record<string, any>, meta?: Record<string, any>) => void) | null) => void
+  setOnCanvasUpdate: (callback: ((action: string, item: AgentCanvasUpdateItem, meta?: Record<string, unknown>) => void) | null) => void
   updateCanvasItems: (updater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[])) => void
   applyAgentCanvasItems?: (updater: CanvasItem[] | ((previous: CanvasItem[]) => CanvasItem[])) => void
   syncCanvasRevisionFromAgentPatch?: (revision: number, options?: { resolveStale?: boolean }) => void
@@ -127,8 +137,8 @@ export function useCanvasAgentUpdates({
     const commitAgentCanvasItems = applyAgentCanvasItems || updateCanvasItems
 
     const syncCanvasRevisionFromPayload = (
-      item: Record<string, any>,
-      meta?: Record<string, any>,
+      item: Record<string, unknown>,
+      meta?: Record<string, unknown>,
     ) => {
       const revision = Number(meta?.canvasRevision ?? item.canvas_revision ?? item.canvasRevision)
       if (!Number.isFinite(revision) || revision < 0) {
@@ -141,8 +151,12 @@ export function useCanvasAgentUpdates({
       })
     }
 
-    const computeMediaDims = (item: Record<string, any>): { w: number; h: number } => {
-      const dimensions = getMediaDimensions(item as CanvasItem, {
+    const computeMediaDims = (item: AgentCanvasUpdateItem): { w: number; h: number } => {
+      const dimensions = getMediaDimensions({
+        type: item.type === 'video' || item.type === 'video_generator' ? item.type : 'image',
+        aspect_ratio: item.aspect_ratio, provider_code: item.provider_code,
+        resolution: item.resolution, model_name: item.model_name,
+      }, {
         imageRatio,
         videoAspect,
         imageProvider,
@@ -274,7 +288,7 @@ export function useCanvasAgentUpdates({
         return
       }
 
-      const mediaType = item.type
+      const mediaType = item.type ?? 'image'
       const isPlaceholderAction =
         action === 'add'
         && (mediaType === 'image_generator' || mediaType === 'video_generator')
@@ -349,7 +363,7 @@ export function useCanvasAgentUpdates({
       const insertionPlan = planAgentGeneratedMediaInsertion({
         currentState: agentGeneratedMediaRef.current,
         conversationId: normalizeAgentConversationId(item.conversationId),
-        messageId: item.messageId ?? null,
+        messageId: item.messageId == null ? null : String(item.messageId),
         groupKey: item.agent_group_key ?? item.agentGroupKey ?? null,
         incomingId,
         incomingName: item.name || item._agentLabel || 'agent',
@@ -550,7 +564,7 @@ export function useCanvasAgentUpdates({
             groupedItems,
             groupId,
             normalizeAgentConversationId(item.conversationId),
-            item.messageId ?? null,
+            item.messageId == null ? null : String(item.messageId),
             item.name || item._agentLabel || 'agent',
           )
           const placedItems = avoidAgentGroupCollisions(laidOutItems, groupId)

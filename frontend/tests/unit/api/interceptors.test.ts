@@ -83,7 +83,7 @@ describe('interceptors', () => {
         await expect(responseInterceptor(error)).rejects.toThrow('Network Error')
     })
 
-    it('should redirect to activation page on license expiration without clearing tokens', async () => {
+    it('does not redirect to the retired activation page or clear tokens for a legacy license error', async () => {
         const reqConfig = { url: '/projects', headers: {} } as InternalAxiosRequestConfig
         const error = new Error('Forbidden') as AxiosError
         error.response = {
@@ -99,7 +99,7 @@ describe('interceptors', () => {
         await expect(responseInterceptor(error)).rejects.toThrow('Forbidden')
 
         expect(storage.clearTokens).not.toHaveBeenCalled()
-        expect(window.location.href).toBe('/activation')
+        expect(window.location.href).not.toBe('/activation')
     })
 
     it('should redirect to login if no refresh token on 401', async () => {

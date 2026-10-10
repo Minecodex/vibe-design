@@ -1,3 +1,5 @@
+import type { ChatMessage, MessageBlock } from '@/store/homeHarnessStoreSession'
+import type { HarnessConversationRead, HarnessRuntimeStateRead, FailureRead, WorkspaceFileRead } from '@/api/endpoints/agent'
 import { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { beforeEach, vi } from 'vitest'
 import { Workbook } from 'exceljs'
@@ -7,12 +9,12 @@ import type { HomeChatOfficeSheetSnapshot } from './components/homeChatOfficeSna
 import { __homeHarnessMetadataLoaderTestUtils } from './homeHarnessMetadataLoader'
 
 export const storeState = {
-  conversationId: 42,
+  conversationId: 42 as number | string | null,
   projectId: 1,
-  messages: [],
+  messages: [] as ChatMessage[],
   isStreaming: false,
   runStatus: 'idle' as const,
-  streamingBlocks: [],
+  streamingBlocks: [] as MessageBlock[],
   mode: 'fast' as const,
   artifactMode: 'web' as const,
   setMode: vi.fn(),
@@ -25,9 +27,13 @@ export const storeState = {
   skillDecisionReason: null,
   activateSkill: vi.fn(),
   selectDesignSystem: vi.fn(),
-  conversations: [],
+  // Preserve old numeric IDs and top-level failure records as negative replay fixtures.
+  conversations: [] as Array<Omit<HarnessConversationRead, 'id'> & {
+    id: string | number; failure?: Partial<FailureRead> & { error_type?: string }
+  }>,
   conversationsHasMore: false,
-  workspaceFiles: [],
+  workspaceFiles: [] as WorkspaceFileRead[],
+  runtimeState: null as Partial<HarnessRuntimeStateRead> | null,
   engineVersion: 'harness' as const,
   userInteraction: null,
   sendMessage: vi.fn(),
@@ -118,85 +124,82 @@ export async function createXlsxBase64Workbook(): Promise<string> {
   return Buffer.from(buffer).toString('base64')
 }
 
-vi.mock('react-i18next', () => ({
-  initReactI18next: {
-    type: '3rdParty',
-    init: vi.fn(),
-  },
-  useTranslation: () => ({
-    i18n: {
-      language: mockLanguage,
-    },
-    t: (
-      key: string,
-      fallback?: string | { defaultValue?: string; count?: number; page?: number },
-    ) => {
-      const map: Record<string, string> = {
-        'canvas.chat.history.web_search': 'Web Search',
-        'canvas.chat.history.web_search_hint': 'Search for real-time information',
-        'canvas.chat.modes.thinking': 'Thinking Mode',
-        'canvas.chat.modes.thinking_desc': 'Use deeper reasoning before answering',
-        'canvas.chat.modes.quick': 'Quick Mode',
-        'canvas.chat.modes.quick_desc': 'Respond faster with lighter reasoning',
-        'providers.multimodal': 'Multimodal',
-        'home.chat.model_settings': 'Model Settings',
-        'home.chat.current_image_model': 'Current image model',
-        'home.chat.current_video_model': 'Current video model',
-        'home.chat.current_multimodal_model': 'Current multimodal model',
-        'home.chat.local_upload': 'Local Upload',
-        'home.chat.asset_library': 'Asset Library',
-        'home.ppt.regenerate_prompt': 'Help me regenerate slide {{page}} in the PPT',
-        'common.download': 'Localized Download',
-      }
+vi.mock('react-i18next', () => {
+  const t = (
+    key: string,
+    fallback?: string | { defaultValue?: string; count?: number; page?: number },
+  ) => {
+    const map: Record<string, string> = {
+      'canvas.chat.history.web_search': 'Web Search',
+      'canvas.chat.history.web_search_hint': 'Search for real-time information',
+      'canvas.chat.modes.thinking': 'Thinking Mode',
+      'canvas.chat.modes.thinking_desc': 'Use deeper reasoning before answering',
+      'canvas.chat.modes.quick': 'Quick Mode',
+      'canvas.chat.modes.quick_desc': 'Respond faster with lighter reasoning',
+      'providers.multimodal': 'Multimodal',
+      'home.chat.model_settings': 'Model Settings',
+      'agent.modelGenerationSettings.imageTab': 'Image',
+      'agent.modelGenerationSettings.videoTab': 'Video',
+      'home.chat.current_image_model': 'Current image model',
+      'home.chat.current_video_model': 'Current video model',
+      'home.chat.current_multimodal_model': 'Current multimodal model',
+      'home.chat.local_upload': 'Local Upload',
+      'home.chat.asset_library': 'Asset Library',
+      'home.ppt.regenerate_prompt': 'Help me regenerate slide {{page}} in the PPT',
+      'common.download': 'Localized Download',
+    }
 
-      const localizedMap: Record<string, { zh: string; en: string }> = {
-        'home.modes.web': { zh: '网页模式', en: 'Web Mode' },
-        'home.modes.document': { zh: '文档模式', en: 'Document Mode' },
-        'home.modes.spreadsheet': { zh: '表格模式', en: 'Spreadsheet Mode' },
-        'home.modes.slides': { zh: '幻灯片', en: 'Slides' },
-        'home.modes.image': { zh: '图片模式', en: 'Image Mode' },
-        'home.modes.video': { zh: '视频模式', en: 'Video Mode' },
-        'home.runtime.phaseValue.planning': { zh: '规划中', en: 'Planning' },
-        'home.runtime.phaseValue.planning_ready': { zh: '待执行', en: 'Ready' },
-        'home.runtime.phaseValue.revising_plan': { zh: '调整大纲中', en: 'Revising' },
-        'home.runtime.phaseValue.execution_prepare': { zh: '准备执行', en: 'Preparing' },
-        'home.runtime.phaseValue.executing': { zh: '执行中', en: 'Executing' },
-        'home.runtime.phaseValue.completed': { zh: '已完成', en: 'Completed' },
-        'home.runtime.phaseValue.failed': { zh: '失败', en: 'Failed' },
-        'home.runtime.status.idle': { zh: '未开始', en: 'Idle' },
-        'home.runtime.status.running': { zh: '进行中', en: 'Running' },
-        'home.runtime.status.waiting_input': { zh: '等待输入', en: 'Waiting for input' },
-        'home.runtime.status.completed': { zh: '已完成', en: 'Completed' },
-        'home.runtime.status.failed': { zh: '失败', en: 'Failed' },
-        'home.runtime.status.blocked': { zh: '已阻塞', en: 'Blocked' },
-        'home.runtime.status.cancelled': { zh: '已取消', en: 'Cancelled' },
-        'home.chat.upload_unsupported_format': { zh: '仅支持上传文本文件和 Office 文件。', en: 'Only supported text and Office files can be uploaded.' },
-      }
+    const localizedMap: Record<string, { zh: string; en: string }> = {
+      'home.modes.web': { zh: '网页模式', en: 'Web Mode' },
+      'home.modes.document': { zh: '文档模式', en: 'Document Mode' },
+      'home.modes.spreadsheet': { zh: '表格模式', en: 'Spreadsheet Mode' },
+      'home.modes.slides': { zh: '幻灯片', en: 'Slides' },
+      'home.modes.image': { zh: '图片模式', en: 'Image Mode' },
+      'home.modes.video': { zh: '视频模式', en: 'Video Mode' },
+      'home.runtime.phaseValue.planning': { zh: '规划中', en: 'Planning' },
+      'home.runtime.phaseValue.planning_ready': { zh: '待执行', en: 'Ready' },
+      'home.runtime.phaseValue.revising_plan': { zh: '调整大纲中', en: 'Revising' },
+      'home.runtime.phaseValue.execution_prepare': { zh: '准备执行', en: 'Preparing' },
+      'home.runtime.phaseValue.executing': { zh: '执行中', en: 'Executing' },
+      'home.runtime.phaseValue.completed': { zh: '已完成', en: 'Completed' },
+      'home.runtime.phaseValue.failed': { zh: '失败', en: 'Failed' },
+      'home.runtime.status.idle': { zh: '未开始', en: 'Idle' },
+      'home.runtime.status.running': { zh: '进行中', en: 'Running' },
+      'home.runtime.status.waiting_input': { zh: '等待输入', en: 'Waiting for input' },
+      'home.runtime.status.completed': { zh: '已完成', en: 'Completed' },
+      'home.runtime.status.failed': { zh: '失败', en: 'Failed' },
+      'home.runtime.status.blocked': { zh: '已阻塞', en: 'Blocked' },
+      'home.runtime.status.cancelled': { zh: '已取消', en: 'Cancelled' },
+      'home.chat.upload_unsupported_format': { zh: '仅支持上传文本文件和 Office 文件。', en: 'Only supported text and Office files can be uploaded.' },
+    }
 
-      if (map[key]) {
-        return map[key].replace('{{page}}', String(fallback && typeof fallback !== 'string' ? fallback.page ?? '' : ''))
-      }
+    if (map[key]) {
+      return map[key].replace('{{page}}', String(fallback && typeof fallback !== 'string' ? fallback.page ?? '' : ''))
+    }
 
-      if (localizedMap[key]) {
-        return mockLanguage === 'zh-CN' ? localizedMap[key].zh : localizedMap[key].en
-      }
+    if (localizedMap[key]) {
+      return mockLanguage === 'zh-CN' ? localizedMap[key].zh : localizedMap[key].en
+    }
 
-      if (typeof fallback === 'string') {
-        return fallback
-      }
+    if (typeof fallback === 'string') {
+      return fallback
+    }
 
-      if (fallback?.defaultValue) {
-        return Object.entries(fallback).reduce((text, [placeholder, value]) => (
-          placeholder === 'defaultValue'
-            ? text
-            : text.split(`{{${placeholder}}}`).join(String(value ?? ''))
-        ), fallback.defaultValue)
-      }
+    if (fallback?.defaultValue) {
+      return Object.entries(fallback).reduce((text, [placeholder, value]) => (
+        placeholder === 'defaultValue'
+          ? text
+          : text.split(`{{${placeholder}}}`).join(String(value ?? ''))
+      ), fallback.defaultValue)
+    }
 
-      return key
-    },
-  }),
-}))
+    return key
+  }
+  return {
+    initReactI18next: { type: '3rdParty', init: vi.fn() },
+    useTranslation: () => ({ i18n: { language: mockLanguage }, t }),
+  }
+})
 
 vi.mock('@/hooks/useTheme', () => ({
   useIsDarkMode: () => false,
@@ -518,13 +521,13 @@ export function setMockLanguage(language: string) {
       storeState.artifactMode = mode
     })
     storeState.activateSkill.mockImplementation((skillId) => {
-      storeState.activeSkillId = skillId as any
+      storeState.activeSkillId = skillId
     })
     storeState.selectDesignSystem.mockImplementation((designSystemId) => {
-      storeState.selectedDesignSystemId = designSystemId as any
+      storeState.selectedDesignSystemId = designSystemId
     })
     storeState.upsertWorkspaceFile.mockImplementation((conversationId, file) => {
-      const nextWorkspaceFiles = [...(storeState.workspaceFiles as any[]), file]
+      const nextWorkspaceFiles = [...(storeState.workspaceFiles as unknown[]), file]
       sharedStoreSetStateMock({
         conversationId: String(conversationId),
         workspaceFiles: nextWorkspaceFiles,

@@ -172,7 +172,7 @@ function normalizeCellContent(value: CellValue): Pick<WorkbookCellSnapshot, 'v' 
   }
 }
 
-function buildStyleDefinition(cell: Worksheet['getCell'] extends (...args: any[]) => infer T ? T : never): StyleDefinition | null {
+function buildStyleDefinition(cell: ReturnType<Worksheet['getCell']>): StyleDefinition | null {
   const style: StyleDefinition = {}
 
   if (cell.font) {

@@ -1,3 +1,4 @@
+import { createTranslationFixture } from '@/store/testing/translationFixture'
 import type { ComponentProps } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -19,7 +20,7 @@ vi.mock('./HomeDesignSystemPreviewDialog', () => ({
   ) : null),
 }))
 
-const t = (key: string, fallback?: string) => fallback ?? key
+const t = createTranslationFixture({})
 type HomeHarnessInteractionFormProps = ComponentProps<typeof HomeHarnessInteractionForm>
 
 describe('HomeHarnessInteractionForm', () => {
@@ -31,7 +32,7 @@ describe('HomeHarnessInteractionForm', () => {
       kind: 'ask_user',
       language: 'en',
       isDark: false,
-      t: t as any,
+      t: t,
       schema: {
         title: 'Need a few choices',
         submit_label: 'Submit',
@@ -111,7 +112,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Audience selection',
           submit_label: 'Submit',
@@ -182,7 +183,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Brand detail',
           submit_label: 'Submit',
@@ -231,7 +232,7 @@ describe('HomeHarnessInteractionForm', () => {
       kind: 'ask_user',
       language: 'en',
       isDark: false,
-      t: t as any,
+      t: t,
       schema: {
         title: 'Tone input',
         submit_label: 'Submit',
@@ -269,7 +270,7 @@ describe('HomeHarnessInteractionForm', () => {
       kind: 'ask_user',
       language: 'en',
       isDark: false,
-      t: t as any,
+      t: t,
       schema: {
         title: 'Brand brief',
         submit_label: 'Submit',
@@ -317,7 +318,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={null}
         question="Which deck should I review?"
         onSubmit={vi.fn()}
@@ -334,7 +335,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Legacy prompt',
           fields: [
@@ -366,7 +367,7 @@ describe('HomeHarnessInteractionForm', () => {
         phase="executing"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Plan questions',
           submit_label: 'Submit',
@@ -396,7 +397,7 @@ describe('HomeHarnessInteractionForm', () => {
         phase="planning"
         language="en"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Plan questions',
           submit_label: 'Submit',
@@ -437,7 +438,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         content={'### Gate A：品牌战略简报\n\n- 两岸人文融合\n- 青岛商务办公'}
         schema={{
           title: 'Gate A：品牌战略简报确认',
@@ -470,7 +471,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         question={'### Gate A：品牌战略简报\n\n- 两岸人文融合\n- 青岛商务办公'}
         schema={{
           title: 'Gate A：品牌战略简报确认',
@@ -503,7 +504,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="ask_user"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         fallbackContent={'### Gate A：品牌战略简报\n\n- 两岸人文融合\n- 青岛商务办公'}
         schema={{
           title: 'Gate A：品牌战略简报确认',
@@ -536,7 +537,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="quick_brief"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Quick brief',
           fields: [
@@ -600,7 +601,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="design_system_picker"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: '选择设计体系',
           fields: [
@@ -639,7 +640,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="design_system_picker"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: '选择设计体系',
           fields: [
@@ -684,7 +685,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="quick_brief"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Quick brief',
           fields: [
@@ -735,7 +736,7 @@ describe('HomeHarnessInteractionForm', () => {
         kind="quick_brief"
         language="zh"
         isDark={false}
-        t={t as any}
+        t={t}
         schema={{
           title: 'Quick brief',
           submit_label: '继续',

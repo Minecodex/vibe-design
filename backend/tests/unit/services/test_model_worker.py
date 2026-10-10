@@ -1,14 +1,21 @@
 import sys
 import types
 from types import SimpleNamespace
+from unittest.mock import patch
 
-sys.modules.setdefault("fcntl", types.SimpleNamespace(LOCK_EX=1, LOCK_NB=2, LOCK_UN=8, flock=lambda *args: None))
+try:
+    import fcntl
+except ImportError:
+    # Keep the Windows import shim scoped to this POSIX-only worker.
+    with patch.dict(sys.modules, {"fcntl": types.SimpleNamespace(LOCK_EX=1, LOCK_NB=2, LOCK_UN=8, flock=lambda *args: None)}):
+        from app.services.model_worker import ModelWorkerServer
+else:
+    from app.services.model_worker import ModelWorkerServer
 
 import pytest
 
 from app.core.config import Settings
 from app.core.redis_coordination import DisabledRedisCoordinator, InProcessRedisCoordinator
-from app.services.model_worker import ModelWorkerServer
 
 
 class _DummyWorker(ModelWorkerServer):

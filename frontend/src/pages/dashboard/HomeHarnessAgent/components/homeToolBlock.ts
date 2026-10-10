@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import type { MessageBlock } from '@/store/homeHarnessStore'
 import { normalizeToolResultStatus } from '@/store/canvasAgentToolCalls'
 
@@ -19,7 +20,7 @@ export function resolveToolBlockName(block: MessageBlock): string {
 }
 
 export function resolveToolBlockStatus(block: MessageBlock): ToolRowStatus {
-  const payload = (block.payload || {}) as Record<string, any>
+  const payload = (block.payload || {}) as Record<string, unknown>
   if (payload.is_error || payload.isError) {
     return 'failed'
   }
@@ -28,7 +29,7 @@ export function resolveToolBlockStatus(block: MessageBlock): ToolRowStatus {
 }
 
 export function formatToolElapsed(block: MessageBlock): string | null {
-  const raw = block.payload?.elapsedMs ?? block.payload?.elapsed_ms ?? block.payload?.result?.elapsed_ms
+  const raw = block.payload?.elapsedMs ?? block.payload?.elapsed_ms ?? wireRecord(block.payload?.result)?.elapsed_ms
   const ms = Number(raw)
   if (!Number.isFinite(ms) || ms <= 0) {
     return null

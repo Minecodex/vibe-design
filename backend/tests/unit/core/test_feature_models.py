@@ -81,7 +81,7 @@ def test_builtin_model_aliases_resolve_between_apimart_and_lingyaai():
     assert (
         resolve_builtin_model_name_for_provider(
             "text2image",
-            "gemini-3.1-flash-image-preview-official",
+            "gemini-3.1-flash-image-preview",
             builtin_provider_code="lingyaai",
         )
         == "nano-banana-2"
@@ -92,7 +92,7 @@ def test_builtin_model_aliases_resolve_between_apimart_and_lingyaai():
             "nano-banana-2",
             builtin_provider_code="apimart",
         )
-        == "gemini-3.1-flash-image-preview-official"
+        == "gemini-3.1-flash-image-preview"
     )
     assert (
         resolve_builtin_model_name_for_provider(

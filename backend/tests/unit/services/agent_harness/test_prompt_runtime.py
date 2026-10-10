@@ -1,4 +1,5 @@
 from __future__ import annotations
+import pytest
 
 import asyncio
 from types import SimpleNamespace
@@ -16,6 +17,16 @@ from app.services.agent_harness.prompt_runtime.models import (
 from app.services.agent_harness.prompt_runtime.policy_engine import PolicyEngine
 from app.services.agent_harness.prompt_runtime.side_classifier import classify_side_payload
 from app.services.agent_harness.prompt_runtime.summary_providers import ProtocolSummaryProvider
+
+
+@pytest.fixture(autouse=True)
+def _planning_user_key(monkeypatch):
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.prompt_runtime.side_classifier.resolve_user_apimart_key_for_context",
+        AsyncMock(return_value="test-key"),
+    )
 
 
 def _base_spec(**overrides) -> TurnSpec:
@@ -898,7 +909,7 @@ def test_prompt_runtime_token_baselines_stay_bounded():
 def test_side_classifier_uses_prompt_runtime_mode(monkeypatch):
     traces: list[dict] = []
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None, api_key: str = ""):
         assert "runtime_time" in user_prompt
         return {"label": "needs_skill", "confidence": 0.82}
 
@@ -929,7 +940,7 @@ def test_side_classifier_uses_prompt_runtime_mode(monkeypatch):
 
 
 def test_side_classifier_preserves_preflight_model_call(monkeypatch):
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None, api_key: str = ""):
         return {
             "label": "artifact_creation",
             "confidence": 0.92,
@@ -981,7 +992,7 @@ def test_side_classifier_uses_runtime_rendered_system_prompt(monkeypatch):
                 trace={},
             )
 
-    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None):
+    async def _fake_call(*, system_prompt: str, user_prompt: str, model_name: str, response_schema: dict, provider_code=None, api_key: str = ""):
         seen["system_prompt"] = system_prompt
         seen["user_prompt"] = user_prompt
         return {"label": "needs_skill", "confidence": 0.9}

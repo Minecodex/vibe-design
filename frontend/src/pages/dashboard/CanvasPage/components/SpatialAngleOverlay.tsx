@@ -10,7 +10,7 @@ interface SpatialAngleOverlayProps {
   onConfirm: (x: number, y: number, scale: string) => void
 }
 
-export function SpatialAngleOverlay({ session, isDark: _isDark, onCancel, onConfirm }: SpatialAngleOverlayProps) {
+export function SpatialAngleOverlay({ session, onCancel, onConfirm }: SpatialAngleOverlayProps) {
   const { t } = useTranslation()
 
   const [x, setX] = useState(session.x)
@@ -262,13 +262,13 @@ export function SpatialAngleOverlay({ session, isDark: _isDark, onCancel, onConf
           {t('canvas.spatial_angle.scale_label', '镜头缩放')}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {['close-up', 'normal', 'wide-angle'].map((s) => {
+          {(['close-up', 'normal', 'wide-angle'] as const).map((s) => {
             const labels: Record<string, string> = { 'close-up': '特写', 'normal': '正常', 'wide-angle': '广角' }
             const isSelected = scale === s
             return (
               <button
                 key={s}
-                onClick={() => setScale(s as any)}
+                onClick={() => setScale(s)}
                 style={{
                   flex: 1,
                   padding: '10px 0',

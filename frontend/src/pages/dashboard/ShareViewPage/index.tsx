@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { apiErrorDetail, apiErrorStatus, formatApiErrorDetail } from '@/utils/apiErrors'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { shareApi, ShareInfo } from '@/api/endpoints/share'
@@ -68,34 +69,7 @@ export function ShareViewPage() {
         </div>
     )
 
-    useEffect(() => {
-        const fetchInfo = async () => {
-            if (!token) return
-
-            try {
-                setLoading(true)
-                const res = await shareApi.getInfo(token)
-                if (res.data.require_password) {
-                    setRequirePassword(true)
-                    setLoading(false)
-                } else {
-                    await access(token)
-                }
-            } catch (err: any) {
-                const detail = err.response?.data?.detail || '访问分享链接失败'
-                if (err.response?.status === 410) {
-                    setError('分享链接已过期')
-                } else {
-                    setError(detail)
-                }
-                setLoading(false)
-            }
-        }
-
-        fetchInfo()
-    }, [token])
-
-    const access = async (shareToken: string, pwd?: string) => {
+    const access = useCallback(async (shareToken: string, pwd?: string) => {
         try {
             setLoading(true)
             const res = await shareApi.accessProject(shareToken, { password: pwd })
@@ -110,19 +84,46 @@ export function ShareViewPage() {
                 setJoinInfo(res.data)
                 setJoinDialogOpen(true)
             }
-        } catch (err: any) {
-            if (err.response?.status === 403) {
+        } catch (err) {
+            if (apiErrorStatus(err) === 403) {
                 toast.error('密码错误')
                 setRequirePassword(true)
-            } else if (err.response?.status === 410) {
+            } else if (apiErrorStatus(err) === 410) {
                 setError('分享链接已过期')
             } else {
-                setError(err.response?.data?.detail || '访问项目失败')
+                setError(formatApiErrorDetail(apiErrorDetail(err), '访问项目失败'))
             }
         } finally {
             setLoading(false)
         }
-    }
+    }, [navigate])
+
+    useEffect(() => {
+        const fetchInfo = async () => {
+            if (!token) return
+
+            try {
+                setLoading(true)
+                const res = await shareApi.getInfo(token)
+                if (res.data.require_password) {
+                    setRequirePassword(true)
+                    setLoading(false)
+                } else {
+                    await access(token)
+                }
+            } catch (err) {
+                const detail = formatApiErrorDetail(apiErrorDetail(err), '访问分享链接失败')
+                if (apiErrorStatus(err) === 410) {
+                    setError('分享链接已过期')
+                } else {
+                    setError(detail)
+                }
+                setLoading(false)
+            }
+        }
+
+        fetchInfo()
+    }, [token, access])
 
     const handleJoin = async () => {
         if (!isAuthenticated) {
@@ -135,9 +136,9 @@ export function ShareViewPage() {
             const res = await shareApi.joinProject(token!)
             toast.success('已成功加入项目')
             navigate(`/canvas/${res.data.project_id}`)
-        } catch (err: any) {
-            if (err.response?.data?.detail) {
-                toast.error(err.response.data.detail)
+        } catch (err) {
+            if (apiErrorDetail(err)) {
+                toast.error(formatApiErrorDetail(apiErrorDetail(err), '操作失败'))
             } else {
                 toast.error('加入失败')
             }

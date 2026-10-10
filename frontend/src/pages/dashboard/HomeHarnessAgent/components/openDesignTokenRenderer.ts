@@ -1,4 +1,7 @@
-// @ts-nocheck
+type DesignColor = { name: string; value: string }
+type DesignFonts = { display?: string; heading?: string; body?: string; mono?: string }
+type TableAlignment = 'center' | 'right' | null
+
 /**
  * Build a showcase HTML page from a DESIGN.md so the user can see what each
  * design system looks like *before* generating anything. We don't try to
@@ -11,7 +14,7 @@
  * defaults when a token isn't found.
  */
 
-export function renderDesignSystemTokenPreview(id, raw) {
+export function renderDesignSystemTokenPreview(id: string, raw: string) {
   const titleMatch = /^#\s+(.+?)\s*$/m.exec(raw);
   const title = cleanTitle(titleMatch?.[1] ?? id);
   const subtitle = extractSubtitle(raw);
@@ -297,7 +300,7 @@ export function renderDesignSystemTokenPreview(id, raw) {
 </html>`;
 }
 
-function extractSubtitle(raw) {
+function extractSubtitle(raw: string) {
   const lines = raw.split(/\r?\n/);
   const h1 = lines.findIndex((l) => /^#\s+/.test(l));
   if (h1 === -1) return '';
@@ -311,11 +314,11 @@ function extractSubtitle(raw) {
   return window.split(/\n\n/)[0]?.slice(0, 240) ?? '';
 }
 
-function extractColors(raw) {
-  const colors = [];
+function extractColors(raw: string) {
+  const colors: DesignColor[] = [];
   const seen = new Set();
 
-  function push(name, value) {
+  function push(name: string, value: string) {
     const cleanName = name.replace(/[*_`]+/g, '').replace(/\s+/g, ' ').trim();
     if (!cleanName || cleanName.length > 60) return;
     const v = normalizeHex(value);
@@ -338,8 +341,8 @@ function extractColors(raw) {
   return colors;
 }
 
-function extractFonts(raw) {
-  const out = {};
+function extractFonts(raw: string) {
+  const out: DesignFonts = {};
   // "- **Display / headings:** `'GT Sectra', ...`"
   // We want the backticked stack OR the rest of the line.
   const re = /^[\s>*-]*\**\s*([A-Za-z][A-Za-z /]{1,30}?)\s*\**\s*[:：]\s*`?([^`\n]+?)`?$/gm;
@@ -356,7 +359,7 @@ function extractFonts(raw) {
   return out;
 }
 
-function pickColor(colors, hints) {
+function pickColor(colors: DesignColor[], hints: string[]) {
   for (const hint of hints) {
     const needle = hint.toLowerCase();
     const found = colors.find((c) => c.name.toLowerCase().includes(needle));
@@ -365,7 +368,7 @@ function pickColor(colors, hints) {
   return null;
 }
 
-function firstNonNeutral(colors) {
+function firstNonNeutral(colors: DesignColor[]) {
   for (const c of colors) {
     const v = c.value.replace('#', '').toLowerCase();
     if (v.length !== 6) continue;
@@ -380,7 +383,7 @@ function firstNonNeutral(colors) {
   return null;
 }
 
-function pickReadableForeground(hex) {
+function pickReadableForeground(hex: string) {
   const n = normalizeHex(hex);
   if (n.length !== 7) return '#ffffff';
   const r = parseInt(n.slice(1, 3), 16);
@@ -391,7 +394,7 @@ function pickReadableForeground(hex) {
   return lum > 0.6 ? '#0a0a0a' : '#ffffff';
 }
 
-function normalizeHex(hex) {
+function normalizeHex(hex: string) {
   let h = hex.toLowerCase();
   if (h.length === 4) {
     h = '#' + h.slice(1).split('').map((c) => c + c).join('');
@@ -399,11 +402,11 @@ function normalizeHex(hex) {
   return h;
 }
 
-function cleanTitle(raw) {
+function cleanTitle(raw: unknown) {
   return String(raw).replace(/^Design System (Inspired by|for)\s+/i, '').trim();
 }
 
-function escapeHtml(s) {
+function escapeHtml(s: unknown) {
   return String(s).replace(/[&<>"']/g, (c) =>
     c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;',
   );
@@ -413,10 +416,10 @@ function escapeHtml(s) {
 // bullet/ordered lists, blockquotes, fenced code, GFM pipe tables, horizontal
 // rules, inline `code` / **bold** / *italic* / [link](url). Not a full markdown
 // implementation but covers everything the DESIGN.md files actually use.
-function renderMarkdownLite(src) {
+function renderMarkdownLite(src: string) {
   const lines = src.split(/\r?\n/);
   const out = [];
-  let inList = null;
+  let inList: 'ul' | 'ol' | null = null;
   let inBlockquote = false;
   let inCode = false;
   let i = 0;
@@ -549,30 +552,30 @@ function renderMarkdownLite(src) {
   return out.join('\n');
 }
 
-function looksLikeTableHeader(line) {
+function looksLikeTableHeader(line: string) {
   const trimmed = line.trim();
   if (!trimmed.includes('|')) return false;
   // At least one pipe between non-pipe content.
   return /\|/.test(trimmed.replace(/^\||\|$/g, ''));
 }
 
-function isTableSeparator(line) {
+function isTableSeparator(line: string) {
   const trimmed = line.trim();
   if (!trimmed.includes('|')) return false;
   // Each cell must be only dashes / colons / whitespace.
   return splitTableRow(trimmed).every((cell) => /^:?-{1,}:?$/.test(cell.trim()));
 }
 
-function splitTableRow(line) {
+function splitTableRow(line: string) {
   let s = line.trim();
   if (s.startsWith('|')) s = s.slice(1);
   if (s.endsWith('|')) s = s.slice(0, -1);
   return s.split('|').map((c) => c.trim());
 }
 
-function parseAlignments(separatorLine, count) {
+function parseAlignments(separatorLine: string, count: number) {
   const cells = splitTableRow(separatorLine);
-  const aligns = [];
+  const aligns: TableAlignment[] = [];
   for (let k = 0; k < count; k++) {
     const cell = (cells[k] ?? '').trim();
     const left = cell.startsWith(':');
@@ -584,7 +587,7 @@ function parseAlignments(separatorLine, count) {
   return aligns;
 }
 
-function renderTable(header, rows, aligns) {
+function renderTable(header: string[], rows: string[][], aligns: TableAlignment[]) {
   const th = header
     .map((cell, k) => {
       const align = aligns[k];
@@ -607,7 +610,7 @@ function renderTable(header, rows, aligns) {
   return `<div class="table-wrap"><table><thead><tr>${th}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
-function inline(s) {
+function inline(s: string) {
   // Process inline tokens. Order matters: code spans first so their content
   // isn't further parsed; then bold/italic; then links; finally bare URLs.
   const escaped = escapeHtml(s);

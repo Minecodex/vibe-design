@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import i18n from '@/i18n'
 import type { CanvasItem } from '@/api/endpoints/projects'
 import { useAppConfigStore } from '@/store/appConfigStore'
@@ -8,7 +8,7 @@ import { DEFAULT_IMAGE_MODEL } from '../defaultModels'
 import {
   normalizeReferenceImages,
 } from '../generatorCapabilities'
-import { loadCanvasModelCatalog } from '../canvasModelCatalog'
+import { loadCanvasModelCatalog, enabledProviderModels, registryModels, type CanvasSelectableModel } from '../canvasModelCatalog'
 import { PROVIDER_RESOLUTION_MAPS, getCanvasItemDimensions } from '../mediaDimensions'
 import {
   findImageModelOption,
@@ -24,14 +24,7 @@ import {
   getResolvedVideoModelCapability,
 } from '../videoModelConfig'
 
-type ModelOption = {
-  name: string
-  value: string
-  provider: string
-  providerName: string
-  isBuiltin: boolean
-  config?: any
-}
+type ModelOption = CanvasSelectableModel
 
 type UseGeneratorControlsArgs = {
   canvasItemsLoaded: boolean
@@ -55,7 +48,7 @@ export function useGeneratorControls({
 }: UseGeneratorControlsArgs) {
   const appName = useAppConfigStore((s) => s.appName)
   const appNameEn = useAppConfigStore((s) => s.appNameEn)
-  const brand = { appName, appNameEn }
+  const brand = useMemo(() => ({ appName, appNameEn }), [appName, appNameEn])
   const [imageModel, setImageModel] = useState('')
   const [imageProvider, setImageProvider] = useState('')
   const [videoModel, setVideoModel] = useState('')
@@ -68,15 +61,28 @@ export function useGeneratorControls({
   const [videoDuration, setVideoDuration] = useState('5s')
   const [videoQuality, setVideoQuality] = useState('720p')
 
-  const loadPersistedGeneratorMeta = useCallback((meta: any) => {
-    if (!meta) return
+  const loadPersistedGeneratorMeta = useCallback((value: unknown) => {
+    if (!value || typeof value !== 'object') return
+    const raw = value as Record<string, unknown>
+    const meta = {
+      imageModel: typeof raw.imageModel === 'string' ? raw.imageModel : undefined,
+      imageProvider: typeof raw.imageProvider === 'string' ? raw.imageProvider : undefined,
+      imageRes: typeof raw.imageRes === 'string' ? raw.imageRes : undefined,
+      imageRatio: typeof raw.imageRatio === 'string' ? raw.imageRatio : undefined,
+      videoModel: typeof raw.videoModel === 'string' ? raw.videoModel : undefined,
+      videoProvider: typeof raw.videoProvider === 'string' ? raw.videoProvider : undefined,
+      videoAspect: typeof raw.videoAspect === 'string' ? raw.videoAspect : undefined,
+      videoDuration: typeof raw.videoDuration === 'string' ? raw.videoDuration : undefined,
+      videoResolution: typeof raw.videoResolution === 'string' ? raw.videoResolution : undefined,
+      videoQuality: typeof raw.videoQuality === 'string' ? raw.videoQuality : undefined,
+    }
 
     if (meta.imageModel) setImageModel(meta.imageModel)
     if (meta.imageProvider) setImageProvider(meta.imageProvider)
     setImageRes(meta.imageRes || '1K')
     setImageRatio(meta.imageRatio || '1:1')
     if (meta.videoModel && !HIDDEN_VIDEO_MODELS.has(meta.videoModel)) setVideoModel(meta.videoModel)
-    if (meta.videoProvider && !HIDDEN_VIDEO_MODELS.has(meta.videoModel)) setVideoProvider(meta.videoProvider)
+    if (meta.videoProvider && !HIDDEN_VIDEO_MODELS.has(meta.videoModel || '')) setVideoProvider(meta.videoProvider)
     setVideoAspect(meta.videoAspect || '16:9')
     setVideoDuration(meta.videoDuration || '5s')
     setVideoQuality(meta.videoResolution || meta.videoQuality || '720p')
@@ -149,7 +155,7 @@ export function useGeneratorControls({
         const hasReferenceImages = normalizeReferenceImages(item).length > 0
         const hasFrameInputs = Boolean(item.first_frame_image || item.tail_frame_image)
         const hasImageInputs = hasReferenceImages || hasFrameInputs
-        const hasAudio = Boolean((item as any).audio) || normalizedResolution.endsWith('_audio')
+        const hasAudio = ('audio' in item && Boolean(item.audio)) || normalizedResolution.endsWith('_audio')
 
         if (hasAudio && pricing[`${baseKey}_audio`] != null) {
           pricingKey = `${baseKey}_audio`
@@ -189,7 +195,7 @@ export function useGeneratorControls({
     normalizeReferenceImages(item)
       .map((referenceImage) => normalizeCanvasAgentMediaRef(
         referenceImage,
-        (item as any).agent_conversation_id ?? null,
+        (item).agent_conversation_id ?? null,
       ))
       .filter(Boolean)
   ), [])
@@ -262,28 +268,17 @@ export function useGeneratorControls({
       try {
         const { registry, providers } = await loadCanvasModelCatalog()
 
-        let imageModels: ModelOption[] = []
-        let videoModels: ModelOption[] = []
+        const imageModels: ModelOption[] = []
+        const videoModels: ModelOption[] = []
 
         for (const { provider, models } of providers) {
           try {
-            let enabledModels = models.filter(model => model.is_enabled)
-
-            if (provider.is_builtin && enabledModels.length === 0) {
-              const providerRegistry = registry[provider.code]
-              const text2image = providerRegistry?.models?.text2image || (providerRegistry as any)?.text2image || []
-              const text2video = providerRegistry?.models?.text2video || (providerRegistry as any)?.text2video || []
-
-              enabledModels = [
-                ...text2image.map((model: any) => ({ model_name: model.model_name, model_type: 'text2image', is_enabled: true } as any)),
-                ...text2video.map((model: any) => ({ model_name: model.model_name, model_type: 'text2video', is_enabled: true } as any)),
-              ]
-            }
+            const enabledModels = enabledProviderModels({ provider, models }, registry, ['text2image', 'text2video'])
 
             for (const model of enabledModels) {
               const providerRegistry = registry[provider.code]
-              const typeModels = providerRegistry?.models?.[model.model_type] || (providerRegistry as any)?.[model.model_type] || []
-              const registryModel = (typeModels as any[]).find(entry => entry.model_name === model.model_name)
+              const typeModels = registryModels(providerRegistry, model.model_type)
+              const registryModel = typeModels.find(entry => entry.model_name === model.model_name)
               const label = registryModel?.label || model.model_name
 
               if (model.model_type === 'text2image') {
@@ -339,7 +334,7 @@ export function useGeneratorControls({
     }
 
     fetchModels()
-  }, [appName, appNameEn])
+  }, [brand])
 
   useEffect(() => {
     if (availableImageModels.length === 0) return

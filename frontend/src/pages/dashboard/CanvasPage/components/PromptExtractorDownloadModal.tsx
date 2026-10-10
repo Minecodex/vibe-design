@@ -1,3 +1,4 @@
+import type { PluginDownloadModalProps } from './pluginDownloadModalProps'
 import { Download, Languages, MousePointerClick } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,7 @@ function getServiceAddress() {
   return getApiOrigin()
 }
 
-export function PromptExtractorDownloadModal(props: any) {
+export function PromptExtractorDownloadModal(props: PluginDownloadModalProps) {
   const {
     open,
     onOpenChange,

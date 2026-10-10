@@ -16,17 +16,7 @@ type TextRedrawPanelProps = {
   onSubmit: () => void
 }
 
-export function TextRedrawPanel({
-  isDark: _isDark,
-  title,
-  segmentLabelPrefix = '文字',
-  submitLabel = '确认重绘',
-  segments,
-  isSubmitting,
-  onChangeSegment,
-  onCancel,
-  onSubmit,
-}: TextRedrawPanelProps) {
+export function TextRedrawPanel({ title, segmentLabelPrefix = '文字', submitLabel = '确认重绘', segments, isSubmitting, onChangeSegment, onCancel, onSubmit }: TextRedrawPanelProps) {
   return (
     <div
       style={{

@@ -13,13 +13,7 @@ interface HomeChatAttachmentPickerProps {
   onOpenReferenceGallery: () => void
 }
 
-export function HomeChatAttachmentPicker({
-  isDark: _isDark,
-  disabled = false,
-  onFilesSelected,
-  onOpenLibrary,
-  onOpenReferenceGallery,
-}: HomeChatAttachmentPickerProps) {
+export function HomeChatAttachmentPicker({ disabled = false, onFilesSelected, onOpenLibrary, onOpenReferenceGallery }: HomeChatAttachmentPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)

@@ -6,7 +6,7 @@ import { CanvasLayerPanel } from './CanvasLayerPanel'
 
 const testT = ((key: string, fallback?: string) => fallback ?? key) as unknown as TFunction
 
-function renderLayerPanel(itemOverrides: Record<string, any> = {}) {
+function renderLayerPanel(itemOverrides: Record<string, unknown> = {}) {
   const setEditingNameId = vi.fn()
 
   render(

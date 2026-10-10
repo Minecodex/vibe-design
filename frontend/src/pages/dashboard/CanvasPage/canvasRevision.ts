@@ -10,7 +10,9 @@ export function normalizeCanvasRevision(value: unknown): number {
   return Number.isFinite(numeric) && numeric >= 0 ? Math.trunc(numeric) : 0
 }
 
-export function isCanvasRevisionConflictError(error: unknown): boolean {
+export function isCanvasRevisionConflictError(error: unknown): error is {
+  response?: { data?: { detail?: { code?: unknown; canvas_revision?: unknown } } }
+} {
   const response = (error as { response?: { status?: number } } | null)?.response
   return response?.status === 409
 }

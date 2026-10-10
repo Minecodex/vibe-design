@@ -1,9 +1,10 @@
+import { wireRecord, wireString } from './harnessWireFields'
 import type { GenerationProjectionUpdate } from './generationProjection'
 
 type GenerationEventLike = {
   type: string
   sequence?: number | null
-  data?: Record<string, any> | null
+  data?: Record<string, unknown> | null
 }
 
 const GENERATION_EVENT_TYPES = new Set(['generation_started', 'generation_completed', 'generation_failed'])
@@ -38,7 +39,7 @@ export function buildGenerationProjectionUpdateFromEvent(
 
   return {
     taskId,
-    status: pickFirst(result.status, data.status, statusFromEventType(event.type)),
+    status: wireString(pickFirst(result.status, data.status, statusFromEventType(event.type))),
     sourceSequence: typeof event.sequence === 'number' ? event.sequence : numberOrNull(data.sequence),
     progress: numberOrNull(pickFirst(result.progress, data.progress)),
     resultUrl: stringOrNull(pickFirst(result.result_url, result.resultUrl, data.result_url, data.resultUrl, data.url)),
@@ -96,15 +97,15 @@ function buildGenerationProjectionUpdateFromItemEvent(
 
   return {
     taskId,
-    status: pickFirst(data.status, payload.status, statusFromItemEventType(event.type)),
+    status: wireString(pickFirst(data.status, payload.status, statusFromItemEventType(event.type))),
     sourceSequence: typeof event.sequence === 'number' ? event.sequence : numberOrNull(data.sequence),
     progress: numberOrNull(pickFirst(payload.progress, data.progress)),
     resultUrl: stringOrNull(pickFirst(
       payload.result_url,
       payload.resultUrl,
       payload.url,
-      payload.canvas_item?.url,
-      payload.canvasItem?.url,
+      wireRecord(payload.canvas_item)?.url,
+      wireRecord(payload.canvasItem)?.url,
       data.result_url,
       data.resultUrl,
     )),
@@ -148,7 +149,7 @@ export function buildCanvasItemFromGenerationEvent(
   event: GenerationEventLike,
   insertion: { taskId: string; artifactId: string; resultUrl: string },
   conversationId?: number | string | null,
-): Record<string, any> {
+): Record<string, unknown> {
   const data = isRecord(event.data) ? event.data : {}
   const result = isRecord(data.result) ? data.result : {}
   const payload = isRecord(data.payload) ? data.payload : {}
@@ -180,7 +181,7 @@ export function buildCanvasPlaceholderFromGenerationEvent(
   event: GenerationEventLike,
   placeholder: { taskId: string; artifactId: string },
   conversationId?: number | string | null,
-): Record<string, any> {
+): Record<string, unknown> {
   const data = isRecord(event.data) ? event.data : {}
   const result = isRecord(data.result) ? data.result : {}
   const payload = isRecord(data.payload) ? data.payload : {}
@@ -218,7 +219,7 @@ export function buildCanvasPlaceholderFromGenerationEvent(
   return item
 }
 
-export function buildCanvasRevisionMetaFromGenerationEvent(event: GenerationEventLike): Record<string, any> | undefined {
+export function buildCanvasRevisionMetaFromGenerationEvent(event: GenerationEventLike): Record<string, unknown> | undefined {
   const data = isRecord(event.data) ? event.data : {}
   const result = isRecord(data.result) ? data.result : {}
   const payload = isRecord(data.payload) ? data.payload : {}
@@ -235,7 +236,7 @@ export function buildCanvasRevisionMetaFromGenerationEvent(event: GenerationEven
   return meta.canvasRevision != null || meta.canvasItemDeleted === true ? meta : undefined
 }
 
-function buildCanvasRevisionMeta(...sources: Record<string, any>[]): Record<string, any> {
+function buildCanvasRevisionMeta(...sources: Record<string, unknown>[]): Record<string, unknown> {
   const revision = pickFirst(...sources.flatMap((source) => [
     source.canvas_revision,
     source.canvasRevision,
@@ -250,7 +251,7 @@ function buildCanvasRevisionMeta(...sources: Record<string, any>[]): Record<stri
   }
 }
 
-function applyCanvasRevisionMetaToItem(item: Record<string, any>, meta: Record<string, any>): void {
+function applyCanvasRevisionMetaToItem(item: Record<string, unknown>, meta: Record<string, unknown>): void {
   if (meta.canvasRevision != null && item.canvas_revision == null && item.canvasRevision == null) {
     item.canvas_revision = meta.canvasRevision
   }
@@ -273,11 +274,11 @@ function statusFromItemEventType(type: string): string | null {
   return null
 }
 
-function pickFirst(...values: any[]): any {
-  return values.find((value) => value != null && value !== '')
+function pickFirst(...values: unknown[]): string | number | undefined {
+  return values.find((value): value is string | number => (typeof value === 'string' || typeof value === 'number') && value !== '')
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
@@ -293,9 +294,9 @@ function stringOrNull(value: unknown): string | null {
 }
 
 function inferCanvasPlaceholderType(
-  data: Record<string, any>,
-  result: Record<string, any>,
-  payload: Record<string, any>,
+  data: Record<string, unknown>,
+  result: Record<string, unknown>,
+  payload: Record<string, unknown>,
 ): 'image_generator' | 'video_generator' {
   const type = String(
     data.media_type
@@ -316,9 +317,9 @@ function inferCanvasPlaceholderType(
 }
 
 function inferCanvasCompletedType(
-  data: Record<string, any>,
-  result: Record<string, any>,
-  payload: Record<string, any>,
+  data: Record<string, unknown>,
+  result: Record<string, unknown>,
+  payload: Record<string, unknown>,
 ): 'image' | 'video' {
   return inferCanvasPlaceholderType(data, result, payload) === 'video_generator' ? 'video' : 'image'
 }

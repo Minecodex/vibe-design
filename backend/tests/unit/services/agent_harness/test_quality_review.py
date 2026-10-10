@@ -245,7 +245,16 @@ def test_quality_review_prompt_requires_response_language(tmp_path: Path) -> Non
 
 
 @pytest.mark.asyncio
-async def test_capture_artifact_evidence_validates_packet_entry_and_writes_sidechain_only(tmp_path: Path) -> None:
+async def test_capture_artifact_evidence_validates_packet_entry_and_writes_sidechain_only(tmp_path: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr(
+        "app.services.agent_harness.capabilities.tools.capture_artifact_evidence.capture_artifact_screenshot",
+        AsyncMock(return_value=SimpleNamespace(
+            screenshot_ref=None, warning={"code": "screenshot_unavailable"},
+        )),
+    )
     ctx = _ctx(tmp_path)
     review_id = "critique-test"
     ctx.quality_review_packet = {

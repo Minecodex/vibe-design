@@ -1,3 +1,4 @@
+import { getNextRenderedProjectCount } from './projectListUtils'
 import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, Circle, Clock3, Plus, Search } from 'lucide-react'
@@ -14,36 +15,9 @@ const ShareModal = lazy(() => import('@/components/project/ShareModal').then(mod
 const MembersModal = lazy(() => import('@/components/project/MembersModal').then(module => ({ default: module.MembersModal })))
 const ProjectDetailsView = lazy(() => import('@/components/project/ProjectDetailsView').then(module => ({ default: module.ProjectDetailsView })))
 
-export function applyProjectUsersUpdate(
-  projects: ProjectListItemRead[],
-  projectId: number,
-  users: NonNullable<ProjectListItemRead['users']>,
-) {
-  return projects.map(project => (
-    project.id === projectId
-      ? { ...project, users }
-      : project
-  ))
-}
 
-export function getNextRenderedProjectCount({
-  currentRenderedCount,
-  projectRenderChunkSize,
-  visibleProjectCount,
-}: {
-  currentRenderedCount: number
-  projectRenderChunkSize: number
-  visibleProjectCount: number
-}) {
-  if (visibleProjectCount <= projectRenderChunkSize) {
-    return visibleProjectCount
-  }
 
-  return Math.max(
-    projectRenderChunkSize,
-    Math.min(currentRenderedCount, visibleProjectCount)
-  )
-}
+
 
 export function ProjectsPage() {
   const projectRenderChunkSize = 6

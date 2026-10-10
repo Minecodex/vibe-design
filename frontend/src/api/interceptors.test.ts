@@ -1,4 +1,4 @@
-import type { AxiosError } from 'axios'
+import axios, { type AxiosError } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { toastError } = vi.hoisted(() => ({
@@ -19,14 +19,9 @@ describe('setupInterceptors', () => {
   })
 
   it('shows a toast for insufficient-balance API errors', async () => {
-    const requestUse = vi.fn()
-    const responseUse = vi.fn()
-    const client = {
-      interceptors: {
-        request: { use: requestUse },
-        response: { use: responseUse },
-      },
-    } as any
+    const client = axios.create()
+    const responseUse = vi.spyOn(client.interceptors.response, 'use').mockReturnValue(0)
+    vi.spyOn(client.interceptors.request, 'use').mockReturnValue(0)
 
     setupInterceptors(client)
 

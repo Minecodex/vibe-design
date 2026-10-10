@@ -1,3 +1,4 @@
+
 import * as React from 'react'
 import { Check, Image as ImageIcon, Images, Loader2, PackageCheck, Plus, Trash2, Upload, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -32,11 +33,9 @@ import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { getImageUrl } from '@/utils/imageUrl'
 
-const ECOMMERCE_GENERATION_OPTIONS_KIND = 'ecommerce_generation_options'
+import { isEcommerceInteractionKind } from './ecommerceInteractionKinds'
 
-export const ECOMMERCE_INTERACTION_KINDS = new Set([
-  ECOMMERCE_GENERATION_OPTIONS_KIND,
-])
+
 
 export type EcommerceReferenceImageSource = 'asset_library' | 'reference_gallery'
 export type EcommerceReferenceImageRequestOptions = { maxSelection?: number }
@@ -60,11 +59,11 @@ type EcommerceInteractionCardProps = {
     requestId: string,
     answer: string,
     displayLabel?: string,
-    answers?: Record<string, any>,
+    answers?: Record<string, unknown>,
   ) => void | Promise<void>
 }
 
-function getValue(source: Record<string, any>, ...keys: string[]): any {
+function getValue(source: Record<string, unknown>, ...keys: string[]): unknown {
   for (const key of keys) {
     const value = source[key]
     if (value !== undefined && value !== null) {
@@ -74,13 +73,13 @@ function getValue(source: Record<string, any>, ...keys: string[]): any {
   return undefined
 }
 
-function numberValue(source: Record<string, any>, fallback: number, ...keys: string[]): number {
+function numberValue(source: Record<string, unknown>, fallback: number, ...keys: string[]): number {
   const raw = getValue(source, ...keys)
   const parsed = Number(raw)
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
-function stringListValue(source: Record<string, any>, ...keys: string[]): string[] {
+function stringListValue(source: Record<string, unknown>, ...keys: string[]): string[] {
   const raw = getValue(source, ...keys)
   if (!Array.isArray(raw)) {
     return []
@@ -92,14 +91,14 @@ function isSubmitted(interaction: PendingInteraction): boolean {
   return String(interaction.status || '').trim() === 'submitted'
 }
 
-function submittedAnswersValue(source: Record<string, any>): Record<string, any> {
+function submittedAnswersValue(source: Record<string, unknown>): Record<string, unknown> {
   const answers = source.answers
   return answers && typeof answers === 'object' && !Array.isArray(answers)
-    ? answers as Record<string, any>
+    ? answers as Record<string, unknown>
     : {}
 }
 
-function booleanValue(source: Record<string, any>, fallback: boolean, ...keys: string[]): boolean {
+function booleanValue(source: Record<string, unknown>, fallback: boolean, ...keys: string[]): boolean {
   const raw = getValue(source, ...keys)
   if (typeof raw === 'boolean') {
     return raw
@@ -183,7 +182,7 @@ function normalizeUploadPreviewUrl(url: string): string | undefined {
   return undefined
 }
 
-function resolveArtifactResultUrl(snapshot: Record<string, any> | null | undefined): string | undefined {
+function resolveArtifactResultUrl(snapshot: Record<string, unknown> | null | undefined): string | undefined {
   if (!snapshot || typeof snapshot !== 'object') {
     return undefined
   }
@@ -203,7 +202,7 @@ function resolveArtifactResultUrl(snapshot: Record<string, any> | null | undefin
     return plannedResultUrl
   }
   const artifact = snapshot.artifact && typeof snapshot.artifact === 'object'
-    ? snapshot.artifact as Record<string, any>
+    ? snapshot.artifact as Record<string, unknown>
     : {}
   const baseDir = String(artifact.base_dir || artifact.baseDir || '').trim()
   const relativePath = String(artifact.relative_path || artifact.relativePath || '').trim()
@@ -711,9 +710,7 @@ function ReferenceImageSection({
   )
 }
 
-export function isEcommerceInteractionKind(kind?: string | null): boolean {
-  return ECOMMERCE_INTERACTION_KINDS.has(String(kind || '').trim())
-}
+
 
 export function EcommerceInteractionCard({
   interaction,
@@ -731,9 +728,9 @@ export function EcommerceInteractionCard({
   const kind = String(interaction.kind || '').trim()
   const submitted = isSubmitted(interaction)
   const isLocked = disabled || submitted || isSubmitting
-  const source = interaction as Record<string, any>
+  const source = interaction as Record<string, unknown>
   const initialAnswers = submittedAnswersValue(source)
-  const defaults = (source.defaults && typeof source.defaults === 'object') ? source.defaults as Record<string, any> : {}
+  const defaults = (source.defaults && typeof source.defaults === 'object') ? source.defaults as Record<string, unknown> : {}
   const minCount = numberValue(defaults, 1, 'generation_count_min', 'generationCountMin')
   const maxCount = numberValue(defaults, 6, 'generation_count_max', 'generationCountMax')
   const defaultCount = clampGenerationCount(

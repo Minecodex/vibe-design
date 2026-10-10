@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { formatProviderPricingItems } from '../pricingFormatter'
+import type { ProviderModelView } from '../providerModelView'
 
 interface Props {
   providerCode: string
@@ -31,7 +32,7 @@ export default function AuthorizedProviderCard({ providerCode, name, logoUrl, ta
   const [isManageCredentialsModalOpen, setIsManageCredentialsModalOpen] = useState(false)
   const [isAuthConfigModalOpen, setIsAuthConfigModalOpen] = useState(false)
 
-  const [models, setModels] = useState<ModelRead[]>([])
+  const [models, setModels] = useState<ProviderModelView[]>([])
   const [credentials, setCredentials] = useState<CredentialRead[]>([])
 
   const fetchData = async () => {
@@ -71,7 +72,7 @@ export default function AuthorizedProviderCard({ providerCode, name, logoUrl, ta
           credential_id: 1,
           endpoint: null
         })) || []
-        setModels([...text2image, ...text2video, ...multimodal] as any)
+        setModels([...text2image, ...text2video, ...multimodal])
       } else {
         setModels(mRes.data)
       }
@@ -105,7 +106,7 @@ export default function AuthorizedProviderCard({ providerCode, name, logoUrl, ta
           credential_id: 1,
           endpoint: null
         })) || []
-        setModels([...text2image, ...text2video, ...multimodal] as any)
+        setModels([...text2image, ...text2video, ...multimodal])
       }
     }
   }
@@ -115,12 +116,14 @@ export default function AuthorizedProviderCard({ providerCode, name, logoUrl, ta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providerCode])
 
-  const handleConfigureModel = (model: ModelRead) => {
-    setSelectedModel(model)
+  const handleConfigureModel = (model: ProviderModelView) => {
+    if (typeof model.id !== 'number') return
+    setSelectedModel({ ...model, id: model.id })
     setIsConfigModalOpen(true)
   }
 
-  const handleToggleModel = async (model: ModelRead, enabled: boolean) => {
+  const handleToggleModel = async (model: ProviderModelView, enabled: boolean) => {
+    if (typeof model.id !== 'number') return
     try {
       await providersApi.updateModel(providerCode, model.id, { is_enabled: enabled })
       await fetchData()
@@ -129,7 +132,7 @@ export default function AuthorizedProviderCard({ providerCode, name, logoUrl, ta
     }
   }
 
-  const modelTypeTags = (m: ModelRead) => {
+  const modelTypeTags = (m: Pick<ModelRead, 'model_type' | 'model_name'>) => {
     if (m.model_type === 'text2image') return [t('providers.textToImage')]
     if (m.model_type === 'multimodal') return [t('providers.multimodal')]
     return [t('providers.textToVideo')]

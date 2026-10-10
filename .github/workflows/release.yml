@@ -1,0 +1,114 @@
+name: Release acceptance
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+    types: [labeled, synchronize, reopened]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-ci:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:release')
+    uses: ./.github/workflows/ci.yml
+  native-profile:
+    needs: source-ci
+    name: Container ${{ matrix.profile }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {profile: cpu, os: ubuntu-24.04}
+          - {profile: gpu, os: ubuntu-24.04}
+          - {profile: arm64, os: ubuntu-24.04-arm}
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-public-root
+          MYSQL_DATABASE: vibe_ci
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -pci-only-public-root"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=12
+    env:
+      APP_ENV: development
+      DATABASE_URL: mysql+aiomysql://root:ci-only-public-root@127.0.0.1:3306/vibe_ci
+      HARNESS_STORAGE_DATABASE_URL: mysql+pymysql://root:ci-only-public-root@127.0.0.1:3306/vibe_ci
+      REDIS_URL: redis://127.0.0.1:6379/0
+      REDIS_REQUIRED: 'true'
+      SECRET_KEY: ci-only-public-test-secret-not-for-deployment
+      VIBE_CI_PRODUCTION: 'true'
+      APP_API_BASE_URL: /api/v1
+      VITE_PROXY_TARGET: http://127.0.0.1:8000
+      TZ: Asia/Shanghai
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.10.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: frontend
+      - name: Build this native deployment profile from the exact source
+        run: |
+          docker build -f docker/backend/Dockerfile.${{ matrix.profile }}.base --build-arg DEBIAN_MIRROR=https://deb.debian.org/debian --build-arg DEBIAN_SECURITY_MIRROR=https://security.debian.org/debian-security --build-arg NPM_REGISTRY=https://registry.npmjs.org -t vibe-ci-base:${{ github.run_id }} .
+          docker build -f docker/backend/Dockerfile.${{ matrix.profile }}.app --build-arg BACKEND_BASE_IMAGE=vibe-ci-base:${{ github.run_id }} -t vibe-ci-candidate:${{ github.run_id }} .
+      - name: Apply the actual deployment migrations and provision an isolated user
+        run: |
+          docker run --rm --network host -e APP_ENV -e DATABASE_URL -e HARNESS_STORAGE_DATABASE_URL -e REDIS_URL -e REDIS_REQUIRED -e SECRET_KEY vibe-ci-candidate:${{ github.run_id }} alembic upgrade heads
+          docker run --rm --network host -e APP_ENV -e DATABASE_URL -e HARNESS_STORAGE_DATABASE_URL -e REDIS_URL -e REDIS_REQUIRED -e SECRET_KEY -e PYTHONPATH=/app -v "$PWD/backend/scripts/ci_business.py:/tmp/ci-seed.py:ro" vibe-ci-candidate:${{ github.run_id }} python /tmp/ci-seed.py --seed-only --migrated
+      - name: Start the exact native candidate with two workers
+        run: |
+          docker run -d --name vibe-ci-backend --network host -e APP_ENV -e DATABASE_URL -e HARNESS_STORAGE_DATABASE_URL -e REDIS_URL -e REDIS_REQUIRED -e SECRET_KEY -e WEB_CONCURRENCY=2 vibe-ci-candidate:${{ github.run_id }}
+      - name: Verify the real candidate API and production UI in all desktop browser engines
+        working-directory: backend
+        run: |
+          python scripts/ci_business.py --external --browser chromium
+          python scripts/ci_business.py --external --browser firefox
+          python scripts/ci_business.py --external --browser webkit
+      - name: Record the tested native image identity
+        run: |
+          mkdir -p .ci-artifacts
+          docker image inspect vibe-ci-candidate:${{ github.run_id }} --format '{{json .}}' > .ci-artifacts/image.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vibe-${{ matrix.profile }}-${{ github.sha }}
+          path: |
+            .ci-artifacts/image.json
+            frontend/playwright-report
+            frontend/test-results
+      - name: Clean up the owned candidate
+        if: always()
+        run: docker rm -f vibe-ci-backend || test "$(docker ps -a --filter name='^vibe-ci-backend$' -q | wc -l)" -eq 0
+  release-gate:
+    name: Release CI
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:release')) && always()
+    needs: [source-ci, native-profile]
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        shell: python
+        run: |
+          import json, os
+          failed = {k:v['result'] for k,v in json.loads(os.environ['RESULTS']).items() if v['result'] != 'success'}
+          if failed:
+              raise SystemExit(f'Release acceptance failed: {failed}')

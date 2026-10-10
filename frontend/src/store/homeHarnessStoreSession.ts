@@ -1,3 +1,4 @@
+import { wireRecord } from '@/store/harnessWireFields'
 import {
     agentApi,
     type AgentEvent,
@@ -16,6 +17,8 @@ import {
     type SendMessageRequest,
 } from '@/api/endpoints/agent'
 import type { MediaGenerationSettings } from '@/types/modelPreferences'
+import { normalizeFailureRead } from '@/api/agentWireNormalization'
+import { isHarnessConversationPhase } from './harnessConversationPhase'
 import {
     applyHomeHarnessEvent,
     createHomeHarnessProjectionState,
@@ -50,7 +53,7 @@ export interface ChatMessage {
     id: number | string
     role: 'user' | 'assistant' | 'tool'
     content: string | null
-    attachments?: Record<string, any>[]
+    attachments?: Record<string, unknown>[]
     baseFileVersions?: NonNullable<SendMessageRequest['base_file_versions']>
     toolCalls?: ToolCallInfo[]
     blocks?: MessageBlock[]
@@ -64,8 +67,10 @@ interface HarnessMessageLike {
     id?: string | number | null
     role: string
     content?: string | null
-    attachments?: Record<string, any>[] | null
-    metadata?: Record<string, any> | null
+    blocks?: Record<string, unknown>[] | null
+    tool_calls?: Record<string, unknown>[] | null
+    attachments?: Record<string, unknown>[] | null
+    metadata?: Record<string, unknown> | null
     created_at?: string | null
 }
 
@@ -78,7 +83,7 @@ export interface MessageBlock {
     userVisible?: boolean
     debugOnly?: boolean
     uiKind: string
-    payload: Record<string, any>
+    payload: Record<string, unknown>
     renderKey?: string
     taskId?: string
     label?: string
@@ -92,8 +97,8 @@ export interface MessageBlock {
 export interface ToolCallInfo {
     callId: string
     name: string
-    args: Record<string, any>
-    result?: Record<string, any>
+    args: Record<string, unknown>
+    result?: Record<string, unknown>
     error?: string
     status: 'pending' | 'running' | 'completed' | 'failed'
     /** Incremental streaming text for tools that support streaming (e.g., image analysis) */
@@ -265,7 +270,7 @@ export interface ChatActions {
         answer: string,
         displayLabel?: string,
         approved?: boolean,
-        answers?: Record<string, any> | null,
+        answers?: Record<string, unknown> | null,
     ) => Promise<void>
     startExecution: () => Promise<void>
     revisePlan: (instruction: string) => Promise<void>
@@ -305,8 +310,8 @@ export interface ChatActions {
     reset: () => void
 
     // Canvas item handler (set by CanvasPage)
-    onCanvasUpdate: ((action: string, item: Record<string, any>) => void) | null
-    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, any>) => void) | null) => void
+    onCanvasUpdate: ((action: string, item: Record<string, unknown>) => void) | null
+    setOnCanvasUpdate: (handler: ((action: string, item: Record<string, unknown>) => void) | null) => void
 
     // Task & Tool update
     updateToolCall: (messageId: string | number, callId: string, updates: Partial<ToolCallInfo>) => void
@@ -648,8 +653,8 @@ export function buildHarnessUiMessages(rawMessages: HarnessMessageLike[]): ChatM
     }
 
     rawMessages.forEach((message, index) => {
-        const metadata = (message.metadata || {}) as Record<string, any>
-        const renderBlocks = normalizeBlocks((message as Record<string, any>).blocks)
+        const metadata = (message.metadata || {}) as Record<string, unknown>
+        const renderBlocks = normalizeBlocks(message.blocks)
         const isRenderOnly = Boolean(metadata.render_only)
         const isExcludedFromHistory = Boolean(metadata.exclude_from_history)
         const isInternalOnly = String(metadata.message_kind || '') === 'internal_model_prompt'
@@ -780,7 +785,7 @@ function applySubmittedInteractionMetadataToUiMessages(
             return
         }
 
-        const metadata = message.metadata as Record<string, any>
+        const metadata = message.metadata as Record<string, unknown>
         const requestId = String(metadata.request_id || metadata.requestId || '').trim()
         if (!requestId) {
             return
@@ -794,7 +799,7 @@ function applySubmittedInteractionMetadataToUiMessages(
         ).trim()
         const submittedAnswer = String(metadata.answer || '').trim()
         const answers = metadata.answers && typeof metadata.answers === 'object' && !Array.isArray(metadata.answers)
-            ? metadata.answers as Record<string, any>
+            ? metadata.answers as Record<string, unknown>
             : null
 
         let didUpdate = false
@@ -909,8 +914,8 @@ function getHomepageMediaArtifactKey(block: MessageBlock): string | null {
     const artifactRef = String(
         block.payload.artifactRef
         ?? block.payload.artifact_ref
-        ?? block.payload.result?.artifactRef
-        ?? block.payload.result?.artifact_ref
+        ?? wireRecord(block.payload.result)?.artifactRef
+        ?? wireRecord(block.payload.result)?.artifact_ref
         ?? '',
     ).trim()
     if (artifactRef) {
@@ -931,8 +936,8 @@ function getHomepageMediaArtifactKey(block: MessageBlock): string | null {
         block.taskId
         ?? block.payload.taskId
         ?? block.payload.task_id
-        ?? block.payload.result?.taskId
-        ?? block.payload.result?.task_id
+        ?? wireRecord(block.payload.result)?.taskId
+        ?? wireRecord(block.payload.result)?.task_id
         ?? '',
     ).trim()
     return taskId ? `task:${taskId}` : null
@@ -1064,7 +1069,7 @@ export function buildSnapshotProjectionFromDetail(
         activeUserPlan: detail.user_plan ?? null,
         outlineRuntime: detail.outline_runtime ?? null,
         runtimeState: detail.runtime_state ?? null,
-        critique: hydrateHomeHarnessCritique(detail.runtime_state as Record<string, any> | null),
+        critique: hydrateHomeHarnessCritique(detail.runtime_state as Record<string, unknown> | null),
         userProgress: detail.user_progress ?? null,
         userInteraction: runtimeUserInteraction ?? null,
         workspaceFiles: Array.isArray(detail.workspace_files) ? detail.workspace_files : [],
@@ -1091,7 +1096,7 @@ export function buildHarnessConversationMeta(detail: HarnessConversationRead): H
         detail.runtime_state?.runtime_contract
         && typeof detail.runtime_state.runtime_contract === 'object'
         && !Array.isArray(detail.runtime_state.runtime_contract)
-    ) ? detail.runtime_state.runtime_contract as Record<string, any> : null
+    ) ? detail.runtime_state.runtime_contract as Record<string, unknown> : null
     const designSystemId = String(
         detail.design_system_id
         ?? runtimeContract?.design_system_id
@@ -1152,8 +1157,8 @@ const LIVE_PROGRESS_RUN_STATES = new Set([
 
 function buildConversationPlanState(
     activePlan: PlanRead | null,
-    previousPlanState?: Record<string, any> | null,
-): Record<string, any> | null {
+    previousPlanState?: Record<string, unknown> | null,
+): Record<string, unknown> | null {
     if (!activePlan) {
         return previousPlanState ?? null
     }
@@ -1304,7 +1309,7 @@ export function buildConversationMetaOverridesFromEvent(
 
     if (eventType === 'turn_started') {
         const activity = typeof event.data.activity === 'string' ? event.data.activity : session.runtimeState?.activity ?? null
-        overrides.phase = typeof event.data.phase === 'string' ? event.data.phase as any : existing?.phase
+        overrides.phase = isHarnessConversationPhase(event.data.phase) ? event.data.phase : existing?.phase
         overrides.runtime_status = 'running'
         overrides.run_state = typeof event.data.run_state === 'string'
             ? event.data.run_state
@@ -1313,20 +1318,18 @@ export function buildConversationMetaOverridesFromEvent(
                 : 'executing'
         overrides.activity = activity
         overrides.turn_route = event.data.turn_route && typeof event.data.turn_route === 'object'
-            ? event.data.turn_route as Record<string, any>
+            ? event.data.turn_route as Record<string, unknown>
             : existing?.turn_route ?? null
         overrides.display_status = activity === 'planning_outline' ? '规划中' : '进行中'
     } else if (eventType === 'run_started') {
         overrides.turn_route = event.data.turn_route && typeof event.data.turn_route === 'object'
-            ? event.data.turn_route as Record<string, any>
+            ? event.data.turn_route as Record<string, unknown>
             : existing?.turn_route ?? null
     } else if (eventType === 'turn_completed') {
         const status = String(event.data.status || 'completed') as HarnessConversationRead['runtime_status']
-        const error = event.data.error && typeof event.data.error === 'object'
-            ? event.data.error as Record<string, any>
-            : null
+        const error = normalizeFailureRead(event.data.error)
         const runtimeSnapshot = event.data.runtime_snapshot && typeof event.data.runtime_snapshot === 'object'
-            ? event.data.runtime_snapshot as Record<string, any>
+            ? event.data.runtime_snapshot as Record<string, unknown>
             : {}
         overrides.runtime_status = status
         overrides.display_status = status === 'failed'
@@ -1343,13 +1346,16 @@ export function buildConversationMetaOverridesFromEvent(
         overrides.last_error_summary = error?.summary ? String(error.summary) : null
         overrides.recovery_summary = status === 'completed' ? null : existing?.recovery_summary ?? null
         overrides.runtime_state = {
+            conversation_id: String(existing?.id ?? event.data.conversation_id ?? ''),
+            phase: existing?.phase ?? 'discovery',
+            run_status: status,
             ...(existingRuntimeState || {}),
             ...runtimeSnapshot,
             run_state: status,
             runtime_status: status,
             activity: status,
             failure: error,
-        } as any
+        }
     }
 
     return overrides

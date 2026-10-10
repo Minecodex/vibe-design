@@ -1,26 +1,31 @@
 import type { HarnessConversationRead } from '@/api/endpoints/agent'
 
-type HarnessStreamCursorDetail = Pick<
+type HarnessInteractionSnapshot = {
+  runtime_state?: unknown
+  user_interaction?: unknown
+}
+
+type HarnessStreamCursorDetail = Partial<Pick<
   HarnessConversationRead,
-  'phase' | 'runtime_status' | 'runtime_state' | 'user_interaction'
-> & {
+  'phase' | 'runtime_status'
+>> & HarnessInteractionSnapshot & {
   projection?: Record<string, unknown> | null
   event_stream?: Record<string, unknown> | null
   eventStream?: Record<string, unknown> | null
 }
 
-function isPendingInteractionObject(value: unknown): boolean {
+function isPendingInteractionObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
 export function hasHarnessPendingInteraction(
-  detail: Pick<HarnessConversationRead, 'runtime_state' | 'user_interaction'> | null | undefined,
+  detail: HarnessInteractionSnapshot | null | undefined,
 ): boolean {
   return !!resolveHarnessPendingInteraction(detail)
 }
 
 export function resolveHarnessPendingInteraction(
-  detail: Pick<HarnessConversationRead, 'runtime_state' | 'user_interaction'> | null | undefined,
+  detail: HarnessInteractionSnapshot | null | undefined,
 ): Record<string, unknown> | null {
   if (!detail) {
     return null
@@ -31,7 +36,7 @@ export function resolveHarnessPendingInteraction(
   // runtime_state copy is frequently absent. Check both so a waiting-on-user
   // conversation is recognized and we don't needlessly resubscribe its stream.
   if (isPendingInteractionObject(detail.user_interaction)) {
-    return detail.user_interaction as unknown as Record<string, unknown>
+    return detail.user_interaction
   }
 
   const runtimeState = detail.runtime_state
@@ -39,7 +44,7 @@ export function resolveHarnessPendingInteraction(
     return null
   }
 
-  const runtimeInteraction = (runtimeState as unknown as Record<string, unknown>).user_interaction
+  const runtimeInteraction = (runtimeState as Record<string, unknown>).user_interaction
   return isPendingInteractionObject(runtimeInteraction)
     ? runtimeInteraction as Record<string, unknown>
     : null
@@ -89,8 +94,9 @@ export function shouldReconnectTurnStream(
     return true
   }
 
-  const runtimePhase = typeof detail.runtime_state?.phase === 'string'
-    ? detail.runtime_state.phase
+  const runtimeState = isRecord(detail.runtime_state) ? detail.runtime_state : null
+  const runtimePhase = typeof runtimeState?.phase === 'string'
+    ? runtimeState.phase
     : null
   const isWaitingForPlanStart = detail.phase === 'planning_ready' || runtimePhase === 'planning_ready'
   if (detail.runtime_status === 'waiting_input') {

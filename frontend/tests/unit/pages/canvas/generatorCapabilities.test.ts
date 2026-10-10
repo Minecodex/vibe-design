@@ -148,8 +148,7 @@ describe('generatorCapabilities', () => {
     ])
   })
 
-  it('uses the shared primary options dropdown type for both image and video generators', () => {
-    expect(getGeneratorOptionsDropdownType(true)).toBe('res')
-    expect(getGeneratorOptionsDropdownType(false)).toBe('res')
+  it('uses the shared resolution options dropdown type', () => {
+    expect(getGeneratorOptionsDropdownType()).toBe('res')
   })
 })

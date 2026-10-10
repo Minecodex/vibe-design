@@ -89,13 +89,11 @@ export function revokeAttachmentBlobUrls(attachments: Array<AttachmentData | nul
 }
 
 export function stripTransientAttachmentFields(attachment: AttachmentData): AttachmentData {
-  const {
-    _localFile: _localFile,
-    _previewObjectUrl: _previewObjectUrl,
-    _clientAttachmentId: _clientAttachmentId,
-    preview_url: _previewUrl,
-    ...rest
-  } = attachment
+  const rest = { ...attachment }
+  delete rest._localFile
+  delete rest._previewObjectUrl
+  delete rest._clientAttachmentId
+  delete rest.preview_url
   return rest
 }
 

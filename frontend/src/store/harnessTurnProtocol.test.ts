@@ -9,7 +9,7 @@ import {
   isTurnTerminalStatus,
 } from './harnessTurnProtocol'
 
-function event(type: AgentEvent['type'], data: Record<string, any>): AgentEvent {
+function event(type: AgentEvent['type'], data: Record<string, unknown>): AgentEvent {
   return { type, data }
 }
 

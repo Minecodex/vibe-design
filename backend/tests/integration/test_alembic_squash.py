@@ -1,3 +1,4 @@
+import logging
 import re
 from pathlib import Path
 
@@ -94,6 +95,12 @@ def test_revision_graph_keeps_legacy_usage_log_revision_available():
 
 
 def test_alembic_upgrade_heads_bootstraps_schema_and_seed(tmp_path, monkeypatch):
+    application_loggers = [
+        logging.getLogger("app.services.generation_service"),
+        logging.getLogger("app.services.agent_harness.workflow.diagnostics"),
+    ]
+    for logger in application_loggers:
+        monkeypatch.setattr(logger, "disabled", False)
     db_path = tmp_path / "alembic_squash.sqlite3"
     database_url = f"sqlite+aiosqlite:///{db_path.as_posix()}"
 
@@ -104,6 +111,8 @@ def test_alembic_upgrade_heads_bootstraps_schema_and_seed(tmp_path, monkeypatch)
     config.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
 
     command.upgrade(config, "heads")
+
+    assert all(not logger.disabled for logger in application_loggers)
 
     sync_engine = sa.create_engine(f"sqlite:///{db_path.as_posix()}")
     inspector = sa.inspect(sync_engine)

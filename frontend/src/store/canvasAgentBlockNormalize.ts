@@ -1,3 +1,4 @@
+import { wireRecord, wireString } from './harnessWireFields'
 import type { AgentEvent } from '@/api/endpoints/agent'
 import type { ChatMessage, MessageBlock } from './canvasAgentTypes'
 
@@ -28,27 +29,15 @@ export function normalizeHarnessPayload(value: unknown): unknown {
 export function normalizeCanvasUpdateDispatch(
     event: AgentEvent,
     scopedConversationId: number | string | null | undefined,
-): { action: string; item: Record<string, any>; meta?: Record<string, any> } | null {
+): { action: string; item: Record<string, unknown>; meta?: Record<string, unknown> } | null {
     const data = (
-        normalizeHarnessPayload(event.data || {}) as Record<string, any>
+        normalizeHarnessPayload(event.data || {}) as Record<string, unknown>
     ) || {}
-    const result = data.result && typeof data.result === 'object' ? data.result : {}
-    const payload = data.payload && typeof data.payload === 'object' ? data.payload : {}
-    const rawItem = (
-        data.item && typeof data.item === 'object'
-            ? data.item
-            : data.canvas_item && typeof data.canvas_item === 'object'
-                ? data.canvas_item
-                : data.media && typeof data.media === 'object'
-                    ? data.media
-                    : payload.item && typeof payload.item === 'object'
-                        ? payload.item
-                        : payload.canvas_item && typeof payload.canvas_item === 'object'
-                            ? payload.canvas_item
-                            : result.canvas_item && typeof result.canvas_item === 'object'
-                                ? result.canvas_item
-                                : data
-    ) as Record<string, any>
+    const result = wireRecord(data.result) || {}
+    const payload = wireRecord(data.payload) || {}
+    const rawItem = wireRecord(data.item) ?? wireRecord(data.canvas_item)
+        ?? wireRecord(data.media) ?? wireRecord(payload.item) ?? wireRecord(payload.canvas_item)
+        ?? wireRecord(result.canvas_item) ?? data
     const action = String(data.action || data.canvas_action || payload.action || payload.canvas_action || '').trim()
         || (rawItem.url || data.url || data.result_url || payload.url || payload.result_url || result.url || result.result_url ? 'add_generated_media' : '')
 
@@ -92,10 +81,10 @@ export function normalizeCanvasUpdateDispatch(
 
 export function extractCanvasRevisionMetaFromEvent(event: AgentEvent): { canvasRevision: number; canvasItemDeleted: boolean } | null {
     const data = (
-        normalizeHarnessPayload(event.data || {}) as Record<string, any>
+        normalizeHarnessPayload(event.data || {}) as Record<string, unknown>
     ) || {}
     const topLevelPayload = (
-        normalizeHarnessPayload((event as any).payload || {}) as Record<string, any>
+        normalizeHarnessPayload((event).payload || {}) as Record<string, unknown>
     ) || {}
     const sources = [
         ...collectCanvasRevisionSources(data),
@@ -110,7 +99,7 @@ export function extractCanvasRevisionMetaFromEvent(event: AgentEvent): { canvasR
         : null
 }
 
-function buildCanvasRevisionMeta(...sources: Record<string, any>[]): Record<string, any> {
+function buildCanvasRevisionMeta(...sources: Record<string, unknown>[]): { canvasRevision?: number; canvasItemDeleted: boolean } {
     const revision = firstValidCanvasRevision(...sources.flatMap((source) => [
         source.canvas_revision,
         source.canvasRevision,
@@ -126,12 +115,12 @@ function buildCanvasRevisionMeta(...sources: Record<string, any>[]): Record<stri
     }
 }
 
-function collectCanvasRevisionSources(source: unknown, seen = new Set<unknown>()): Record<string, any>[] {
+function collectCanvasRevisionSources(source: unknown, seen = new Set<unknown>()): Record<string, unknown>[] {
     if (!source || typeof source !== 'object' || Array.isArray(source) || seen.has(source)) {
         return []
     }
     seen.add(source)
-    const record = source as Record<string, any>
+    const record = source as Record<string, unknown>
     const nestedKeys = [
         'payload',
         'result',
@@ -161,21 +150,21 @@ function firstValidCanvasRevision(...values: unknown[]): number | null {
     return null
 }
 
-export function normalizeBlock(raw: Record<string, any>): MessageBlock {
-    const payload = (normalizeHarnessPayload(raw.payload || {}) as Record<string, any>) || {}
+export function normalizeBlock(raw: Record<string, unknown>): MessageBlock {
+    const payload = (normalizeHarnessPayload(raw.payload || {}) as Record<string, unknown>) || {}
     return {
         id: String(raw.id),
-        kind: raw.kind,
+        kind: raw.kind === 'tool' || raw.kind === 'interaction' || raw.kind === 'content' ? raw.kind : 'text',
         order: Number(raw.order ?? 0),
         status: String(raw.status ?? 'completed'),
         visible: raw.visible !== false,
         uiKind: String(raw.uiKind ?? raw.ui_kind ?? raw.kind ?? 'text'),
         payload,
-        renderKey: raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key,
-        messageId: raw.message_id ?? raw.messageId,
-        taskId: raw.taskId ?? raw.task_id ?? payload.taskId ?? payload.task_id,
-        label: raw.label ?? payload.label ?? payload.result?.label,
-        summary: raw.summary ?? payload.summary,
+        renderKey: wireString(raw.renderKey ?? raw.render_key ?? payload.renderKey ?? payload.render_key),
+        messageId: wireString(raw.message_id ?? raw.messageId),
+        taskId: wireString(raw.taskId ?? raw.task_id ?? payload.taskId ?? payload.task_id),
+        label: wireString(raw.label ?? payload.label ?? wireRecord(payload.result)?.label),
+        summary: wireString(raw.summary ?? payload.summary),
         expanded: typeof raw.expanded === 'boolean' ? raw.expanded : undefined,
         children: normalizeBlocks(raw.children),
         revision: normalizePositiveNumber(raw.revision ?? payload.revision),
@@ -196,7 +185,7 @@ function normalizePositiveNumber(value: unknown): number | undefined {
 export function normalizeBlocks(rawBlocks: unknown): MessageBlock[] {
     if (!Array.isArray(rawBlocks)) return []
     return rawBlocks
-        .filter((block): block is Record<string, any> => !!block && typeof block === 'object')
+        .filter((block): block is Record<string, unknown> => !!block && typeof block === 'object')
         .map(normalizeBlock)
         .sort((a, b) => a.order - b.order)
 }
@@ -249,7 +238,7 @@ export function appendBlockDeltaWithPlaceholder(
     ]
 }
 
-export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any>): MessageBlock[] {
+export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, unknown>): MessageBlock[] {
     const normalized = normalizeBlock(raw)
     const existing = blocks.find((block) => block.id === normalized.id)
     if (!existing) {
@@ -273,8 +262,8 @@ export function upsertBlockStart(blocks: MessageBlock[], raw: Record<string, any
         .sort((a, b) => a.order - b.order)
 }
 
-export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, any>): MessageBlock[] {
-    const merge = (target: Record<string, any>, nextPatch: Record<string, any>): Record<string, any> => {
+export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: Record<string, unknown>): MessageBlock[] {
+    const merge = (target: Record<string, unknown>, nextPatch: Record<string, unknown>): Record<string, unknown> => {
         const result = { ...target }
         for (const [key, value] of Object.entries(nextPatch)) {
             if (key === 'children' && Array.isArray(value)) {
@@ -289,7 +278,7 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
                 typeof result[key] === 'object' &&
                 !Array.isArray(result[key])
             ) {
-                result[key] = merge(result[key] as Record<string, any>, value as Record<string, any>)
+                result[key] = merge(result[key] as Record<string, unknown>, value as Record<string, unknown>)
             } else {
                 result[key] = value
             }
@@ -299,7 +288,7 @@ export function mergeBlockPatch(blocks: MessageBlock[], blockId: string, patch: 
 
     return blocks.map((block) => {
         if (block.id !== blockId) return block
-        return merge(block as unknown as Record<string, any>, patch) as unknown as MessageBlock
+        return merge(block as unknown as Record<string, unknown>, patch) as unknown as MessageBlock
     })
 }
 
@@ -319,11 +308,11 @@ export function getBlockIdentityKeys(block: MessageBlock): string[] {
     const keys = new Set<string>()
     const taskId = block.taskId
         ?? block.payload.task_id
-        ?? block.payload.result?.task_id
+        ?? wireRecord(block.payload.result)?.task_id
     const callId = block.payload.call_id
-        ?? block.payload.result?.call_id
+        ?? wireRecord(block.payload.result)?.call_id
     const artifactRef = block.payload.artifact_ref
-        ?? block.payload.result?.artifact_ref
+        ?? wireRecord(block.payload.result)?.artifact_ref
     const renderKey = block.renderKey
         ?? block.payload.render_key
         ?? block.payload.renderKey

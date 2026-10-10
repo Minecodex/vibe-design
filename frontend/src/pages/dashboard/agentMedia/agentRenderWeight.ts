@@ -10,7 +10,7 @@ interface WeightBlockLike {
   kind?: unknown
   uiKind?: unknown
   status?: unknown
-  payload?: Record<string, any>
+  payload?: Record<string, unknown>
   children?: Array<WeightBlockLike>
 }
 

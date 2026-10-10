@@ -59,6 +59,7 @@ export interface ModelUpdate {
 export interface ModelOption {
     model_name: string
     label: string
+    description?: string
     config?: {
         pricing_cents?: Record<string, number>
         pricing_mode?: 'per_resolution' | 'flat' | 'per_second' | 'per_token'
@@ -79,6 +80,9 @@ export interface ModelOption {
 
 export interface ProviderRegistryEntry {
     models: Record<string, ModelOption[]>
+    text2image?: ModelOption[]
+    text2video?: ModelOption[]
+    multimodal?: ModelOption[]
     credential_types: string[]
     requires_endpoint: boolean
     is_builtin?: boolean

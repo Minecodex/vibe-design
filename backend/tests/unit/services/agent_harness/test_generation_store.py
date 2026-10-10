@@ -552,7 +552,9 @@ async def test_artifact_dependency_timeout_uses_image_task_timeout_setting(tmp_p
 
     monkeypatch.setattr(generation_store, "read_generation_task", lambda ctx, task_id: _fake_task_reader(tasks, ctx, task_id))
     monkeypatch.setattr(generation_store.settings, "TASK_TIMEOUT_IMAGE_SECONDS", 1)
-    monkeypatch.setattr(generation_store.time, "monotonic", lambda: next(monotonic_values))
+    monkeypatch.setattr(generation_store, "time", SimpleNamespace(
+        monotonic=lambda: next(monotonic_values), time=generation_store.time.time,
+    ))
     monkeypatch.setattr(generation_store.asyncio, "sleep", _unexpected_sleep)
 
     resolved, error = await generation_store.resolve_artifact_dependencies(

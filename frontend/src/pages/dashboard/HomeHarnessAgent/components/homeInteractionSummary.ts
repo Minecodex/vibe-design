@@ -105,7 +105,7 @@ function formatFieldValue(
 }
 
 function buildQuickBriefSummaryFromAnswers(
-  answers: Record<string, any>,
+  answers: Record<string, unknown>,
   schema?: InteractionSchemaLike,
   language?: string,
 ): string {
@@ -123,7 +123,7 @@ function buildQuickBriefSummaryFromAnswers(
 }
 
 function buildQuestionSummaryFromAnswers(
-  answers: Record<string, any>,
+  answers: Record<string, unknown>,
   schema?: InteractionSchemaLike,
   language?: string,
 ): string {
@@ -142,7 +142,7 @@ function buildQuestionSummaryFromAnswers(
 export function buildInteractionDisplayLabel(
   kind: string | undefined,
   schema: InteractionSchemaLike,
-  answers: Record<string, any>,
+  answers: Record<string, unknown>,
   language?: string,
 ): string {
   if (kind === 'ask_user') {
@@ -183,7 +183,7 @@ export function summarizeInteractionJsonContent(content: string, language?: stri
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return null
     }
-    const summary = buildQuickBriefSummaryFromAnswers(parsed as Record<string, any>, null, language)
+    const summary = buildQuickBriefSummaryFromAnswers(parsed as Record<string, unknown>, null, language)
     return summary || null
   } catch {
     return null

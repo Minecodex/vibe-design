@@ -56,7 +56,7 @@ function HomeToolCallCardImpl({
   const action = getHomeToolActionLabel(toolName, t)
   const summary = summarizeToolArgs(toolName, block.payload?.args ?? block.payload?.input)
   const elapsed = formatToolElapsed(block)
-  const output = extractToolResultStreamText((block.payload || {}) as Record<string, any>)
+  const output = extractToolResultStreamText((block.payload || {}) as Record<string, unknown>)
   const canExpand = Boolean(output && status !== 'running')
 
   const ToggleIcon = expanded ? ChevronDown : ChevronRight

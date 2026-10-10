@@ -10,12 +10,12 @@ import { Button } from '@/components/ui/button'
 interface InteractionCardProps {
     interaction: PendingInteraction
     fallbackContent?: string | null
-    onRespond: (requestId: string, answer: string, displayLabel?: string, answers?: Record<string, any>) => void
+    onRespond: (requestId: string, answer: string, displayLabel?: string, answers?: Record<string, unknown>) => void
     disabled?: boolean
 }
 
 type InteractionDisplayMode = 'buttons' | 'text_input' | 'cards' | 'color_picker'
-type CanvasInteractionField = InteractionField & { default_value?: any; max_selections?: number | null; options?: InteractionOption[] }
+type CanvasInteractionField = InteractionField & { default_value?: unknown; max_selections?: number | null; options?: InteractionOption[] }
 type CanvasInteractionSchema = NonNullable<PendingInteraction['schema']> & {
     fields: CanvasInteractionField[]
 }
@@ -27,10 +27,11 @@ type CanvasQuestionSchema = NonNullable<PendingInteraction['schema']> & {
 const OTHER_SELECTION_VALUE = '__ask_user_other__'
 
 function hasSyntheticOtherOption(field: CanvasInteractionField): boolean {
-    return (field.options || []).some((option) => (
-        String(option.value || '').trim() === OTHER_SELECTION_VALUE
-        || Boolean((option as Record<string, any>).is_custom_other ?? (option as Record<string, any>).isCustomOther)
-    ))
+    return (field.options || []).some((option) => {
+        const compatibleOption = option as InteractionOption & { isCustomOther?: boolean | null }
+        return String(option.value || '').trim() === OTHER_SELECTION_VALUE
+            || Boolean(compatibleOption.is_custom_other ?? compatibleOption.isCustomOther)
+    })
 }
 
 function supportsCustomOther(field: CanvasInteractionField): boolean {
@@ -73,11 +74,11 @@ function resolveDisplayMode(
     return options.length > 0 ? 'buttons' : 'text_input'
 }
 
-function getDefaultFieldValue(field: CanvasInteractionField): any {
+function getDefaultFieldValue(field: CanvasInteractionField): unknown {
     return field.default_value !== undefined ? field.default_value : field.type === 'checkbox' ? [] : ''
 }
 
-function getDefaultQuestionValue(question: CanvasInteractionQuestion): any { return question.type === 'multiple' ? [] : '' }
+function getDefaultQuestionValue(question: CanvasInteractionQuestion): unknown { return question.type === 'multiple' ? [] : '' }
 
 function isQuestionRequired(question: CanvasInteractionQuestion): boolean {
     return question.required !== false
@@ -85,9 +86,9 @@ function isQuestionRequired(question: CanvasInteractionQuestion): boolean {
 
 function buildInitialQuestionState(
     schema: CanvasQuestionSchema,
-    answers: Record<string, any> | null | undefined,
-): { formAnswers: Record<string, any>, otherAnswers: Record<string, string> } {
-    const formAnswers: Record<string, any> = {}
+    answers: Record<string, unknown> | null | undefined,
+): { formAnswers: Record<string, unknown>, otherAnswers: Record<string, string> } {
+    const formAnswers: Record<string, unknown> = {}
     const otherAnswers: Record<string, string> = {}
 
     for (const question of schema.questions) {
@@ -97,7 +98,7 @@ function buildInitialQuestionState(
             continue
         }
         if ((question.type === 'single' || question.type === 'input') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-            const source = answer as Record<string, any>
+            const source = answer as Record<string, unknown>
             if (String(source.type || '').trim() === 'other') {
                 formAnswers[question.id] = OTHER_SELECTION_VALUE
                 otherAnswers[question.id] = String(source.value || '').trim()
@@ -110,7 +111,7 @@ function buildInitialQuestionState(
             const nextValues: string[] = []
             answer.forEach((entry) => {
                 if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-                    const source = entry as Record<string, any>
+                    const source = entry as Record<string, unknown>
                     if (String(source.type || '').trim() === 'other') {
                         nextValues.push(OTHER_SELECTION_VALUE)
                         otherAnswers[question.id] = String(source.value || '').trim()
@@ -138,9 +139,9 @@ function buildInitialQuestionState(
 
 function buildInitialState(
     schema: CanvasInteractionSchema,
-    answers: Record<string, any> | null | undefined,
-): { formAnswers: Record<string, any>, otherAnswers: Record<string, string> } {
-    const formAnswers: Record<string, any> = {}
+    answers: Record<string, unknown> | null | undefined,
+): { formAnswers: Record<string, unknown>, otherAnswers: Record<string, string> } {
+    const formAnswers: Record<string, unknown> = {}
     const otherAnswers: Record<string, string> = {}
 
     for (const field of schema.fields) {
@@ -151,7 +152,7 @@ function buildInitialState(
         }
 
         if ((field.type === 'radio' || field.type === 'cards') && answer && typeof answer === 'object' && !Array.isArray(answer)) {
-            const source = answer as Record<string, any>
+            const source = answer as Record<string, unknown>
             if (String(source.type || '').trim() === 'other') {
                 formAnswers[field.id] = OTHER_SELECTION_VALUE
                 otherAnswers[field.id] = String(source.value || '').trim()
@@ -165,7 +166,7 @@ function buildInitialState(
             const nextValues: string[] = []
             answer.forEach((entry) => {
                 if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-                    const source = entry as Record<string, any>
+                    const source = entry as Record<string, unknown>
                     if (String(source.type || '').trim() === 'other') {
                         nextValues.push(OTHER_SELECTION_VALUE)
                         otherAnswers[field.id] = String(source.value || '').trim()
@@ -189,7 +190,7 @@ function buildInitialState(
         formAnswers[field.id] = typeof answer === 'string'
             ? answer
             : (answer && typeof answer === 'object' && !Array.isArray(answer))
-                ? String((answer as Record<string, any>).value || '').trim()
+                ? String((answer as Record<string, unknown>).value || '').trim()
                 : answer
     }
 
@@ -202,14 +203,14 @@ function getOptionLabel(field: CanvasInteractionField, value: string): string {
 
 function formatAnswerForDisplay(field: CanvasInteractionField, value: unknown): string {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-        const source = value as Record<string, any>
+        const source = value as Record<string, unknown>
         return String(source.label || source.value || '').trim()
     }
     if (Array.isArray(value)) {
         return value
             .map((entry) => {
                 if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-                    const source = entry as Record<string, any>
+                    const source = entry as Record<string, unknown>
                     return String(source.label || source.value || '').trim()
                 }
                 return getOptionLabel(field, String(entry || '').trim())
@@ -227,7 +228,7 @@ function formatAnswerForDisplay(field: CanvasInteractionField, value: unknown): 
     return text
 }
 
-function buildDisplayLabel(schema: CanvasInteractionSchema, answers: Record<string, any>): string {
+function buildDisplayLabel(schema: CanvasInteractionSchema, answers: Record<string, unknown>): string {
     const values = schema.fields
         .map((field) => formatAnswerForDisplay(field, answers[field.id]))
         .filter(Boolean)
@@ -236,11 +237,11 @@ function buildDisplayLabel(schema: CanvasInteractionSchema, answers: Record<stri
 
 function buildSubmitAnswers(
     schema: CanvasInteractionSchema,
-    formAnswers: Record<string, any>,
+    formAnswers: Record<string, unknown>,
     otherAnswers: Record<string, string>,
     t: (key: string, fallback?: string) => string,
-): Record<string, any> {
-    const submitAnswers: Record<string, any> = {}
+): Record<string, unknown> {
+    const submitAnswers: Record<string, unknown> = {}
 
     for (const field of schema.fields) {
         const value = formAnswers[field.id]
@@ -296,14 +297,14 @@ function getQuestionOptionLabel(question: CanvasInteractionQuestion, value: stri
 
 function formatQuestionAnswerForDisplay(question: CanvasInteractionQuestion, value: unknown): string {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-        const source = value as Record<string, any>
+        const source = value as Record<string, unknown>
         return String(source.label || source.value || '').trim()
     }
     if (Array.isArray(value)) {
         return value
             .map((entry) => {
                 if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
-                    const source = entry as Record<string, any>
+                    const source = entry as Record<string, unknown>
                     return String(source.label || source.value || '').trim()
                 }
                 return getQuestionOptionLabel(question, String(entry || '').trim())
@@ -315,18 +316,18 @@ function formatQuestionAnswerForDisplay(question: CanvasInteractionQuestion, val
     return text ? getQuestionOptionLabel(question, text) : ''
 }
 
-function buildQuestionDisplayLabel(schema: CanvasQuestionSchema, answers: Record<string, any>): string {
+function buildQuestionDisplayLabel(schema: CanvasQuestionSchema, answers: Record<string, unknown>): string {
     const values = schema.questions.map((question) => formatQuestionAnswerForDisplay(question, answers[question.id])).filter(Boolean)
     return values.join(' / ') || schema.title
 }
 
 function buildQuestionSubmitAnswers(
     schema: CanvasQuestionSchema,
-    formAnswers: Record<string, any>,
+    formAnswers: Record<string, unknown>,
     otherAnswers: Record<string, string>,
     t: (key: string, fallback?: string) => string,
-): Record<string, any> {
-    const submitAnswers: Record<string, any> = {}
+): Record<string, unknown> {
+    const submitAnswers: Record<string, unknown> = {}
 
     for (const question of schema.questions) {
         const value = formAnswers[question.id]
@@ -385,10 +386,10 @@ function resolveLegacySubmittedSelection(interaction: PendingInteraction): { val
     }
 
     const fieldId = String(primaryField.id || 'response').trim() || 'response'
-    const answer = (interaction.answers as Record<string, any>)[fieldId]
+    const answer = (interaction.answers as Record<string, unknown>)[fieldId]
 
     if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
-        const source = answer as Record<string, any>
+        const source = answer as Record<string, unknown>
         const value = String(source.value || '').trim()
         return {
             value: value || null,
@@ -437,7 +438,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
         },
         [interaction.answers, questionSchema, schema],
     )
-    const [formAnswers, setFormAnswers] = useState<Record<string, any>>(() => initialState.formAnswers)
+    const [formAnswers, setFormAnswers] = useState<Record<string, unknown>>(() => initialState.formAnswers)
     const [otherAnswers, setOtherAnswers] = useState<Record<string, string>>(() => initialState.otherAnswers)
     const initialStateKey = useMemo(() => JSON.stringify(initialState), [initialState])
     const lastSyncedStateKeyRef = useRef(`${String(interaction.request_id || '').trim()}:${initialStateKey}`)
@@ -627,9 +628,9 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{
-                                    table: ({ children }) => <div style={{ overflowX: 'auto', margin: '8px 0' }}><table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--app-border)', fontSize: 13 }}>{children}</table></div>,
-                                    th: ({ children }) => <th style={{ padding: '8px 10px', border: '1px solid var(--app-border)', textAlign: 'left', fontWeight: 600 }}>{children}</th>,
-                                    td: ({ children }) => <td style={{ padding: '8px 10px', border: '1px solid var(--app-border)' }}>{children}</td>,
+                                    table: ({ children }) => <div style={{ overflowX: 'auto', margin: '8px 0' }}><table style={{ width: '100%', borderCollapse: 'collapse', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)', fontSize: 13 }}>{children}</table></div>,
+                                    th: ({ children }) => <th style={{ padding: '8px 10px', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)', textAlign: 'left', fontWeight: 600 }}>{children}</th>,
+                                    td: ({ children }) => <td style={{ padding: '8px 10px', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)' }}>{children}</td>,
                                 }}
                             >
                                 {briefing}
@@ -908,7 +909,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                             <table style={{
                                                 width: '100%',
                                                 borderCollapse: 'collapse',
-                                                border: '1px solid var(--app-border)',
+                                                borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                                 fontSize: 13,
                                             }}>{children}</table>
                                         </div>
@@ -916,7 +917,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     th: ({ children }) => (
                                         <th style={{
                                             padding: '8px 10px',
-                                            border: '1px solid var(--app-border)',
+                                            borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                             textAlign: 'left',
                                             fontWeight: 600,
                                         }}>{children}</th>
@@ -924,7 +925,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     td: ({ children }) => (
                                         <td style={{
                                             padding: '8px 10px',
-                                            border: '1px solid var(--app-border)',
+                                            borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                         }}>{children}</td>
                                     ),
                                 }}
@@ -1267,7 +1268,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                                     <table style={{
                                         width: '100%',
                                         borderCollapse: 'collapse',
-                                        border: '1px solid var(--app-border)',
+                                        borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                         fontSize: 13,
                                     }}>{children}</table>
                                 </div>
@@ -1275,7 +1276,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             th: ({ children }) => (
                                 <th style={{
                                     padding: '6px 8px',
-                                    border: '1px solid var(--app-border)',
+                                    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                     backgroundColor: isDark ? 'var(--app-surface-muted)' : 'var(--app-surface-muted)',
                                     textAlign: 'left',
                                     fontWeight: 600,
@@ -1284,7 +1285,7 @@ export function InteractionCard({ interaction, fallbackContent, onRespond, disab
                             td: ({ children }) => (
                                 <td style={{
                                     padding: '6px 8px',
-                                    border: '1px solid var(--app-border)',
+                                    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--app-border)',
                                 }}>{children}</td>
                             ),
                         }}

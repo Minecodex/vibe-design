@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment, react-hooks/exhaustive-deps */
 // @ts-nocheck
 import { useCallback, useEffect, useRef } from 'react'
+import type { CanvasItem } from '@/api/endpoints/projects'
 import { toast } from 'sonner'
 
 import { agentApi } from '@/api/endpoints/agent'
@@ -49,46 +50,7 @@ import {
 } from '../generationTaskBinding'
 
 export function useCanvasControllerGenerators(args: any) {
-  const {
-    t,
-    id,
-    user,
-    canvasItems,
-    offsetRef,
-    zoomRef,
-    setOffset,
-    setSelectedItems,
-    updateCanvasItems,
-    saveCanvasItems,
-    updateItem,
-    getItemDims,
-    getItemReferenceImages,
-    getResolvedVideoCapability,
-    getResolvedVideoDurations,
-    getResolvedImageCapability,
-    withReferenceImages,
-    availableImageModels,
-    availableVideoModels,
-    imageModel,
-    imageProvider,
-    videoModel,
-    videoProvider,
-    imageRes,
-    imageRatio,
-    videoAspect,
-    videoDuration,
-    videoQuality,
-    setImageAnchoredImageDraft,
-    imageAnchoredImageDraft,
-    setImageAnchoredVideoDraft,
-    imageAnchoredVideoDraft,
-    spatialAngleSession,
-    setSpatialAngleSession,
-    setActiveDropdown,
-    selectAndCenterCanvasItem,
-    loadIntrinsicImageSize,
-    notifiedTasksRef,
-  } = args
+  const { t, id, user, canvasItems, offsetRef, zoomRef, setSelectedItems, updateCanvasItems, saveCanvasItems, updateItem, getItemDims, getItemReferenceImages, getResolvedVideoCapability, getResolvedVideoDurations, getResolvedImageCapability, withReferenceImages, availableImageModels, availableVideoModels, imageModel, imageProvider, videoModel, videoProvider, imageRes, imageRatio, videoAspect, videoDuration, videoQuality, setImageAnchoredImageDraft, imageAnchoredImageDraft, setImageAnchoredVideoDraft, imageAnchoredVideoDraft, spatialAngleSession, setSpatialAngleSession, setActiveDropdown, selectAndCenterCanvasItem, loadIntrinsicImageSize, notifiedTasksRef } = args
 
   // Use refs so the polling closure always sees the latest values
   // without triggering useEffect re-runs (same pattern as MessageList.tsx)
@@ -405,7 +367,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
     const dims = getItemDims(configuredItem)
     const pos = findEmptyPosition(viewportCenterX, viewportCenterY, dims.width, dims.height, canvasItems)
-    const newItem: any = {
+    const newItem = {
       id: Date.now().toString() + Math.random().toString().slice(2, 6),
       type,
       url: '',
@@ -670,7 +632,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
   }, [])
 
-  const imageAnchoredImageDraftItem = buildImageAnchoredImageDraftItem(imageAnchoredImageDraft)
+  const imageAnchoredImageDraftItem: CanvasItem | null = buildImageAnchoredImageDraftItem(imageAnchoredImageDraft)
   const imageAnchoredImageSourceItem = imageAnchoredImageDraft
     ? canvasItems.find((item: any) => item.id === imageAnchoredImageDraft.sourceImageItemId) || null
     : null
@@ -752,7 +714,7 @@ export function useCanvasControllerGenerators(args: any) {
     })
 
     const taskItemId = Date.now().toString() + Math.random().toString().slice(2, 6)
-    const taskItem: any = {
+    const taskItem = {
       id: taskItemId,
       type: 'image_generator',
       generator_origin: 'image_action',
@@ -866,7 +828,7 @@ export function useCanvasControllerGenerators(args: any) {
         error_message: null,
         failure_kind: undefined,
       })
-      const payload: any = {
+      const payload = {
         prompt,
         model_name: item.model_name || videoModel,
         provider_code: item.provider_code || videoProvider,
@@ -985,7 +947,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
   }, [])
 
-  const imageAnchoredVideoDraftItem = buildImageAnchoredVideoDraftItem(imageAnchoredVideoDraft)
+  const imageAnchoredVideoDraftItem: CanvasItem | null = buildImageAnchoredVideoDraftItem(imageAnchoredVideoDraft)
   const imageAnchoredVideoSourceItem = imageAnchoredVideoDraft
     ? canvasItems.find((item: any) => item.id === imageAnchoredVideoDraft.sourceImageItemId) || null
     : null
@@ -1112,7 +1074,7 @@ export function useCanvasControllerGenerators(args: any) {
 
     try {
       const [uploadUrl] = await uploadImageFiles([file])
-      const updates: any = { first_frame_image: uploadUrl }
+      const updates = { first_frame_image: uploadUrl }
       if (capability.imageModesConflict) {
         updates.reference_images = []
       }
@@ -1162,7 +1124,7 @@ export function useCanvasControllerGenerators(args: any) {
 
     try {
       const [uploadUrl] = await uploadImageFiles([file])
-      const updates: any = { tail_frame_image: uploadUrl }
+      const updates = { tail_frame_image: uploadUrl }
       if (capability.imageModesConflict) {
         updates.reference_images = []
       }
@@ -1223,7 +1185,7 @@ export function useCanvasControllerGenerators(args: any) {
     })
 
     const taskItemId = Date.now().toString() + Math.random().toString().slice(2, 6)
-    const taskItem: any = {
+    const taskItem = {
       id: taskItemId,
       type: 'video_generator',
       generator_origin: 'image_action',
@@ -1259,7 +1221,7 @@ export function useCanvasControllerGenerators(args: any) {
     cancelImageAnchoredVideoDraft(true)
 
     try {
-      const payload: any = {
+      const payload = {
         prompt,
         model_name: taskItem.model_name,
         provider_code: taskItem.provider_code,
@@ -1381,7 +1343,7 @@ export function useCanvasControllerGenerators(args: any) {
     try {
       const [uploadUrl] = await uploadImageFiles([file])
       const capability = getResolvedVideoCapability(item)
-      const updates: any = { first_frame_image: uploadUrl }
+      const updates = { first_frame_image: uploadUrl }
       if (capability.imageModesConflict && getItemReferenceImages(item).length > 0) {
         Object.assign(updates, withReferenceImages([]))
       }
@@ -1412,7 +1374,7 @@ export function useCanvasControllerGenerators(args: any) {
     }
     try {
       const [uploadUrl] = await uploadImageFiles([file])
-      const updates: any = { tail_frame_image: uploadUrl }
+      const updates = { tail_frame_image: uploadUrl }
       if (capability.imageModesConflict && getItemReferenceImages(item).length > 0) {
         Object.assign(updates, withReferenceImages([]))
       }
@@ -1570,7 +1532,7 @@ export function useCanvasControllerGenerators(args: any) {
     })
 
     const taskItemId = Date.now().toString() + Math.random().toString().slice(2, 6)
-    const taskItem: any = {
+    const taskItem = {
       id: taskItemId,
       type: 'image_generator',
       generator_origin: 'image_action',
@@ -1693,7 +1655,7 @@ export function useCanvasControllerGenerators(args: any) {
           ? (item.duration || videoDuration)
           : (allowedDurations[0] || item.duration || videoDuration)
         const resolvedResolution = item.resolution || videoQuality
-        const payload: any = {
+        const payload = {
           prompt: item.prompt || '',
           model_name: item.model_name || videoModel,
           provider_code: item.provider_code || videoProvider,

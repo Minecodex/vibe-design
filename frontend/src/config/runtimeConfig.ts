@@ -32,7 +32,7 @@ function getRuntimeConfigSource(): Partial<AppRuntimeConfig> | undefined {
     return envConfig
   }
 
-  return window.__APP_CONFIG__ || envConfig
+  return { ...envConfig, ...window.__APP_CONFIG__ }
 }
 
 export function getAppConfig(): AppRuntimeConfig {

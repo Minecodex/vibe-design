@@ -46,7 +46,7 @@ export function PlanCard({ plan, onApprove, onReject }: PlanCardProps) {
 
             {/* Steps */}
             <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {plan.steps.map((step: any) => (
+                {plan.steps.map((step) => (
                     <div key={step.step_number || step.id} style={{
                         display: 'flex',
                         alignItems: 'center',

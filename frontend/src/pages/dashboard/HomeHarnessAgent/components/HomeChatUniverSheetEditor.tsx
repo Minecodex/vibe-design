@@ -32,7 +32,7 @@ function ensureResizeObserver() {
     disconnect() {}
   }
 
-  ;(window as typeof window & { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
+  (window as typeof window & { ResizeObserver: typeof ResizeObserver }).ResizeObserver =
     NoopResizeObserver as unknown as typeof ResizeObserver
 }
 
@@ -57,17 +57,15 @@ export function HomeChatUniverSheetEditor({ snapshot, isDark = false }: HomeChat
             header: false,
             toolbar: false,
             formulaBar: false,
-            footer: true,
+            footer: {},
             contextMenu: false,
-            sheets: {
-              disableEdit: true,
-            },
-          } as any),
+          }),
         ],
       })
 
       const workbookPayload = toUniverWorkbookData(snapshot)
-      univerAPI.createWorkbook((workbookPayload || {}) as any)
+      const workbook = univerAPI.createWorkbook(workbookPayload || {})
+      void workbook.getWorkbookPermission().setReadOnly()
       const resizeFrame = window.requestAnimationFrame(() => {
         window.dispatchEvent(new Event('resize'))
       })
