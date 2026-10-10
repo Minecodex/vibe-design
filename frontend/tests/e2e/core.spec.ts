@@ -30,7 +30,7 @@ for (const theme of ['light', 'dark']) {
     // real API response must also identify the newly persisted project.
     expect(loaded.ok()).toBeTruthy()
     const record = await loaded.json()
-    expect(String(record.data.id)).toBe(projectId)
+    expect(String(record.id)).toBe(projectId)
     await page.goto('/dashboard/projects')
     await expect(page.getByPlaceholder('搜索项目...')).toBeVisible()
   })
