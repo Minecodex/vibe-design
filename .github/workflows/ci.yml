@@ -67,11 +67,18 @@ jobs:
   business:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=12
     env:
       APP_ENV: development
       DATABASE_URL: sqlite+aiosqlite:///./ci-business.db
       HARNESS_STORAGE_DATABASE_URL: sqlite:///./ci-business-harness.db
-      REDIS_REQUIRED: 'false'
+      REDIS_REQUIRED: 'true'
+      REDIS_URL: redis://127.0.0.1:6379/0
       SECRET_KEY: ci-only-public-test-secret-not-for-deployment
       TZ: Asia/Shanghai
       PYTHONPATH: .
