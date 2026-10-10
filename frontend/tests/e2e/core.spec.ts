@@ -16,7 +16,7 @@ for (const theme of ['light', 'dark']) {
     await page.locator('button[type="submit"]').click()
     expect((await loginResponse).ok()).toBeTruthy()
     await expect(page).toHaveURL(/\/dashboard\/projects/)
-    await page.getByRole('button', { name: '新建项目', exact: true }).click()
+    await page.getByText('新建项目', { exact: true }).click()
     await expect(page).toHaveURL(/\/canvas\/\d+/)
     const projectId = page.url().match(/\/canvas\/(\d+)/)?.[1]
     expect(projectId).toBeTruthy()
