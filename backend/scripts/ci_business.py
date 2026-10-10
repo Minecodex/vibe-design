@@ -22,9 +22,9 @@ async def seed(create_schema: bool) -> None:
     if create_schema:
         await create_tables()
     async with AsyncSessionLocal() as session:
-        found = await session.scalar(select(User).where(User.email == "ci@example.test"))
+        found = await session.scalar(select(User).where(User.email == "ci@example.com"))
         if found is None:
-            session.add(User(email="ci@example.test", username="ciadmin", role="admin", is_active=True,
+            session.add(User(email="ci@example.com", username="ciadmin", role="admin", is_active=True,
                              hashed_password=get_password_hash("CI-public-fixture-123!")))
             await session.commit()
 
