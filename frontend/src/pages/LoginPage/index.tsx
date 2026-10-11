@@ -109,7 +109,6 @@ export function LoginPage() {
     try {
       if (!account.trim() || !password.trim()) return
       await login({ account, password } as LoginRequest)
-      navigate('/dashboard/projects', { replace: true })
     } catch {
       // error handled by store
     }
