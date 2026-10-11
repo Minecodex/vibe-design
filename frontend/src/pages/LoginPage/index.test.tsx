@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LoginPage } from './index'
@@ -7,6 +7,7 @@ const navigateMock = vi.fn()
 const changeLanguageMock = vi.fn()
 const loginMock = vi.fn()
 const clearErrorMock = vi.fn()
+const authState = { isAuthenticated: false }
 
 vi.mock('react-i18next', () => ({
   initReactI18next: { type: '3rdParty', init: vi.fn() },
@@ -40,7 +41,7 @@ vi.mock('@/store/authStore', () => {
     isLoading: false,
     error: null,
     clearError: clearErrorMock,
-    isAuthenticated: false,
+    isAuthenticated: authState.isAuthenticated,
     licenseExpired: false,
   })
 
@@ -57,6 +58,7 @@ describe('LoginPage', () => {
     changeLanguageMock.mockReset()
     loginMock.mockReset()
     clearErrorMock.mockReset()
+    authState.isAuthenticated = false
   })
 
   it('renders a muted looping background video on the login page', () => {
@@ -72,5 +74,25 @@ describe('LoginPage', () => {
       'src',
       expect.stringContaining('60f53aed34c133842c4d9bb4d05f0b31.mp4')
     )
+  })
+
+  it('does not redirect again after a pending login finishes following navigation', async () => {
+    let finishLogin!: () => void
+    loginMock.mockReturnValue(new Promise<void>(resolve => { finishLogin = resolve }))
+    const view = render(<LoginPage />)
+    const inputs = view.container.querySelectorAll('input')
+    fireEvent.change(inputs[0], { target: { value: 'ciadmin' } })
+    fireEvent.change(inputs[1], { target: { value: 'CI-public-fixture-123!' } })
+    fireEvent.submit(view.container.querySelector('form')!)
+    expect(loginMock).toHaveBeenCalledTimes(1)
+
+    authState.isAuthenticated = true
+    view.rerender(<LoginPage />)
+    expect(navigateMock).toHaveBeenCalledTimes(1)
+    expect(navigateMock).toHaveBeenCalledWith('/dashboard/projects', { replace: true })
+    view.unmount()
+    // A user may enter a project while deployment metadata is still loading.
+    await act(async () => { finishLogin() })
+    expect(navigateMock).toHaveBeenCalledTimes(1)
   })
 })

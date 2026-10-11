@@ -1,8 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const profile = process.env.VIBE_E2E_PROFILE ?? 'pr'
+if (!['pr', 'release'].includes(profile)) throw new Error(`Unknown browser E2E profile: ${profile}`)
+
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: 'core.spec.ts',
+  testMatch: profile === 'release' ? ['core.spec.ts', 'release.spec.ts'] : 'core.spec.ts',
   forbidOnly: true,
   retries: 0,
   workers: 1,

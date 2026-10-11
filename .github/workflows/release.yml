@@ -2,15 +2,11 @@ name: Release acceptance
 on:
   push:
     tags: ['v*']
-  pull_request:
-    branches: [main]
-    types: [labeled, synchronize, reopened]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   source-ci:
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:release')
     uses: ./.github/workflows/ci.yml
   native-profile:
     needs: source-ci
@@ -47,6 +43,7 @@ jobs:
       REDIS_REQUIRED: 'true'
       SECRET_KEY: ci-only-public-test-secret-not-for-deployment
       VIBE_CI_PRODUCTION: 'true'
+      VIBE_E2E_PROFILE: release
       APP_API_BASE_URL: /api/v1
       VITE_PROXY_TARGET: http://127.0.0.1:8000
       TZ: Asia/Shanghai
@@ -100,7 +97,7 @@ jobs:
         run: docker rm -f vibe-ci-backend || test "$(docker ps -a --filter name='^vibe-ci-backend$' -q | wc -l)" -eq 0
   release-gate:
     name: Release CI
-    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:release')) && always()
+    if: always()
     needs: [source-ci, native-profile]
     runs-on: ubuntu-24.04
     steps:
