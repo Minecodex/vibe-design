@@ -163,8 +163,9 @@ export function getVariantForFontFamily(fontFamily?: string | null, requestedVar
   const fontDefinition = textFontRegistry.find((font) => font.family === fontFamily)
   if (!fontDefinition) return 'Regular'
   const variants = fontDefinition.variants
-  return variants.includes((requestedVariant || 'Regular') as TextFontVariant)
-    ? (requestedVariant as TextFontVariant)
+  const variant = (requestedVariant || 'Regular') as TextFontVariant
+  return variants.includes(variant)
+    ? variant
     : 'Regular'
 }
 
