@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import type { CanvasItem } from '../../src/api/endpoints/projects'
 
 type CanvasRecord = {
   id: number
@@ -31,7 +32,7 @@ for (const theme of ['light', 'dark']) {
     expect(created.ok()).toBeTruthy()
     const project = await created.json() as CanvasRecord
     const original = `Release canvas text ${theme}`
-    const item = { id: 'release-text', type: 'text', x: 240, y: 180, width: 320, height: 80, text: original }
+    const item: CanvasItem = { id: 'release-text', type: 'text', url: '', x: 240, y: 180, width: 320, height: 80, text: original }
     const seeded = await page.request.put(`/api/v1/projects/${project.id}`, {
       headers, data: { canvas_base_revision: project.canvas_revision, canvas_data: [item] },
     })
